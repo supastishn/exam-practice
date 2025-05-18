@@ -166,15 +166,18 @@ ${exerciseContentStructure}
 </${CURRENT_SUBJECT}Exercise>`;
         
         const languageInstruction = (details.targetLanguage && details.targetLanguage.toLowerCase() !== 'english') 
-            ? `Create a ${subjectNameCap} exercise in ${details.targetLanguage} with the following specifications. All content, including instructions within the XML, should be in ${details.targetLanguage}:`
-            : `Create a ${subjectNameCap} exercise in English with the following specifications:`;
+            ? `Create a ${subjectNameCap} exercise in ${details.targetLanguage}. All content, including instructions within the XML, should be in ${details.targetLanguage}.`
+            : `Create a ${subjectNameCap} exercise in English.`;
 
         return `${languageInstruction}
+${materialContextInstruction}
+
+Specifications:
 - Subject: ${subjectNameCap}
-- Language: ${details.targetLanguage || 'English'}
-- Type: ${details.exerciseType}
+- Language for questions/instructions: ${details.targetLanguage || 'English'}
+- Exercise Type: ${details.exerciseType}
 - Difficulty: ${details.difficulty}
-- Topic: ${details.prompt}
+- User's Text Prompt (Topic/Instructions): "${details.prompt}"
 - Number of questions to include: ${details.exerciseCount} (This refers to the number of <questionBlock> or <task> elements)
 ${details.exerciseType === 'multiple-choice' && details.mcOptionCount ? `- Number of choices per multiple-choice question: ${details.mcOptionCount}` : ''}
 
