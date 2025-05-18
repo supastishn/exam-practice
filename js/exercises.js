@@ -32,12 +32,24 @@ const Exercises = (() => {
 
     // Function to construct prompt for OpenAI
     const constructPrompt = (details) => {
-        // details.mcOptionCount will be passed for multiple-choice
+        // details includes: prompt (text instruction), exerciseType, difficulty, targetLanguage, model,
+        // exerciseCount, mcOptionCount, batchIndex, batchTotal,
+        // materialType ('text' or 'image'), materialContent (text or base64 image string - though image content is handled by API structure)
+
         let batchInfo = '';
         if (details.batchTotal > 1) {
             batchInfo = `
 Note: This is exercise ${details.batchIndex + 1} of ${details.batchTotal}. Create a unique XML exercise.`;
         }
+
+        let materialContextInstruction = "";
+        if (details.materialType === 'image') {
+            materialContextInstruction = `The user has provided an image. Generate questions based on the content and/or format of this image. The user's text prompt (topic/instructions) below will guide what kind of questions to create about the image.`;
+        } else {
+            // For text-only, the prompt itself is the primary source of content/topic
+            materialContextInstruction = `Generate questions based on the user's text prompt (topic/instructions) below.`;
+        }
+
 
         // Base XML structure for a single question
         const singleQuestionMC = `
@@ -618,7 +630,10 @@ ${batchInfo}`;
     const handleFormSubmit = async (event) => {
         event.preventDefault();
         const generateButton = exerciseForm.querySelector('button[type="submit"]');
-        const promptText = document.getElementById('prompt').value;
+        const promptText = document.getElementById('prompt').value.trim(); // User's textual instructions/topic
+        const imageFileInput = document.getElementById('exercise-image'); // New image input
+        const imageFile = imageFileInput && imageFileInput.files && imageFileInput.files[0] ? imageFileInput.files[0] : null;
+
         const exerciseType = document.getElementById('exercise-type').value;
         const difficulty = document.getElementById('difficulty').value;
         const targetLanguage = document.getElementById('target-language').value.trim() || "English";
@@ -696,56 +711,94 @@ ${batchInfo}`;
             currentExerciseDisplayContainer.appendChild(streamingPre);
             
             const promptDetails = {
-                prompt: promptText,
+                prompt: promptText, // This is the user's text input (instructions/topic)
+                materialType: imageFile ? 'image' : 'text', // Determine material type
+                materialContent: imageFile ? `Image: ${imageFile.name}` : promptText, // For history: image name or the text prompt itself if no image
                 exerciseType: exerciseType,
                 difficulty: difficulty,
-                targetLanguage: targetLanguage, // Store target language
-                model: model, // Store model in promptDetails for history
+                targetLanguage: targetLanguage,
+                model: model,
                 exerciseCount: exerciseCount,
-                mcOptionCount: mcOptionCount, // Store mcOptionCount
+                mcOptionCount: mcOptionCount,
                 batchIndex: i,
                 batchTotal: actualBatchCount
             };
-
-            const fullPrompt = constructPrompt(promptDetails);
             
+            let base64Image = null;
+            let apiCallInput = promptText; // Default to text prompt
+
+            if (imageFile) {
+                try {
+                    base64Image = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = e => resolve(e.target.result);
+                        reader.onerror = e => reject(e);
+                        reader.readAsDataURL(imageFile);
+                    });
+                    // For API call, structure as object if image is present
+                    apiCallInput = {
+                        textPrompt: promptText, // User's instructions
+                        base64Image: base64Image
+                    };
+                    // Log warning if a non-vision model is selected with an image
+                    if (!model.includes('vision') && model !== 'gpt-4o' && model !== 'gpt-4-turbo' && model !== "gpt-4-turbo-preview") {
+                        console.warn(`Image provided with potentially non-vision model: ${model}. Consider using gpt-4o or a vision-specific model.`);
+                    }
+                } catch (e) {
+                    currentExerciseDisplayContainer.innerHTML = `<p class="error">Error reading image file: ${e.message}</p>`;
+                    console.error("Error reading image:", e);
+                    continue; // Skip to next batch item or end if error
+                }
+            }
+            
+            // Construct the textual part of the prompt for the LLM, including context about image if present
+            const llmTextPrompt = constructPrompt(promptDetails);
+            
+            // If an image was processed, apiCallInput is already an object.
+            // If not, we need to ensure the llmTextPrompt (which now includes image context if applicable) is used.
+            if (!imageFile) {
+                apiCallInput = llmTextPrompt; // Use the fully constructed prompt if no image
+            } else {
+                // If there IS an image, apiCallInput is an object. Its textPrompt field should be the rich one.
+                apiCallInput.textPrompt = llmTextPrompt;
+            }
+
             try {
                 const onProgressCallback = (chunk) => {
                     streamingPre.textContent += chunk;
                     streamingPre.scrollTop = streamingPre.scrollHeight; // Auto-scroll
                 };
 
-                const exerciseXml = await Api.generateExercise(fullPrompt, model, onProgressCallback);
+                const exerciseXml = await Api.generateExercise(apiCallInput, model, onProgressCallback);
                 
                 // Clear "Generating..." message and the streaming <pre>
-                currentExerciseDisplayContainer.innerHTML = ''; 
+                currentExerciseDisplayContainer.innerHTML = '';
 
                 if (exerciseXml) {
                     if (actualBatchCount > 1) {
-                        // For batched exercises, we need to make displayExercise target the specific container
-                        // For now, let's assume displayExercise always targets the main 'exerciseOutput'
-                        // and only the LAST exercise in a batch becomes fully interactive.
-                        // Others will just show their XML in history.
-                        // This part needs a more significant refactor if multiple interactive exercises are desired simultaneously.
-                        
-                        // Display the XML in the designated area for this batch item
                         const exerciseContentDiv = document.createElement('div');
                         currentExerciseDisplayContainer.appendChild(exerciseContentDiv);
                         
-                        if (i === actualBatchCount - 1) { // Last exercise, make it interactive in main area
-                            displayExercise(exerciseXml); // This will clear global exerciseOutput and render
+                        if (i === actualBatchCount - 1) {
+                            displayExercise(exerciseXml); 
                         } else {
-                            // For non-last exercises in a batch, just show the XML text in their specific container
                             const preXml = document.createElement('pre');
                             preXml.textContent = exerciseXml;
                             preXml.style.whiteSpace = 'pre-wrap';
                             exerciseContentDiv.innerHTML = `<h4>Exercise ${i+1} Content (View in history for full interaction)</h4>`;
                             exerciseContentDiv.appendChild(preXml);
                         }
-                    } else { // Single exercise
-                        displayExercise(exerciseXml); // Renders in global exerciseOutput
+                    } else { 
+                        displayExercise(exerciseXml); 
                     }
-                    saveExerciseToHistory(promptDetails, exerciseXml);
+                    // Save to history with potentially modified promptDetails (e.g., image name instead of full base64)
+                    const historyPromptDetails = { ...promptDetails };
+                    if (historyPromptDetails.materialType === 'image' && imageFile) {
+                        // For history, just store the image name, not the base64 content.
+                        // The original promptDetails.materialContent was already set to "Image: ${imageFile.name}"
+                        // So, no change needed here if that was done correctly above.
+                    }
+                    saveExerciseToHistory(historyPromptDetails, exerciseXml);
                 } else {
                     currentExerciseDisplayContainer.innerHTML = '<p class="error">Failed to generate this exercise. API returned no content.</p>';
                 }
@@ -813,7 +866,13 @@ ${batchInfo}`;
 
             const promptSpan = document.createElement('span');
             promptSpan.className = 'history-prompt';
-            const promptSummary = item.promptDetails.prompt.length > 40 ? item.promptDetails.prompt.substring(0, 37) + "..." : item.promptDetails.prompt;
+            
+            let promptDisplayContent = `Prompt: "${item.promptDetails.prompt.substring(0, 37)}${item.promptDetails.prompt.length > 40 ? "..." : ""}"`;
+            if (item.promptDetails.materialType === 'image' && item.promptDetails.materialContent) {
+                // materialContent for image in history is "Image: ${imageFile.name}"
+                promptDisplayContent += ` (with ${item.promptDetails.materialContent})`;
+            }
+
             const modelUsed = item.promptDetails.model || "gpt-4.1";
             const language = item.promptDetails.targetLanguage || "English";
             let typeDetails = `${item.promptDetails.exerciseType}`;
@@ -826,7 +885,7 @@ ${batchInfo}`;
                 languageText = `${language}, `;
             }
 
-            promptSpan.textContent = `Prompt: "${promptSummary}" (${languageText}${typeDetails}, ${item.promptDetails.difficulty}, Model: ${modelUsed})`;
+            promptSpan.textContent = `${promptDisplayContent} (${languageText}${typeDetails}, ${item.promptDetails.difficulty}, Model: ${modelUsed})`;
             
             const metaSpan = document.createElement('span');
             metaSpan.className = 'history-meta';

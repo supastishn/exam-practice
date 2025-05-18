@@ -33,8 +33,19 @@
             </h2>
             <form id="exercise-form">
                 <div>
-                    <label for="prompt"><i class="fas fa-comment-alt"></i> Prompt:</label>
-                    <textarea id="prompt" name="prompt" rows="4" required placeholder="Describe the math exercise you want to create (e.g., 'basic algebra problems for 5th graders', 'calculus differentiation questions')..."></textarea>
+                    <label for="prompt"><i class="fas fa-comment-alt"></i> Prompt / Instructions:</label>
+                    <textarea id="prompt" name="prompt" rows="4" required placeholder="Describe the math exercise, or provide instructions if uploading an image (e.g., 'generate word problems based on this diagram')..."></textarea>
+                </div>
+                <div>
+                    <label for="exercise-image"><i class="fas fa-camera"></i> Upload Image (optional):</label>
+                    <div class="file-upload-container">
+                        <label for="exercise-image" class="file-upload-label">
+                            <i class="fas fa-upload"></i> Choose Image
+                        </label>
+                        <span id="file-name-display">No file selected</span>
+                        <input type="file" id="exercise-image" name="exercise-image" accept="image/*" class="file-upload-input">
+                    </div>
+                    <small>If an image is uploaded, it will be used as the basis for questions. The prompt above will guide the type of questions about the image.</small>
                 </div>
                 <div>
                     <label for="target-language"><i class="fas fa-globe"></i> Language for Word Problems (if any):</label>
@@ -125,6 +136,24 @@
     <script src="js/exercises.js"></script>
     <script src="js/main.js"></script>
 
+    <script>
+        // File upload name display functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('exercise-image');
+            const fileNameDisplay = document.getElementById('file-name-display');
+            
+            if (fileInput && fileNameDisplay) {
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files.length > 0) {
+                        fileNameDisplay.textContent = fileInput.files[0].name;
+                    } else {
+                        fileNameDisplay.textContent = 'No file selected';
+                    }
+                });
+            }
+        });
+    </script>
+
     <style>
         .button-like-link {
             display: inline-block;
@@ -150,6 +179,60 @@
         }
         body.dark-mode .button-like-link:hover {
             background: var(--primary-hover);
+        }
+
+        /* File Upload Styling */
+        .file-upload-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .file-upload-input {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
+        
+        .file-upload-label {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: inline-block;
+            transition: var(--transition);
+            font-weight: 500;
+            margin-right: 1rem;
+        }
+        
+        .file-upload-label:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        #file-name-display {
+            color: #777;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 50%;
+        }
+        
+        body.dark-mode .file-upload-label {
+            background-color: var(--primary-color);
+        }
+        
+        body.dark-mode .file-upload-label:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        body.dark-mode #file-name-display {
+            color: #aaa;
         }
     </style>
     <!-- Eruda for mobile debugging -->
