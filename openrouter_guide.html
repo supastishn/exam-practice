@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRouter API Key Setup Guide</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-route"></i> OpenRouter API Key Setup Guide</h1>
+        <button id="theme-toggle" class="theme-button" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    </header>
+
+    <main>
+        <div class="back-to-portal-container" style="margin-bottom: 1.5rem; text-align: left;">
+            <a href="index.html" class="button-like-link"><i class="fas fa-arrow-left"></i> Back to Portal</a>
+        </div>
+        <section id="openrouter-guide-section">
+            <h2><i class="fas fa-key"></i> Setting Up Your OpenRouter API Key</h2>
+            <p>OpenRouter.ai provides a unified interface to access various Large Language Models (LLMs). To use OpenRouter with this application, you'll need an API key and the correct base URL.</p>
+
+            <h3>Step 1: Create an OpenRouter Account</h3>
+            <ol>
+                <li>Go to <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer">https://openrouter.ai</a>.</li>
+                <li>Sign up for a new account or log in if you already have one.</li>
+            </ol>
+
+            <h3>Step 2: Fund Your Account</h3>
+            <ol>
+                <li>OpenRouter operates on a pre-paid credit system. You'll need to add funds to your account to use the API.</li>
+                <li>Navigate to the "Billing" or "Credits" section in your OpenRouter dashboard and add credits.</li>
+            </ol>
+
+            <h3>Step 3: Get Your API Key</h3>
+            <ol>
+                <li>Once logged in, navigate to the "Keys" section (usually found under your account settings or API settings).</li>
+                <li>Click on "Create Key" or a similar button.</li>
+                <li>Give your key a descriptive name (e.g., "LanguageExerciseTools").</li>
+                <li>Copy the generated API key. <strong>Treat this key like a password and keep it secure.</strong></li>
+            </ol>
+
+            <h3>Step 4: Configure in This Application</h3>
+            <ol>
+                <li>Go to the <a href="settings.html">API Key Settings page</a> in this application.</li>
+                <li>Paste the copied OpenRouter API key into the "OpenAI API Key" field. (Yes, it's labeled "OpenAI API Key", but it works for OpenRouter keys too when the base URL is set correctly).</li>
+                <li>In the "OpenAI Base URL (optional)" field, enter: <code>https://openrouter.ai/api/v1</code></li>
+                <li>You can leave the "Default Model Name (optional)" field blank, or enter a specific model available on OpenRouter that you wish to use by default (e.g., <code>openai/gpt-4o</code>, <code>anthropic/claude-3-opus</code>, <code>mistralai/mistral-7b-instruct</code>). Check the OpenRouter documentation for available model identifiers.</li>
+                <li>Click "Save Credentials".</li>
+                <li>You can use the "Test API" button to verify your setup. If using a specific model for testing, ensure it's entered in the "Default Model Name" field or that the test function uses a generally available model.</li>
+            </ol>
+
+            <h3>Important Notes:</h3>
+            <ul>
+                <li><strong>Model Availability:</strong> Not all models are free. Check the pricing on OpenRouter for each model you intend to use.</li>
+                <li><strong>Rate Limits:</strong> Be aware of any rate limits OpenRouter might impose on your account or specific models.</li>
+                <li><strong>Security:</strong> Your API key is stored encrypted in your browser's local storage. Clear it if you are on a shared computer.</li>
+            </ul>
+
+            <p>That's it! You should now be able to use the application with models via OpenRouter.ai.</p>
+            <div style="margin-top: 2rem;">
+                <a href="settings.html" class="button-like-link"><i class="fas fa-cog"></i> Back to API Settings</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-code"></i> Language Exercise Tools</p>
+        <p><a href="https://supastishn.github.io" target="_blank" rel="noopener noreferrer">See more cool stuff here</a></p>
+        <p><a href="https://github.com/supastishn/exam-practice" target="_blank" rel="noopener noreferrer">See the source code</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <!-- No api.js or main.js specific logic needed for a static guide page, but UI.init() for theme is good -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            UI.init(); // For theme toggling
+        });
+    </script>
+    <style>
+        .button-like-link {
+            display: inline-block;
+            background: var(--primary-color);
+            color: var(--light-text);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+        }
+        .button-like-link:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        body.dark-mode .button-like-link {
+            background: var(--primary-color);
+            color: var(--light-text);
+        }
+        body.dark-mode .button-like-link:hover {
+            background: var(--primary-hover);
+        }
+        #openrouter-guide-section h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary-color);
+        }
+        #openrouter-guide-section ol,
+        #openrouter-guide-section ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        #openrouter-guide-section li {
+            margin-bottom: 0.5rem;
+        }
+        #openrouter-guide-section code {
+            background-color: var(--input-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        body.dark-mode #openrouter-guide-section code {
+            background-color: var(--input-bg); /* Already dark, but ensures consistency */
+            color: var(--text-color);
+        }
+    </style>
+    <!-- Eruda for mobile debugging -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+</body>
+</html>
