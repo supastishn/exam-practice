@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - English Exercises Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- marked.min.js is not strictly needed on this page but included for consistency if header/footer JS expects it -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-cog"></i> Settings</h1>
+        <button id="theme-toggle" class="theme-button" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    </header>
+
+    <main>
+        <div class="back-to-portal-container" style="margin-bottom: 1.5rem; text-align: left;">
+            <a href="index.html" class="button-like-link"><i class="fas fa-arrow-left"></i> Back to Portal</a>
+        </div>
+        <section id="settings-page-section">
+            <h2><i class="fas fa-key"></i> OpenAI Credentials</h2>
+            <form id="credentials-form">
+                <div>
+                    <label for="api-key"><i class="fas fa-lock"></i> OpenAI API Key:</label>
+                    <input type="password" id="api-key" name="api-key" required placeholder="Enter your OpenAI API key">
+                </div>
+                <div>
+                    <label for="base-url"><i class="fas fa-link"></i> OpenAI Base URL (optional):</label>
+                    <input type="url" id="base-url" name="base-url" placeholder="https://api.openai.com/v1">
+                </div>
+                <div>
+                    <label for="default-model"><i class="fas fa-robot"></i> Default Model Name (optional):</label>
+                    <input type="text" id="default-model" name="default-model" placeholder="e.g., gpt-4.1, gpt-3.5-turbo">
+                </div>
+                <div class="form-buttons">
+                    <button type="submit"><i class="fas fa-save"></i> Save Credentials</button>
+                    <button type="button" id="test-api-button"><i class="fas fa-vial"></i> Test API</button>
+                </div>
+            </form>
+            <button id="clear-credentials"><i class="fas fa-trash-alt"></i> Clear Credentials</button>
+            <p id="credentials-status"><i class="fas fa-info-circle"></i> Enter your OpenAI API key to get started.</p>
+            <div style="margin-top: 2rem;">
+                <a href="index.html" class="button-like-link"><i class="fas fa-home"></i> Back to Portal</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-code"></i> English Exercises Generator</p>
+        <p><a href="https://supastishn.github.io" target="_blank" rel="noopener noreferrer">See more cool stuff here</a></p>
+        <p><a href="https://github.com/supastishn/exam-practice" target="_blank" rel="noopener noreferrer">See the source code</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/api.js"></script> 
+    <!-- exercises.js is not needed on settings page -->
+    <script src="js/main.js"></script> 
+    <!-- Eruda for mobile debugging -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+
+    <style>
+        .button-like-link {
+            display: inline-block;
+            background: var(--primary-color);
+            color: var(--light-text);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+        }
+        .button-like-link:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        body.dark-mode .button-like-link {
+            background: var(--primary-color);
+            color: var(--light-text);
+        }
+        body.dark-mode .button-like-link:hover {
+            background: var(--primary-hover);
+        }
+    </style>
+</body>
+</html>

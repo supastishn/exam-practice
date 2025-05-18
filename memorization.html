@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorization Questions Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-brain"></i> Memorization Questions Generator</h1>
+        <button id="theme-toggle" class="theme-button" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    </header>
+
+    <main>
+        <div class="back-to-portal-container" style="margin-bottom: 1.5rem; text-align: left;">
+            <a href="index.html" class="button-like-link"><i class="fas fa-arrow-left"></i> Back to Portal</a>
+        </div>
+        <section id="credentials-prompt-section" style="display: none;">
+            <h2><i class="fas fa-key"></i> API Credentials Needed</h2>
+            <p>To generate quizzes, you need to set up your OpenAI API credentials.</p>
+            <p><a href="settings.html" class="button-like-link" style="margin-top: 1rem;"><i class="fas fa-cog"></i> Go to Settings</a></p>
+        </section>
+
+        <section id="exercise-generation-section" style="display: none;">
+            <h2>
+                <i class="fas fa-edit"></i> Generate Quiz
+                <a href="settings.html" id="edit-api-settings-link" class="settings-button"><i class="fas fa-cog"></i> API Settings</a>
+            </h2>
+            <form id="exercise-form">
+                <div>
+                    <label for="memorization-text"><i class="fas fa-file-alt"></i> Text to Memorize:</label>
+                    <textarea id="memorization-text" name="memorization-text" rows="6" placeholder="Paste or type the text you want to memorize here..."></textarea>
+                </div>
+                <div>
+                    <label for="memorization-image"><i class="fas fa-camera"></i> Or Upload Image of Text:</label>
+                    <div class="file-upload-container">
+                        <label for="memorization-image" class="file-upload-label">
+                            <i class="fas fa-upload"></i> Choose Image
+                        </label>
+                        <span id="file-name-display">No file selected</span>
+                        <input type="file" id="memorization-image" name="memorization-image" accept="image/*" class="file-upload-input">
+                    </div>
+                    <small>If you provide both text and an image, the text will be prioritized.</small>
+                </div>
+                <div>
+                    <label for="target-language"><i class="fas fa-globe"></i> Language for Quiz Questions:</label>
+                    <input type="text" id="target-language" name="target-language" value="English" placeholder="e.g., English, Spanish, French">
+                </div>
+                <div>
+                    <label for="exercise-type"><i class="fas fa-list-ul"></i> Quiz Question Style:</label>
+                    <select id="exercise-type" name="exercise-type">
+                        <option value="mixed">Mixed (Recommended)</option>
+                        <option value="multiple-choice">Multiple Choice</option>
+                        <option value="fill-in-the-blank">Fill-in-the-Blank (from text)</option>
+                        <option value="ai-judger">AI Judger (Free Response)</option>
+                        <option value="true-false">True/False</option>
+                    </select>
+                </div>
+                <div id="mc-options-count-group" style="display: none;"> <!-- Keep for MC if selected -->
+                    <label for="mc-options-count"><i class="fas fa-list-ol"></i> Number of Choices (for MC):</label>
+                    <input type="number" id="mc-options-count" name="mc-options-count" min="2" max="10" value="4">
+                </div>
+                <div>
+                    <label for="model"><i class="fas fa-robot"></i> OpenAI Model (optional):</label>
+                    <input type="text" id="model" name="model" placeholder="gpt-4.1 (or a vision model if using images)">
+                </div>
+                <div>
+                    <label for="difficulty"><i class="fas fa-chart-line"></i> Quiz Difficulty Level:</label>
+                    <select id="difficulty" name="difficulty">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="exercise-count"><i class="fas fa-list-ol"></i> Number of Questions in Quiz:</label>
+                    <input type="number" id="exercise-count" name="exercise-count" min="1" max="20" value="5">
+                </div>
+                <button type="submit"><i class="fas fa-magic"></i> Generate Quiz</button>
+            </form>
+        </section>
+
+        <section id="exercise-display-section" style="display: none;">
+            <h2><i class="fas fa-question-circle"></i> Generated Quiz</h2>
+            <div id="exercise-output">
+                <!-- Quiz content will be displayed here -->
+            </div>
+            
+            <div id="answer-section" style="display: none;">
+                <form id="answer-form"> 
+                    <div class="answer-buttons">
+                        <button type="submit" id="submit-answer"><i class="fas fa-check"></i> Check Answers</button>
+                        <button type="button" id="show-solution"><i class="fas fa-lightbulb"></i> Show Answers</button>
+                    </div>
+                </form>
+                <div id="answer-feedback" class="feedback-message" style="display: none;"></div>
+                <div id="solution-display" style="display: none;" class="solution-box"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="copy-exercise"><i class="fas fa-copy"></i> Copy Quiz</button>
+                <button id="print-exercise"><i class="fas fa-print"></i> Print Quiz</button>
+            </div>
+        </section>
+
+        <section id="history-section">
+            <h2>
+                <span><i class="fas fa-history"></i> Quiz History</span>
+            </h2>
+            <ul id="history-list">
+                <!-- History items will be populated here by JavaScript -->
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-code"></i> Memorization Questions Generator</p>
+        <p><a href="https://supastishn.github.io" target="_blank" rel="noopener noreferrer">See more cool stuff here</a></p>
+        <p><a href="https://github.com/supastishn/exam-practice" target="_blank" rel="noopener noreferrer">See the source code</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/memorization.js"></script> <!-- Changed from exercises.js -->
+    <script src="js/main.js"></script>
+    
+    <script>
+        // File upload name display functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('memorization-image');
+            const fileNameDisplay = document.getElementById('file-name-display');
+            
+            if (fileInput && fileNameDisplay) {
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files.length > 0) {
+                        fileNameDisplay.textContent = fileInput.files[0].name;
+                    } else {
+                        fileNameDisplay.textContent = 'No file selected';
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .button-like-link {
+            display: inline-block;
+            background: var(--primary-color);
+            color: var(--light-text);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+        }
+        .button-like-link:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        body.dark-mode .button-like-link {
+            background: var(--primary-color);
+            color: var(--light-text);
+        }
+        body.dark-mode .button-like-link:hover {
+            background: var(--primary-hover);
+        }
+        
+        /* File Upload Styling */
+        .file-upload-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .file-upload-input {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
+        
+        .file-upload-label {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: inline-block;
+            transition: var(--transition);
+            font-weight: 500;
+            margin-right: 1rem;
+        }
+        
+        .file-upload-label:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        #file-name-display {
+            color: #777;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 50%;
+        }
+        
+        body.dark-mode .file-upload-label {
+            background-color: var(--primary-color);
+        }
+        
+        body.dark-mode .file-upload-label:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        body.dark-mode #file-name-display {
+            color: #aaa;
+        }
+    </style>
+    <!-- Eruda for mobile debugging -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+</body>
+</html>
