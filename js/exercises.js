@@ -1551,25 +1551,43 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
 
     // Camera Functions (based on user example)
     async function openCamera() {
-        if (!cameraModal || !cameraVideoFeed) return;
+        console.log('openCamera called');
+        if (!cameraModal || !cameraVideoFeed) {
+            console.error('Camera modal or video feed element not found.');
+            return;
+        }
         
+        console.log('cameraModal element:', cameraModal);
+        console.log('cameraVideoFeed element:', cameraVideoFeed);
+
         capturedImageDataURL = null; // Clear previous capture
         if (imageFileInput) imageFileInput.value = ''; // Clear file input
         if (fileNameDisplay) fileNameDisplay.textContent = 'No file selected';
 
+        console.log('Attempting to show camera modal...');
         cameraModal.style.display = 'block'; // Show modal
+        console.log('Camera modal display style set to block. Is it visible?');
+
         try {
+            console.log('Attempting to get user media (camera)...');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error('getUserMedia is not supported by this browser.');
+                alert('Camera access (getUserMedia) is not supported by this browser.');
+                closeCamera();
+                return;
+            }
             currentCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+            console.log('User media obtained:', currentCameraStream);
             cameraVideoFeed.srcObject = currentCameraStream;
-            cameraVideoFeed.play().catch(err => {
-                console.error("Error playing video:", err);
-                alert("Error trying to play camera feed: " + err.message);
-                closeCamera(); // Close modal if play fails
-            });
+            
+            console.log('Attempting to play video feed...');
+            await cameraVideoFeed.play();
+            console.log('Video feed should be playing.');
+
         } catch (err) {
-            console.error("Error accessing camera:", err);
-            alert("Could not access the camera. Please ensure permissions are granted and no other app is using it. Error: " + err.message);
-            closeCamera(); // Close modal if camera access fails
+            console.error("Error during camera setup:", err.name, err.message, err);
+            alert(`Could not access the camera. Error: ${err.name} - ${err.message}. Please ensure permissions are granted and no other app is using the camera.`);
+            closeCamera(); // Close modal if camera access or play fails
         }
     }
 

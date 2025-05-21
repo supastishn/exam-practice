@@ -801,25 +801,43 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
 
     // Camera Functions (based on user example)
     async function openCamera() {
-        if (!cameraModal || !cameraVideoFeed) return;
+        console.log('openCamera called (memorization)');
+        if (!cameraModal || !cameraVideoFeed) {
+            console.error('Camera modal or video feed element not found (memorization).');
+            return;
+        }
+
+        console.log('cameraModal element (memorization):', cameraModal);
+        console.log('cameraVideoFeed element (memorization):', cameraVideoFeed);
 
         capturedImageDataURL = null; // Clear previous capture
         if (memorizationImageEl) memorizationImageEl.value = ''; // Clear file input
         if (memorizationTextEl) memorizationTextEl.value = ''; // Clear text input
         if (fileNameDisplay) fileNameDisplay.textContent = 'No file selected';
         
+        console.log('Attempting to show camera modal (memorization)...');
         cameraModal.style.display = 'block';
+        console.log('Camera modal display style set to block (memorization). Is it visible?');
+
         try {
-            currentCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-            cameraVideoFeed.srcObject = currentCameraStream;
-            cameraVideoFeed.play().catch(err => {
-                console.error("Error playing video:", err);
-                alert("Error trying to play camera feed: " + err.message);
+            console.log('Attempting to get user media (camera) (memorization)...');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error('getUserMedia is not supported by this browser (memorization).');
+                alert('Camera access (getUserMedia) is not supported by this browser.');
                 closeCamera();
-            });
+                return;
+            }
+            currentCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+            console.log('User media obtained (memorization):', currentCameraStream);
+            cameraVideoFeed.srcObject = currentCameraStream;
+            
+            console.log('Attempting to play video feed (memorization)...');
+            await cameraVideoFeed.play();
+            console.log('Video feed should be playing (memorization).');
+
         } catch (err) {
-            console.error("Error accessing camera:", err);
-            alert("Could not access the camera. Error: " + err.message);
+            console.error("Error during camera setup (memorization):", err.name, err.message, err);
+            alert(`Could not access the camera. Error: ${err.name} - ${err.message}. Please ensure permissions are granted and no other app is using the camera.`);
             closeCamera();
         }
     }
