@@ -1,26 +1,14 @@
 // js/exercises.js - Exercise generation and handling
 
 const Exercises = (() => {
-    const exerciseForm = document.getElementById('exercise-form');
-    const exerciseOutput = document.getElementById('exercise-output');
-    const answerForm = document.getElementById('answer-form');
-    const userAnswerInput = document.getElementById('user-answer');
-    const answerFeedback = document.getElementById('answer-feedback');
-    const solutionDisplay = document.getElementById('solution-display');
-    const showSolutionButton = document.getElementById('show-solution');
-    const copyExerciseButton = document.getElementById('copy-exercise');
-    const printExerciseButton = document.getElementById('print-exercise');
-    const historyList = document.getElementById('history-list');
-    const imageFileInput = document.getElementById('exercise-image');
-    const fileNameDisplay = document.getElementById('file-name-display');
+    let exerciseForm, exerciseOutput, answerForm, userAnswerInput, 
+        answerFeedback, solutionDisplay, showSolutionButton, 
+        copyExerciseButton, printExerciseButton, historyList, 
+        imageFileInput, fileNameDisplay;
 
     // Camera Modal Elements
-    const cameraModal = document.getElementById('camera-modal');
-    const cameraVideoFeed = document.getElementById('camera-video-feed');
-    const cameraCanvas = document.getElementById('camera-canvas');
-    const useCameraButton = document.getElementById('use-camera-button');
-    const captureCameraImageButton = document.getElementById('capture-camera-image-button');
-    const closeCameraModalButton = document.getElementById('close-camera-modal-button');
+    let cameraModal, cameraVideoFeed, cameraCanvas, useCameraButton, 
+        captureCameraImageButton, closeCameraModalButton;
 
     let currentCameraStream = null;
     let capturedImageDataURL = null; // To store base64 data from camera
