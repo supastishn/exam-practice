@@ -1,3 +1,8 @@
+# THE DEVELOPER OF THIS PROGRAM IS AGAINST THE GENOCIDE IN GAZA.
+[Learn More](https://www.amnesty.org/en/wp-content/uploads/2024/12/MDE1586682024ENGLISH.pdf)
+
+---
+
 # English Exercises Generator
 
 A frontend-only web application that uses OpenAI's API to generate English language exercises based on user prompts.
