@@ -246,7 +246,7 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
 
             if (questionType === 'multiple-choice' || questionType === 'true-false') {
                 const optionsWrapper = document.createElement('div');
-                optionsWrapper.className = 'exercise-options memorization-options-inline';
+                optionsWrapper.className = 'exercise-options'; // Removed 'memorization-options-inline'
                 // For the '\t' to render as a tab, CSS 'white-space: pre-wrap;' or similar might be needed on this wrapper.
                 // optionsWrapper.style.whiteSpace = 'pre-wrap'; // Optional: uncomment if explicit CSS is desired here
 
@@ -272,8 +272,8 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
                 optionSources.forEach((optSrc, idx) => {
                     questionData.options.push({ id: optSrc.id, text: optSrc.text }); // Store for logic
 
-                    const optionContainerSpan = document.createElement('span'); // Use span for inline behavior
-                    optionContainerSpan.className = 'option'; // Keep class if styling applies
+                    const optionContainerDiv = document.createElement('div'); // Changed span to div
+                    optionContainerDiv.className = 'option'; // Keep class if styling applies
 
                     const radio = document.createElement('input');
                     radio.type = 'radio';
@@ -285,9 +285,9 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
                     label.htmlFor = radio.id;
                     label.textContent = optSrc.text;
 
-                    optionContainerSpan.appendChild(radio);
-                    optionContainerSpan.appendChild(label);
-                    optionsWrapper.appendChild(optionContainerSpan);
+                    optionContainerDiv.appendChild(radio);
+                    optionContainerDiv.appendChild(label);
+                    optionsWrapper.appendChild(optionContainerDiv);
 
                     // Removed tab character, spacing will be handled by CSS flex gap
                 });
