@@ -1544,6 +1544,69 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
         showSolution(); 
     };
 
+    const printExercise = () => {
+        // creating a print-specific stylesheet or opening a new window.
+        Utils.printElement(exerciseOutput);
+    };
+
+    // Camera Functions (based on user example)
+    async function openCamera() {
+        if (!cameraModal || !cameraVideoFeed) return;
+        
+        capturedImageDataURL = null; // Clear previous capture
+        if (imageFileInput) imageFileInput.value = ''; // Clear file input
+        if (fileNameDisplay) fileNameDisplay.textContent = 'No file selected';
+
+        cameraModal.style.display = 'block'; // Show modal
+        try {
+            currentCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+            cameraVideoFeed.srcObject = currentCameraStream;
+            cameraVideoFeed.play().catch(err => {
+                console.error("Error playing video:", err);
+                alert("Error trying to play camera feed: " + err.message);
+                closeCamera(); // Close modal if play fails
+            });
+        } catch (err) {
+            console.error("Error accessing camera:", err);
+            alert("Could not access the camera. Please ensure permissions are granted and no other app is using it. Error: " + err.message);
+            closeCamera(); // Close modal if camera access fails
+        }
+    }
+
+    function closeCamera() {
+        if (currentCameraStream) {
+            currentCameraStream.getTracks().forEach(track => track.stop());
+        }
+        currentCameraStream = null;
+        if (cameraVideoFeed) cameraVideoFeed.srcObject = null;
+        if (cameraModal) cameraModal.style.display = 'none'; // Hide modal
+    }
+
+    function captureImageFromCamera() {
+        if (!cameraVideoFeed || !cameraCanvas || !fileNameDisplay) return;
+
+        const videoWidth = cameraVideoFeed.videoWidth;
+        const videoHeight = cameraVideoFeed.videoHeight;
+        if (videoWidth === 0 || videoHeight === 0) {
+            alert("Camera feed not available or has zero dimensions. Cannot capture.");
+            return;
+        }
+        cameraCanvas.width = videoWidth;
+        cameraCanvas.height = videoHeight;
+
+        const context = cameraCanvas.getContext('2d');
+        context.drawImage(cameraVideoFeed, 0, 0, videoWidth, videoHeight);
+
+        capturedImageDataURL = cameraCanvas.toDataURL('image/webp'); // Use webp
+        
+        if (fileNameDisplay) {
+            fileNameDisplay.textContent = `camera_capture_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.webp`;
+        }
+        if (imageFileInput) imageFileInput.value = ''; // Clear file input selection
+
+        closeCamera();
+    }
+
     const init = () => {
         if (exerciseForm) {
             exerciseForm.addEventListener('submit', handleFormSubmit);
