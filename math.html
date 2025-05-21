@@ -42,10 +42,13 @@
                         <label for="exercise-image" class="file-upload-label">
                             <i class="fas fa-upload"></i> Choose Image
                         </label>
+                        <button type="button" id="use-camera-button" class="file-upload-label" style="margin-left: 10px;">
+                            <i class="fas fa-camera-retro"></i> Use Camera
+                        </button>
                         <span id="file-name-display">No file selected</span>
                         <input type="file" id="exercise-image" name="exercise-image" accept="image/*" class="file-upload-input">
                     </div>
-                    <small>If an image is uploaded, it will be used as the basis for questions. The prompt above will guide the type of questions about the image.</small>
+                    <small>If an image is uploaded or captured, it will be used as the basis for questions. The prompt above will guide the type of questions about the image.</small>
                 </div>
                 <div>
                     <label for="target-language"><i class="fas fa-globe"></i> Language for Word Problems (if any):</label>
@@ -136,23 +139,20 @@
     <script src="js/exercises.js"></script>
     <script src="js/main.js"></script>
 
-    <script>
-        // File upload name display functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('exercise-image');
-            const fileNameDisplay = document.getElementById('file-name-display');
-            
-            if (fileInput && fileNameDisplay) {
-                fileInput.addEventListener('change', function() {
-                    if (fileInput.files.length > 0) {
-                        fileNameDisplay.textContent = fileInput.files[0].name;
-                    } else {
-                        fileNameDisplay.textContent = 'No file selected';
-                    }
-                });
-            }
-        });
-    </script>
+    <!-- Camera Modal -->
+    <div id="camera-modal" class="modal">
+        <div class="modal-content">
+            <h3>Camera View</h3>
+            <video id="camera-video-feed" autoplay playsinline muted></video>
+            <canvas id="camera-canvas" style="display:none;"></canvas>
+            <div class="modal-controls">
+                <button type="button" id="capture-camera-image-button" class="button"><i class="fas fa-camera"></i> Capture Photo</button>
+                <button type="button" id="close-camera-modal-button" class="button button-secondary"><i class="fas fa-times-circle"></i> Close Camera</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inline script for file name display is removed as it will be handled in exercises.js -->
 
     <style>
         .button-like-link {

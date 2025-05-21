@@ -11,6 +11,19 @@ const Exercises = (() => {
     const copyExerciseButton = document.getElementById('copy-exercise');
     const printExerciseButton = document.getElementById('print-exercise');
     const historyList = document.getElementById('history-list');
+    const imageFileInput = document.getElementById('exercise-image');
+    const fileNameDisplay = document.getElementById('file-name-display');
+
+    // Camera Modal Elements
+    const cameraModal = document.getElementById('camera-modal');
+    const cameraVideoFeed = document.getElementById('camera-video-feed');
+    const cameraCanvas = document.getElementById('camera-canvas');
+    const useCameraButton = document.getElementById('use-camera-button');
+    const captureCameraImageButton = document.getElementById('capture-camera-image-button');
+    const closeCameraModalButton = document.getElementById('close-camera-modal-button');
+
+    let currentCameraStream = null;
+    let capturedImageDataURL = null; // To store base64 data from camera
 
     const getCurrentSubject = () => {
         const pathname = window.location.pathname;
@@ -633,8 +646,8 @@ ${batchInfo}`;
     const handleFormSubmit = async (event) => {
         event.preventDefault();
         const generateButton = exerciseForm.querySelector('button[type="submit"]');
-        const promptText = document.getElementById('prompt').value.trim(); // User's textual instructions/topic
-        const imageFileInput = document.getElementById('exercise-image'); // New image input
+        const promptText = document.getElementById('prompt').value.trim();
+        // imageFileInput is already defined at module scope
         const imageFile = imageFileInput && imageFileInput.files && imageFileInput.files[0] ? imageFileInput.files[0] : null;
 
         const exerciseType = document.getElementById('exercise-type').value;
@@ -728,9 +741,17 @@ ${batchInfo}`;
             };
             
             let base64Image = null;
-            let apiCallInput = promptText; // Default to text prompt
+            let apiCallInput = promptText; 
+            let materialSourceForHistory = promptText;
 
-            if (imageFile) {
+            if (capturedImageDataURL) {
+                base64Image = capturedImageDataURL;
+                materialSourceForHistory = `Captured Photo: ${fileNameDisplay ? fileNameDisplay.textContent : 'camera_capture.webp'}`;
+                apiCallInput = { textPrompt: promptText, base64Image: base64Image };
+                if (!model.includes('vision') && model !== 'gpt-4o' && model !== 'gpt-4-turbo' && model !== "gpt-4-turbo-preview") {
+                    console.warn(`Captured image provided with potentially non-vision model: ${model}.`);
+                }
+            } else if (imageFile) {
                 try {
                     base64Image = await new Promise((resolve, reject) => {
                         const reader = new FileReader();
@@ -738,32 +759,27 @@ ${batchInfo}`;
                         reader.onerror = e => reject(e);
                         reader.readAsDataURL(imageFile);
                     });
-                    // For API call, structure as object if image is present
-                    apiCallInput = {
-                        textPrompt: promptText, // User's instructions
-                        base64Image: base64Image
-                    };
-                    // Log warning if a non-vision model is selected with an image
+                    materialSourceForHistory = `Image: ${imageFile.name}`;
+                    apiCallInput = { textPrompt: promptText, base64Image: base64Image };
                     if (!model.includes('vision') && model !== 'gpt-4o' && model !== 'gpt-4-turbo' && model !== "gpt-4-turbo-preview") {
-                        console.warn(`Image provided with potentially non-vision model: ${model}. Consider using gpt-4o or a vision-specific model.`);
+                        console.warn(`Uploaded image provided with potentially non-vision model: ${model}.`);
                     }
                 } catch (e) {
                     currentExerciseDisplayContainer.innerHTML = `<p class="error">Error reading image file: ${e.message}</p>`;
                     console.error("Error reading image:", e);
-                    continue; // Skip to next batch item or end if error
+                    continue; 
                 }
             }
             
-            // Construct the textual part of the prompt for the LLM, including context about image if present
+            promptDetails.materialType = base64Image ? 'image' : 'text';
+            promptDetails.materialContent = materialSourceForHistory; // For history and constructPrompt
+            
             const llmTextPrompt = constructPrompt(promptDetails);
             
-            // If an image was processed, apiCallInput is already an object.
-            // If not, we need to ensure the llmTextPrompt (which now includes image context if applicable) is used.
-            if (!imageFile) {
-                apiCallInput = llmTextPrompt; // Use the fully constructed prompt if no image
+            if (base64Image) {
+                apiCallInput.textPrompt = llmTextPrompt; 
             } else {
-                // If there IS an image, apiCallInput is an object. Its textPrompt field should be the rich one.
-                apiCallInput.textPrompt = llmTextPrompt;
+                apiCallInput = llmTextPrompt; 
             }
 
             try {
@@ -794,14 +810,8 @@ ${batchInfo}`;
                     } else { 
                         displayExercise(exerciseXml); 
                     }
-                    // Save to history with potentially modified promptDetails (e.g., image name instead of full base64)
-                    const historyPromptDetails = { ...promptDetails };
-                    if (historyPromptDetails.materialType === 'image' && imageFile) {
-                        // For history, just store the image name, not the base64 content.
-                        // The original promptDetails.materialContent was already set to "Image: ${imageFile.name}"
-                        // So, no change needed here if that was done correctly above.
-                    }
-                    saveExerciseToHistory(historyPromptDetails, exerciseXml);
+                    // promptDetails.materialContent is already set for history (e.g. "Captured Photo: ...", "Image: ...", or prompt text)
+                    saveExerciseToHistory(promptDetails, exerciseXml);
                 } else {
                     currentExerciseDisplayContainer.innerHTML = '<p class="error">Failed to generate this exercise. API returned no content.</p>';
                 }
@@ -1559,15 +1569,30 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
         }
 
         if (printExerciseButton) {
-            printExerciseButton.addEventListener('click', () => {
-                // This is a very basic print. A more robust solution might involve
-                // creating a print-specific stylesheet or opening a new window.
-                const printContents = exerciseOutput.innerHTML;
-                const originalContents = document.body.innerHTML;
-                document.body.innerHTML = printContents;
-                window.print();
-                document.body.innerHTML = originalContents;
-                window.location.reload(); // To re-attach event listeners and restore state, crude but effective for simple cases.
+            printExerciseButton.addEventListener('click', printExercise);
+        }
+
+        // Camera related event listeners
+        if (useCameraButton) {
+            useCameraButton.addEventListener('click', openCamera);
+        }
+        if (captureCameraImageButton) {
+            captureCameraImageButton.addEventListener('click', captureImageFromCamera);
+        }
+        if (closeCameraModalButton) {
+            closeCameraModalButton.addEventListener('click', closeCamera);
+        }
+
+        // Handle file input changes
+        if (imageFileInput && fileNameDisplay) {
+            imageFileInput.addEventListener('change', () => {
+                if (imageFileInput.files && imageFileInput.files.length > 0) {
+                    fileNameDisplay.textContent = imageFileInput.files[0].name;
+                    capturedImageDataURL = null; // Clear any camera capture
+                    closeCamera(); // Close camera modal if it was open
+                } else {
+                    fileNameDisplay.textContent = 'No file selected';
+                }
             });
         }
 

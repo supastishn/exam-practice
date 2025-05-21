@@ -13,7 +13,19 @@ const Memorization = (() => {
     const historyList = document.getElementById('history-list');
     
     const memorizationTextEl = document.getElementById('memorization-text');
-    const memorizationImageEl = document.getElementById('memorization-image');
+    const memorizationImageEl = document.getElementById('memorization-image'); // File input
+    const fileNameDisplay = document.getElementById('file-name-display');
+
+    // Camera Modal Elements
+    const cameraModal = document.getElementById('camera-modal');
+    const cameraVideoFeed = document.getElementById('camera-video-feed');
+    const cameraCanvas = document.getElementById('camera-canvas');
+    const useCameraButton = document.getElementById('use-camera-button');
+    const captureCameraImageButton = document.getElementById('capture-camera-image-button');
+    const closeCameraModalButton = document.getElementById('close-camera-modal-button');
+    
+    let currentCameraStream = null;
+    let capturedImageDataURL = null; // To store base64 data from camera
 
     const CURRENT_CONTEXT = 'memorization';
     const HISTORY_STORAGE_KEY = `${CURRENT_CONTEXT}History`;
@@ -329,10 +341,11 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
         event.preventDefault();
         const generateButton = exerciseForm.querySelector('button[type="submit"]');
         const textToMemorize = memorizationTextEl.value.trim();
-        const imageFile = memorizationImageEl.files && memorizationImageEl.files[0] ? memorizationImageEl.files[0] : null;
+        // memorizationImageEl is the file input, defined at module scope
+        const imageFile = memorizationImageEl && memorizationImageEl.files && memorizationImageEl.files[0] ? memorizationImageEl.files[0] : null;
 
-        if (!textToMemorize && !imageFile) {
-            alert('Please provide text or an image to generate a quiz from.');
+        if (!textToMemorize && !imageFile && !capturedImageDataURL) {
+            alert('Please provide text, upload an image, or capture a photo to generate a quiz from.');
             return;
         }
 
@@ -368,54 +381,54 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
         };
         
         let base64Image = null;
+        let materialSourceForHistory = textToMemorize;
 
-        if (imageFile && !textToMemorize) {
+        if (textToMemorize) {
+            promptDetails.materialType = 'text';
+            // materialSourceForHistory is already textToMemorize
+        } else if (capturedImageDataURL) {
+            promptDetails.materialType = 'image';
+            base64Image = capturedImageDataURL;
+            materialSourceForHistory = `Captured Photo: ${fileNameDisplay ? fileNameDisplay.textContent : 'camera_capture.webp'}`;
+        } else if (imageFile) {
             promptDetails.materialType = 'image';
             try {
                 base64Image = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
-                    reader.onload = e => resolve(e.target.result); // e.g., "data:image/jpeg;base64,..."
+                    reader.onload = e => resolve(e.target.result);
                     reader.onerror = e => reject(e);
                     reader.readAsDataURL(imageFile);
                 });
-                promptDetails.materialContent = base64Image; // Store for history, though it will be large
+                materialSourceForHistory = `Image: ${imageFile.name}`;
             } catch (e) {
-                alert('Error reading image file.');
+                alert('Error reading uploaded image file.');
                 console.error("Error reading image:", e);
                 if (generateButton) {
                     generateButton.disabled = false;
                     generateButton.textContent = 'Generate Quiz';
                 }
-                exerciseOutput.innerHTML = `<p class="error">Error reading image file.</p>`;
+                exerciseOutput.innerHTML = `<p class="error">Error reading uploaded image file.</p>`;
                 return;
             }
         }
-
-        // Set model for promptDetails (used for history and logging)
+        
+        promptDetails.materialContent = materialSourceForHistory; // For constructPrompt and history
         promptDetails.model = model;
 
-        // Log a warning if an image is used with a potentially non-vision model
-        if (promptDetails.materialType === 'image') {
-            const isLikelyNonVisionModel = !model.includes('vision') && !model.includes('4o') && !model.includes('4-turbo') && model !== "gpt-4-turbo-preview"; // Add other known vision models if needed
+        if (promptDetails.materialType === 'image' && base64Image) {
+            const isLikelyNonVisionModel = !model.includes('vision') && !model.includes('4o') && !model.includes('4-turbo') && model !== "gpt-4-turbo-preview";
             if (isLikelyNonVisionModel) {
-                console.warn(`Image provided with model '${model}'. This model might not be vision-capable. For best results with images, consider using a vision-specific model (e.g., gpt-4o, gpt-4-turbo, or a model with 'vision' in its name).`);
-                // Optionally, you could update the placeholder here as well, but not changing the model itself.
-                // if (modelInputEl) {
-                //     modelInputEl.placeholder = `Warning: '${model}' may not support images. Try 'gpt-4o'.`;
-                // }
+                console.warn(`Image provided (type: ${capturedImageDataURL ? 'camera' : 'upload'}) with model '${model}'. This model might not be vision-capable.`);
             }
         }
-
-        const textPromptForLlm = constructPrompt(promptDetails); // This prompt describes the task and refers to the material/image.
+        
+        const textPromptForLlm = constructPrompt(promptDetails);
         let apiInput;
 
         if (promptDetails.materialType === 'image' && base64Image) {
-            apiInput = {
-                textPrompt: textPromptForLlm,
-                base64Image: base64Image
-            };
+            apiInput = { textPrompt: textPromptForLlm, base64Image: base64Image };
         } else {
-            apiInput = textPromptForLlm; // Send as string for text-only
+            apiInput = textPromptForLlm; // Text-only or text prioritized
         }
         
         let quizXml = null;
@@ -440,12 +453,8 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
 
             if (quizXml) {
                 displayExercise(quizXml);
-                // Save a version of promptDetails that doesn't include the full base64 image if it's too large for localStorage
-                const historyPromptDetails = { ...promptDetails };
-                if (historyPromptDetails.materialType === 'image' && historyPromptDetails.materialContent && historyPromptDetails.materialContent.length > 1000) { // Heuristic for large image
-                    historyPromptDetails.materialContent = `Image data (length: ${historyPromptDetails.materialContent.length}) - Not stored in history preview.`;
-                }
-                saveToHistory(historyPromptDetails, quizXml);
+                // promptDetails.materialContent is already a short string for history
+                saveToHistory(promptDetails, quizXml);
             } else {
                 exerciseOutput.innerHTML = '<p class="error">Failed to generate quiz. API returned no content.</p>';
             }
@@ -727,16 +736,11 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
     // History functions (can be similar to Exercises.js, just different key and details)
     const saveToHistory = (promptDetails, quizXml) => {
         const history = loadHistory();
-        // Remove base64 image data before saving to history if it's too large
-        let storablePromptDetails = {...promptDetails};
-        if (storablePromptDetails.materialType === 'image' && storablePromptDetails.materialContent) {
-            storablePromptDetails.materialContent = `Image data (length: ${storablePromptDetails.materialContent.length}) - Not stored in history preview.`;
-        }
-
+        // promptDetails.materialContent is already a short string description for history.
         const newEntry = {
             id: new Date().getTime(),
             date: new Date().toISOString(),
-            promptDetails: storablePromptDetails, // Contains material type, language, style, etc.
+            promptDetails: promptDetails, 
             quizXml: quizXml
         };
         history.unshift(newEntry);
@@ -795,6 +799,66 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
         }
     };
 
+    // Camera Functions (based on user example)
+    async function openCamera() {
+        if (!cameraModal || !cameraVideoFeed) return;
+
+        capturedImageDataURL = null; // Clear previous capture
+        if (memorizationImageEl) memorizationImageEl.value = ''; // Clear file input
+        if (memorizationTextEl) memorizationTextEl.value = ''; // Clear text input
+        if (fileNameDisplay) fileNameDisplay.textContent = 'No file selected';
+        
+        cameraModal.style.display = 'block';
+        try {
+            currentCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+            cameraVideoFeed.srcObject = currentCameraStream;
+            cameraVideoFeed.play().catch(err => {
+                console.error("Error playing video:", err);
+                alert("Error trying to play camera feed: " + err.message);
+                closeCamera();
+            });
+        } catch (err) {
+            console.error("Error accessing camera:", err);
+            alert("Could not access the camera. Error: " + err.message);
+            closeCamera();
+        }
+    }
+
+    function closeCamera() {
+        if (currentCameraStream) {
+            currentCameraStream.getTracks().forEach(track => track.stop());
+        }
+        currentCameraStream = null;
+        if (cameraVideoFeed) cameraVideoFeed.srcObject = null;
+        if (cameraModal) cameraModal.style.display = 'none';
+    }
+
+    function captureImageFromCamera() {
+        if (!cameraVideoFeed || !cameraCanvas || !fileNameDisplay) return;
+
+        const videoWidth = cameraVideoFeed.videoWidth;
+        const videoHeight = cameraVideoFeed.videoHeight;
+        if (videoWidth === 0 || videoHeight === 0) {
+            alert("Camera feed not available. Cannot capture.");
+            return;
+        }
+        cameraCanvas.width = videoWidth;
+        cameraCanvas.height = videoHeight;
+
+        const context = cameraCanvas.getContext('2d');
+        context.drawImage(cameraVideoFeed, 0, 0, videoWidth, videoHeight);
+
+        capturedImageDataURL = cameraCanvas.toDataURL('image/webp');
+        
+        if (fileNameDisplay) {
+            fileNameDisplay.textContent = `camera_capture_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.webp`;
+        }
+        if (memorizationImageEl) memorizationImageEl.value = ''; // Clear file input
+        if (memorizationTextEl) memorizationTextEl.value = ''; // Clear text input
+
+        closeCamera();
+    }
+
     const init = () => {
         if (exerciseForm) {
             exerciseForm.addEventListener('submit', handleFormSubmit);
@@ -810,6 +874,45 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
         }
         if (printExerciseButton && exerciseOutput) {
             printExerciseButton.addEventListener('click', () => Utils.printElement(exerciseOutput));
+        }
+
+        // Camera related event listeners
+        if (useCameraButton) {
+            useCameraButton.addEventListener('click', openCamera);
+        }
+        if (captureCameraImageButton) {
+            captureCameraImageButton.addEventListener('click', captureImageFromCamera);
+        }
+        if (closeCameraModalButton) {
+            closeCameraModalButton.addEventListener('click', closeCamera);
+        }
+
+        // Handle interactions between text input, file input, and camera
+        if (memorizationTextEl) {
+            memorizationTextEl.addEventListener('input', () => {
+                if (memorizationTextEl.value.trim() !== '') {
+                    if (memorizationImageEl) memorizationImageEl.value = '';
+                    capturedImageDataURL = null;
+                    if (fileNameDisplay) fileNameDisplay.textContent = 'No file selected';
+                    closeCamera();
+                }
+            });
+        }
+        if (memorizationImageEl && fileNameDisplay) {
+            memorizationImageEl.addEventListener('change', () => {
+                if (memorizationImageEl.files && memorizationImageEl.files.length > 0) {
+                    fileNameDisplay.textContent = memorizationImageEl.files[0].name;
+                    if (memorizationTextEl) memorizationTextEl.value = '';
+                    capturedImageDataURL = null;
+                    closeCamera();
+                } else {
+                    // If file selection is cleared, but text is also empty, it's fine.
+                    // If text has content, it takes precedence.
+                    if (!memorizationTextEl || memorizationTextEl.value.trim() === '') {
+                         fileNameDisplay.textContent = 'No file selected';
+                    }
+                }
+            });
         }
 
         // Show/hide MC options count based on exercise type
