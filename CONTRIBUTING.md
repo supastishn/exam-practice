@@ -31,7 +31,7 @@ First off, thank you for considering contributing to Language Exercise Tools! It
 - Comment your code where necessary.
 
 ## Code of Conduct
-This project and everyone participating in it is governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior. (Note: You'll need to add a CODE_OF_CONDUCT.md file if you want to use this).
+This project and everyone participating in it is governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [INSERT CONTACT METHOD HERE - e.g., project maintainer's email or a dedicated address].
 
 ## Questions?
 If you have any questions, feel free to reach out by opening an issue.
