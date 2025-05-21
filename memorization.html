@@ -200,7 +200,11 @@
             padding: 0.6rem 1.2rem;
             border-radius: var(--border-radius);
             cursor: pointer;
-            display: inline-block;
+            display: inline-flex; /* Changed for content alignment */
+            align-items: center; /* Vertically center icon and text */
+            justify-content: center; /* Horizontally center icon and text group */
+            width: 180px; /* Set a fixed width for symmetry, adjust as needed */
+            flex-shrink: 0; /* Prevent shrinking in flex container */
             transition: var(--transition);
             font-weight: 500;
             /* margin-right: 1rem; /* Removed, gap on container handles spacing */
