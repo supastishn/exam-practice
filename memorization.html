@@ -231,6 +231,22 @@
         body.dark-mode #file-name-display {
             color: #aaa;
         }
+
+        /* Styling for inline options in memorization.html */
+        .memorization-options-inline {
+            display: flex;
+            flex-wrap: wrap; /* Allow options to wrap to the next line */
+            gap: 1rem;       /* Consistent spacing between options (horizontally and vertically on wrap) */
+            padding-top: 0.5rem; /* Add a little space above the options row */
+        }
+
+        /* Individual options within the inline container. 
+           The existing .exercise-options .option style provides margin-bottom, which is fine.
+           No specific margin-right needed here as 'gap' handles it. */
+        .memorization-options-inline .option {
+            /* display: inline-block; /* Not strictly necessary as flex items behave like blocks in the line */
+            /* margin-right: 1rem; /* Replaced by gap */
+        }
     </style>
     <!-- Eruda for mobile debugging -->
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>

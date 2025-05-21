@@ -289,9 +289,7 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
                     optionContainerSpan.appendChild(label);
                     optionsWrapper.appendChild(optionContainerSpan);
 
-                    if (idx < optionSources.length - 1) { // If not the last option
-                        optionsWrapper.appendChild(document.createTextNode('\t'));
-                    }
+                    // Removed tab character, spacing will be handled by CSS flex gap
                 });
                 interactiveArea.appendChild(optionsWrapper);
             } else if (questionType === 'fill-in-the-blank') {
