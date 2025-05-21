@@ -1614,6 +1614,28 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
     }
 
     const init = () => {
+        // Initialize DOM element variables
+        exerciseForm = document.getElementById('exercise-form');
+        exerciseOutput = document.getElementById('exercise-output');
+        answerForm = document.getElementById('answer-form');
+        userAnswerInput = document.getElementById('user-answer'); // Note: May not be used directly
+        answerFeedback = document.getElementById('answer-feedback');
+        solutionDisplay = document.getElementById('solution-display');
+        showSolutionButton = document.getElementById('show-solution');
+        copyExerciseButton = document.getElementById('copy-exercise');
+        printExerciseButton = document.getElementById('print-exercise');
+        historyList = document.getElementById('history-list');
+        imageFileInput = document.getElementById('exercise-image');
+        fileNameDisplay = document.getElementById('file-name-display');
+
+        // Camera Modal Elements
+        cameraModal = document.getElementById('camera-modal');
+        cameraVideoFeed = document.getElementById('camera-video-feed');
+        cameraCanvas = document.getElementById('camera-canvas');
+        useCameraButton = document.getElementById('use-camera-button');
+        captureCameraImageButton = document.getElementById('capture-camera-image-button');
+        closeCameraModalButton = document.getElementById('close-camera-modal-button');
+
         if (exerciseForm) {
             exerciseForm.addEventListener('submit', handleFormSubmit);
         }
