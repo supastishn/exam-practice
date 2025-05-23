@@ -40,6 +40,10 @@ const Auth = (() => {
     };
 
     const saveCredentials = (apiKey, baseUrl, defaultModel) => {
+        // Remove trailing slash from baseUrl if present
+        if (baseUrl && baseUrl.endsWith('/')) {
+            baseUrl = baseUrl.slice(0, -1);
+        }
         localStorage.setItem(API_KEY_STORAGE_KEY, encrypt(apiKey));
         if (baseUrl) {
             localStorage.setItem(BASE_URL_STORAGE_KEY, encrypt(baseUrl));
