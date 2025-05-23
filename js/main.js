@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (pathname.includes('memorization.html')) {
             Memorization.init();
         }
+    } else if (pathname.includes('writing.html') || document.getElementById('writing-setup-form')) {
+        // Initialize the Writing module
+        if (typeof Writing !== 'undefined') {
+            Writing.init();
+        }
     }
     // Other initializations for API etc. can go here
 });
