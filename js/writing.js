@@ -373,14 +373,15 @@ Make it a single paragraph (2-3 sentences). Do not include any preamble, just th
             
             // Display AI feedback and improved version
             if (feedback) {
-                aiFeedbackDiv.innerHTML = marked.parse(feedback.feedback || 'No feedback provided.');
-                improvedWritingDiv.innerHTML = marked.parse(feedback.improvedVersion || originalText);
-                
-                // Save to history
+                // getFeedback has already updated aiFeedbackDiv.innerHTML and improvedWritingDiv.innerHTML
+                // with Utils.customMarkdownParse. We use the raw strings from the 'feedback' object for history.
                 saveToHistory(prompt, originalText, feedback, words, `${minutesTaken}m ${secondsTaken}s`);
             } else {
-                aiFeedbackDiv.innerHTML = '<p>Failed to get AI feedback. Please try again.</p>';
-                improvedWritingDiv.innerHTML = marked.parse(originalText);
+                // This case means 'feedback' object itself is null or undefined,
+                // indicating a major issue in getFeedback before returning.
+                aiFeedbackDiv.innerHTML = '<p class="error">Error: Could not retrieve feedback data.</p>';
+                // Fallback to showing original text in the improved version div if feedback processing failed.
+                improvedWritingDiv.innerHTML = Utils.customMarkdownParse(originalText || ''); 
             }
             
         } catch (error) {
