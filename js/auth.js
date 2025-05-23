@@ -37,6 +37,11 @@ const Auth = (() => {
                 exerciseModelInput.placeholder = `gpt-4.1 (default system fallback)`;
             }
         }
+        
+        // Also update the model placeholder in the writing collaboration tool if it exists
+        if (typeof Writing !== 'undefined' && Writing.updateModelPlaceholder) {
+            Writing.updateModelPlaceholder();
+        }
     };
 
     const saveCredentials = (apiKey, baseUrl, defaultModel) => {
@@ -176,13 +181,26 @@ const Auth = (() => {
             if (defaultModelInput) defaultModelInput.value = creds.defaultModel || '';
             updateCredentialStatus(!!creds.apiKey); // Update status text based on loaded key
 
-        } else if (document.getElementById('exercise-form')) { // Logic for english.html
+        } else if (document.getElementById('exercise-form')) { // Logic for english.html, math.html
             const { apiKey } = loadCredentials();
             if (apiKey) {
                 UI.showExerciseGeneration(); // This should also hide the credentials prompt
             } else {
                 UI.showCredentialsPrompt();
                 UI.hideExerciseGeneration(); // Explicitly hide if no key
+            }
+            updateExerciseModelPlaceholder(); // Set initial placeholder on page load
+        } else if (document.getElementById('writing-setup-form')) { // Logic for writing.html
+            const { apiKey } = loadCredentials();
+            const credentialsPromptSection = document.getElementById('credentials-prompt-section');
+            const writingSetupSection = document.getElementById('writing-setup-section');
+            
+            if (apiKey) {
+                if (credentialsPromptSection) credentialsPromptSection.style.display = 'none';
+                if (writingSetupSection) writingSetupSection.style.display = 'block';
+            } else {
+                if (credentialsPromptSection) credentialsPromptSection.style.display = 'block';
+                if (writingSetupSection) writingSetupSection.style.display = 'none';
             }
             updateExerciseModelPlaceholder(); // Set initial placeholder on page load
         }
@@ -193,7 +211,9 @@ const Auth = (() => {
 
     return {
         init,
-        getCredentials: loadCredentials,
+        loadCredentials,
+        getCredentials: loadCredentials, // Alias for backward compatibility
+        saveCredentials,
         // clearCredentials is now mostly internal to settings page logic via its button
         // showApiSettings is removed
     };

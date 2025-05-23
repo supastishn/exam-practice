@@ -384,10 +384,50 @@ Please provide your judgments in the XML format described above.
         }
     };
 
+    // Function to make a simple API request (used by the Writing Collaboration tool)
+    const makeRequest = async (requestBody) => {
+        const { apiKey, baseUrl } = Auth.getCredentials();
+        if (!apiKey) {
+            alert('API Key not set. Please go to the Settings page to set it.');
+            return null;
+        }
+        
+        try {
+            const model = requestBody.model || "gpt-4.1";
+            console.log('Making API request with model:', model);
+            
+            const data = {
+                model: model,
+                messages: [
+                    {role: "user", content: requestBody.prompt}
+                ],
+                max_tokens: 2048,
+                temperature: 0.7,
+                top_p: 1.0,
+                frequency_penalty: 0.0,
+                presence_penalty: 0.0
+            };
+            
+            const result = await makeApiRequest(apiKey, baseUrl, 'chat/completions', data);
+            
+            if (result && result.choices && result.choices.length > 0 && result.choices[0].message) {
+                return {
+                    content: result.choices[0].message.content.trim()
+                };
+            } else {
+                throw new Error('Unexpected API response format');
+            }
+        } catch (error) {
+            console.error('API Request Error:', error);
+            throw error;
+        }
+    };
+
     return {
         generateExercise,
         testApiConnection,
         generateExplanation,
-        judgeUserResponses
+        judgeUserResponses,
+        makeRequest
     };
 })();

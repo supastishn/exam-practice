@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Collaboration Tool</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-pen-fancy"></i> Writing Collaboration Tool</h1>
+        <button id="theme-toggle" class="theme-button" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    </header>
+
+    <main>
+        <div class="back-to-portal-container" style="margin-bottom: 1.5rem; text-align: left;">
+            <a href="index.html" class="button-like-link"><i class="fas fa-arrow-left"></i> Back to Portal</a>
+        </div>
+        
+        <section id="credentials-prompt-section" style="display: none;">
+            <h2><i class="fas fa-key"></i> API Credentials Needed</h2>
+            <p>To use the writing collaboration tool, you need to set up your OpenAI API credentials.</p>
+            <p><a href="settings.html" class="button-like-link" style="margin-top: 1rem;"><i class="fas fa-cog"></i> Go to Settings</a></p>
+        </section>
+
+        <section id="writing-setup-section">
+            <h2>
+                <i class="fas fa-feather-alt"></i> Writing Setup
+                <a href="settings.html" id="edit-api-settings-link" class="settings-button"><i class="fas fa-cog"></i> API Settings</a>
+            </h2>
+            <form id="writing-setup-form">
+                <div>
+                    <label for="writing-prompt"><i class="fas fa-comment-alt"></i> Custom Prompt (optional):</label>
+                    <textarea id="writing-prompt" name="writing-prompt" rows="3" placeholder="Describe your writing task, or leave blank for AI to suggest a prompt..."></textarea>
+                </div>
+                <div>
+                    <label for="grade-level"><i class="fas fa-graduation-cap"></i> Grade Level:</label>
+                    <select id="grade-level" name="grade-level">
+                        <option value="elementary">Elementary School (Grades 3-5)</option>
+                        <option value="middle" selected>Middle School (Grades 6-8)</option>
+                        <option value="high">High School (Grades 9-12)</option>
+                        <option value="college">College Level</option>
+                        <option value="professional">Professional</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="writing-language"><i class="fas fa-language"></i> Language:</label>
+                    <select id="writing-language" name="writing-language">
+                        <option value="English" selected>English</option>
+                        <option value="Spanish">Spanish</option>
+                        <option value="French">French</option>
+                        <option value="German">German</option>
+                        <option value="Italian">Italian</option>
+                        <option value="Portuguese">Portuguese</option>
+                        <option value="Russian">Russian</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Japanese">Japanese</option>
+                        <option value="Korean">Korean</option>
+                        <option value="Arabic">Arabic</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="time-limit"><i class="fas fa-hourglass-half"></i> Time Limit (minutes):</label>
+                    <input type="number" id="time-limit" name="time-limit" min="5" max="120" value="30">
+                    <small>Set a time limit for your writing session (5-120 minutes)</small>
+                </div>
+                <div>
+                    <label for="word-count-target"><i class="fas fa-calculator"></i> Word Count Target (optional):</label>
+                    <input type="number" id="word-count-target" name="word-count-target" min="50" max="5000" placeholder="No limit">
+                    <small>Set a target word count (50-5000 words)</small>
+                </div>
+                <div>
+                    <label for="model"><i class="fas fa-robot"></i> OpenAI Model (optional):</label>
+                    <input type="text" id="model" name="model" placeholder="">
+                </div>
+                <button type="submit" id="start-writing-button"><i class="fas fa-play"></i> Start Writing Session</button>
+            </form>
+        </section>
+
+        <section id="writing-session-section" style="display: none;">
+            <div class="writing-header">
+                <h2><i class="fas fa-pen-alt"></i> <span id="writing-prompt-display">Write your essay here...</span></h2>
+                <div id="timer-display" class="timer">Time remaining: <span id="time-remaining">30:00</span></div>
+            </div>
+            <div class="writing-container">
+                <textarea id="writing-area" placeholder="Start typing your response here..."></textarea>
+                <div class="writing-controls">
+                    <div class="word-count-container">
+                        <span id="word-count">0 words</span>
+                        <span id="word-count-target-display" class="word-count-target"></span>
+                    </div>
+                    <button id="finish-early-button" class="button-secondary"><i class="fas fa-check-circle"></i> Finish Early</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="feedback-section" style="display: none;">
+            <h2><i class="fas fa-comment"></i> Feedback on Your Writing</h2>
+            <div class="feedback-tabs">
+                <button class="tab-button active" data-tab="original">Original Writing</button>
+                <button class="tab-button" data-tab="feedback">AI Feedback</button>
+                <button class="tab-button" data-tab="improved">Suggested Improvements</button>
+            </div>
+            <div class="tab-content">
+                <div id="original-tab" class="tab-pane active">
+                    <div id="original-writing"></div>
+                    <div class="writing-stats">
+                        <span id="final-word-count"></span>
+                        <span id="writing-time-taken"></span>
+                    </div>
+                </div>
+                <div id="feedback-tab" class="tab-pane">
+                    <div id="ai-feedback"></div>
+                </div>
+                <div id="improved-tab" class="tab-pane">
+                    <div id="improved-writing"></div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="new-session-button"><i class="fas fa-plus-circle"></i> New Writing Session</button>
+                <button id="save-feedback-button"><i class="fas fa-save"></i> Save Feedback</button>
+                <button id="print-feedback-button"><i class="fas fa-print"></i> Print All</button>
+            </div>
+        </section>
+
+        <section id="history-section">
+            <h2>
+                <span><i class="fas fa-history"></i> Writing History</span>
+            </h2>
+            <ul id="history-list">
+                <!-- History items will be populated here by JavaScript -->
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-code"></i> Writing Collaboration Tool</p>
+        <p><a href="https://supastishn.github.io" target="_blank" rel="noopener noreferrer">See more cool stuff here</a></p>
+        <p><a href="https://github.com/supastishn/exam-practice" target="_blank" rel="noopener noreferrer">See the source code</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/writing.js"></script>
+    <script src="js/main.js"></script>
+
+    <style>
+        .button-like-link {
+            display: inline-block;
+            background: var(--primary-color);
+            color: var(--light-text);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+        }
+        .button-like-link:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        body.dark-mode .button-like-link {
+            background: var(--primary-color);
+            color: var(--light-text);
+        }
+        body.dark-mode .button-like-link:hover {
+            background: var(--primary-hover);
+        }
+        
+        /* Writing specific styles */
+        .writing-container {
+            width: 100%;
+            margin: 1rem 0;
+        }
+        
+        #writing-area {
+            width: 100%;
+            min-height: 400px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            color: var(--body-text);
+            resize: vertical;
+        }
+        
+        .writing-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        
+        .word-count-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        #word-count {
+            font-size: 0.9rem;
+            color: var(--muted-text);
+        }
+        
+        .word-count-target {
+            font-size: 0.8rem;
+            color: var(--muted-text);
+        }
+        
+        .word-count-warning {
+            color: #e74c3c;
+        }
+        
+        .word-count-success {
+            color: #2ecc71;
+        }
+        
+        .writing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .timer {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .feedback-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tab-button {
+            padding: 0.8rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--body-text);
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .tab-pane {
+            display: none;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .writing-stats {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--muted-text);
+        }
+        
+        #ai-feedback, #original-writing, #improved-writing {
+            padding: 1rem;
+        }
+        
+        .timer-warning {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .writing-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .timer {
+                margin-top: 0.5rem;
+            }
+            
+            .feedback-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab-button {
+                flex: 1;
+                text-align: center;
+                padding: 0.6rem;
+            }
+        }
+    </style>
+    <!-- Eruda for mobile debugging -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+</body>
+</html>
