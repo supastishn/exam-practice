@@ -497,6 +497,7 @@ Then, provide an improved version of my writing that addresses the issues you id
         }
     };
 
+    // (Old parseAIResponse function is removed by the change above)
     // Switch between tabs in the feedback section
     const switchTab = (tabId) => {
         // Update active button
