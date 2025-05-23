@@ -165,12 +165,10 @@ const Writing = (() => {
         document.body.classList.add('loading');
         
         try {
-            // If user didn't provide a prompt, generate one
-            let finalPrompt = userPrompt;
-            
-            if (!userPrompt) {
-                finalPrompt = await generateWritingPrompt(gradeLevel, model, writingLanguage);
-            }
+            // Always call generateWritingPrompt.
+            // If userPrompt is empty, generateWritingPrompt will create one from scratch.
+            // If userPrompt has content, generateWritingPrompt will use it as a basis to create a more detailed prompt.
+            const finalPrompt = await generateWritingPrompt(gradeLevel, model, writingLanguage, userPrompt);
             
             // Start writing session
             startWritingSession(finalPrompt, timeLimit, wordCountTarget);
@@ -184,7 +182,7 @@ const Writing = (() => {
     };
 
     // Generate a writing prompt using the API
-    const generateWritingPrompt = async (gradeLevel, model, language = 'English') => {
+    const generateWritingPrompt = async (gradeLevel, model, language = 'English', userInstruction = '') => {
         const credentials = Auth.loadCredentials();
         
         if (!credentials.apiKey) {
@@ -192,11 +190,23 @@ const Writing = (() => {
         }
 
         const gradeLevelText = getGradeLevelText(gradeLevel);
-        
-        const prompt = `Generate an engaging and educational writing prompt appropriate for ${gradeLevelText} students. The prompt should be in ${language}, clear, concise, and encourage creative or critical thinking. Make it a single paragraph (2-3 sentences).`;
+        let internalPromptToAI;
+
+        if (userInstruction) {
+            // User provided an idea/topic, so AI needs to expand on it.
+            internalPromptToAI = `The user wants a writing prompt related to this topic/idea: "${userInstruction}".
+Based on this, generate an engaging and educational writing prompt appropriate for ${gradeLevelText} students.
+The final prompt you generate should be in ${language}, clear, concise, and encourage creative or critical thinking.
+The final prompt should be a single paragraph (2-3 sentences). Do not include any preamble, just the prompt itself.`;
+        } else {
+            // User did not provide an idea, so AI generates from scratch.
+            internalPromptToAI = `Generate an engaging and educational writing prompt appropriate for ${gradeLevelText} students.
+The prompt should be in ${language}, clear, concise, and encourage creative or critical thinking.
+Make it a single paragraph (2-3 sentences). Do not include any preamble, just the prompt itself.`;
+        }
         
         const requestBody = {
-            prompt: prompt,
+            prompt: internalPromptToAI,
             model: model || credentials.defaultModel || 'gpt-4.1'
         };
         
