@@ -384,8 +384,8 @@ Please provide your judgments in the XML format described above.
         }
     };
 
-    // Function to make a simple API request (used by the Writing Collaboration tool)
-    const makeRequest = async (requestBody) => {
+    // Function to make a simple API request (used by the Writing Collaboration tool), now with streaming support
+    const makeRequest = async (requestBody, onProgress) => {
         const { apiKey, baseUrl } = Auth.getCredentials();
         if (!apiKey) {
             alert('API Key not set. Please go to the Settings page to set it.');
@@ -401,25 +401,27 @@ Please provide your judgments in the XML format described above.
                 messages: [
                     {role: "user", content: requestBody.prompt}
                 ],
-                max_tokens: 2048,
+                max_tokens: 2048, // Consider adjusting based on expected output length
                 temperature: 0.7,
                 top_p: 1.0,
                 frequency_penalty: 0.0,
-                presence_penalty: 0.0
+                presence_penalty: 0.0,
+                stream: true // Enable streaming
             };
             
-            const result = await makeApiRequest(apiKey, baseUrl, 'chat/completions', data);
+            const fullResponse = await makeApiRequest(apiKey, baseUrl, 'chat/completions', data, onProgress);
             
-            if (result && result.choices && result.choices.length > 0 && result.choices[0].message) {
-                return {
-                    content: result.choices[0].message.content.trim()
-                };
+            if (fullResponse) {
+                return fullResponse.trim(); // Returns the accumulated string
             } else {
-                throw new Error('Unexpected API response format');
+                // This case should ideally be handled if makeApiRequest itself returns null or empty for some reason
+                console.error('API returned empty or invalid full response after streaming for makeRequest.');
+                throw new Error('Unexpected empty API response after streaming');
             }
         } catch (error) {
-            console.error('API Request Error:', error);
-            throw error;
+            console.error('API Request Error (streaming):', error);
+            // Re-throw the error so the caller can handle it, potentially displaying a more specific message.
+            throw error; 
         }
     };
 
@@ -428,6 +430,6 @@ Please provide your judgments in the XML format described above.
         testApiConnection,
         generateExplanation,
         judgeUserResponses,
-        makeRequest
+        makeRequest // Now supports streaming
     };
 })();

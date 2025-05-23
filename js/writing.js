@@ -200,16 +200,37 @@ const Writing = (() => {
             model: model || credentials.defaultModel || 'gpt-4.1'
         };
         
+        // Prepare UI for streaming the prompt
+        const promptDisplayElement = document.getElementById('writing-prompt-display'); // Assuming this is where prompt is shown
+        if (promptDisplayElement) promptDisplayElement.textContent = ''; // Clear previous prompt
+        let accumulatedPrompt = '';
+        let firstChunkReceived = false;
+
+        const onPromptProgress = (chunk) => {
+            if (!firstChunkReceived && promptDisplayElement) {
+                 // Optionally add a "Generating prompt..." message or clear it here
+                firstChunkReceived = true;
+            }
+            accumulatedPrompt += chunk;
+            if (promptDisplayElement) {
+                promptDisplayElement.textContent = accumulatedPrompt; // Live update
+            }
+        };
+        
         try {
-            const response = await Api.makeRequest(requestBody);
-            if (response && response.content) {
-                return response.content.trim();
+            // Api.makeRequest now returns the full string after streaming and calling onPromptProgress
+            const fullGeneratedPrompt = await Api.makeRequest(requestBody, onPromptProgress);
+            
+            if (fullGeneratedPrompt) {
+                if (promptDisplayElement) promptDisplayElement.textContent = fullGeneratedPrompt; // Final update
+                return fullGeneratedPrompt.trim();
             } else {
-                throw new Error('Invalid response from API');
+                throw new Error('API returned empty prompt');
             }
         } catch (error) {
-            console.error('Error generating prompt:', error);
-            throw error;
+            console.error('Error generating prompt (streaming):', error);
+            if (promptDisplayElement) promptDisplayElement.textContent = "Error generating prompt. Please try defining one manually.";
+            throw error; // Re-throw to be caught by handleSetupSubmit
         }
     };
 
@@ -408,29 +429,72 @@ Then, provide an improved version of my writing that addresses the issues you id
             model: model || credentials.defaultModel || 'gpt-4.1'
         };
         
-        try {
-            const response = await Api.makeRequest(requestBody);
-            if (response && response.content) {
-                // Parse the response to extract feedback and improved version
-                return parseAIResponse(response.content);
-            } else {
-                throw new Error('Invalid response from API');
-            }
-        } catch (error) {
-            console.error('Error getting feedback:', error);
-            throw error;
-        }
-    };
+        let accumulatedFeedback = '';
+        let accumulatedImprovedVersion = '';
+        let currentSection = 'feedback'; // Assume AI might start with feedback directly or some preamble
 
-    // Parse the AI response to extract feedback and improved version
-    const parseAIResponse = (content) => {
-        const feedbackMatch = content.match(/===FEEDBACK===([\s\S]*?)(?:===IMPROVED VERSION===|$)/);
-        const improvedMatch = content.match(/===IMPROVED VERSION===([\s\S]*)/);
-        
-        const feedback = feedbackMatch ? feedbackMatch[1].trim() : '';
-        const improvedVersion = improvedMatch ? improvedMatch[1].trim() : '';
-        
-        return { feedback, improvedVersion };
+        // Clear previous feedback
+        if (aiFeedbackDiv) aiFeedbackDiv.textContent = 'Receiving feedback...';
+        if (improvedWritingDiv) improvedWritingDiv.textContent = ''; // Clear this until its section starts
+
+        const onFeedbackProgress = (chunk) => {
+            if (chunk.includes('===IMPROVED VERSION===')) {
+                const parts = chunk.split('===IMPROVED VERSION===');
+                // Append part before marker to current section (feedback)
+                if (currentSection === 'feedback') {
+                    accumulatedFeedback += parts[0];
+                    if (aiFeedbackDiv) aiFeedbackDiv.textContent = accumulatedFeedback;
+                }
+                currentSection = 'improved';
+                // Append part after marker to new section (improved)
+                accumulatedImprovedVersion += parts[1] || '';
+                if (improvedWritingDiv) improvedWritingDiv.textContent = accumulatedImprovedVersion;
+                if (aiFeedbackDiv && aiFeedbackDiv.textContent === 'Receiving feedback...') { // If feedback was empty before marker
+                    aiFeedbackDiv.textContent = '(No specific feedback text before "Improved Version" marker)';
+                }
+
+            } else if (chunk.includes('===FEEDBACK===')) { // Should ideally be first
+                const parts = chunk.split('===FEEDBACK===');
+                // Ignore part before marker (preamble) or handle as needed
+                currentSection = 'feedback';
+                accumulatedFeedback += parts[1] || '';
+                if (aiFeedbackDiv) aiFeedbackDiv.textContent = accumulatedFeedback;
+
+            } else {
+                if (currentSection === 'feedback') {
+                    accumulatedFeedback += chunk;
+                    if (aiFeedbackDiv) aiFeedbackDiv.textContent = accumulatedFeedback;
+                } else if (currentSection === 'improved') {
+                    accumulatedImprovedVersion += chunk;
+                    if (improvedWritingDiv) improvedWritingDiv.textContent = accumulatedImprovedVersion;
+                }
+            }
+        };
+
+        try {
+            // Api.makeRequest will call onFeedbackProgress and then return the full content.
+            // The full content isn't directly used here for parsing, as streaming handles it.
+            await Api.makeRequest(requestBody, onFeedbackProgress);
+            
+            // Final processing after stream ends
+            if (aiFeedbackDiv) {
+                aiFeedbackDiv.innerHTML = Utils.customMarkdownParse(accumulatedFeedback.trim() || 'No feedback provided.');
+            }
+            if (improvedWritingDiv) {
+                improvedWritingDiv.innerHTML = Utils.customMarkdownParse(accumulatedImprovedVersion.trim() || originalText); // Fallback to originalText if improved is empty
+            }
+
+            return { 
+                feedback: accumulatedFeedback.trim(), 
+                improvedVersion: accumulatedImprovedVersion.trim() 
+            };
+
+        } catch (error) {
+            console.error('Error getting feedback (streaming):', error);
+            if (aiFeedbackDiv) aiFeedbackDiv.innerHTML = `<p class="error">Error getting feedback: ${error.message}</p>`;
+            if (improvedWritingDiv) improvedWritingDiv.innerHTML = Utils.customMarkdownParse(originalText); // Show original if feedback fails
+            throw error; // Re-throw to be caught by endWritingSession
+        }
     };
 
     // Switch between tabs in the feedback section
