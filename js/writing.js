@@ -63,6 +63,12 @@ const Writing = (() => {
         // Event listeners
         if (writingSetupForm) {
             writingSetupForm.addEventListener('submit', handleSetupSubmit);
+            
+            // Additional click handler for the button to ensure it works
+            const startWritingButton = document.getElementById('start-writing-button');
+            if (startWritingButton) {
+                startWritingButton.addEventListener('click', handleSetupSubmit);
+            }
         }
 
         if (writingArea) {
