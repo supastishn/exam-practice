@@ -384,10 +384,100 @@ Please provide your judgments in the XML format described above.
         }
     };
 
+    // Function to call OpenAI API for writing topics
+    const generateWritingTopic = async (promptString, modelName = "gpt-4.1", onProgress) => {
+        const { apiKey, baseUrl } = Auth.getCredentials();
+        if (!apiKey) {
+            alert('API Key not set. Please go to the Settings page to set it.');
+            return null;
+        }
+
+        console.log('Generating writing topic with model:', modelName);
+
+        try {
+            const data = {
+                model: modelName,
+                messages: [
+                    {role: "user", content: promptString}
+                ],
+                max_tokens: 200, // Topics are usually short
+                temperature: 0.7, 
+                top_p: 1.0,
+                frequency_penalty: 0.0,
+                presence_penalty: 0.0,
+                stream: true 
+            };
+            
+            const fullResponse = await makeApiRequest(apiKey, baseUrl, 'chat/completions', data, onProgress);
+
+            if (fullResponse) {
+                return fullResponse.trim();
+            } else {
+                console.error('API returned empty or invalid full response for writing topic after streaming.');
+                alert('Failed to get a complete writing topic from API response after streaming.');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error generating writing topic (streaming):', error);
+            let errorMessage = `Error generating writing topic: ${error.message}`;
+            if (error.status) {
+                errorMessage = `API Error (${error.status}) generating writing topic: ${error.message}`;
+            }
+            alert(errorMessage);
+            return null;
+        }
+    };
+
+    // Function to call OpenAI API for writing feedback
+    const generateWritingFeedback = async (promptString, modelName = "gpt-4.1", onProgress) => {
+        const { apiKey, baseUrl } = Auth.getCredentials();
+        if (!apiKey) {
+            alert('API Key not set. Please go to the Settings page to set it.');
+            return null;
+        }
+
+        console.log('Generating writing feedback with model:', modelName);
+
+        try {
+            const data = {
+                model: modelName,
+                messages: [
+                    {role: "user", content: promptString}
+                ],
+                max_tokens: 2048, // Feedback can be extensive, including diffs
+                temperature: 0.5, 
+                top_p: 1.0,
+                frequency_penalty: 0.0,
+                presence_penalty: 0.0,
+                stream: true
+            };
+            
+            const fullResponse = await makeApiRequest(apiKey, baseUrl, 'chat/completions', data, onProgress);
+
+            if (fullResponse) {
+                return fullResponse.trim();
+            } else {
+                console.error('API returned empty or invalid full response for writing feedback after streaming.');
+                alert('Failed to get complete writing feedback from API response after streaming.');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error generating writing feedback (streaming):', error);
+            let errorMessage = `Error generating writing feedback: ${error.message}`;
+            if (error.status) {
+                errorMessage = `API Error (${error.status}) generating writing feedback: ${error.message}`;
+            }
+            alert(errorMessage);
+            return null;
+        }
+    };
+
     return {
         generateExercise,
         testApiConnection,
         generateExplanation,
-        judgeUserResponses
+        judgeUserResponses,
+        generateWritingTopic,
+        generateWritingFeedback
     };
 })();

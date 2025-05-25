@@ -18,6 +18,7 @@ This application allows users to input their OpenAI API credentials, which are s
 - Selection of exercise type, difficulty, and topic
 - Display of generated exercises
 - Copy to clipboard and print functionality (basic)
+- Writing Collaborator mode with AI-generated topics and feedback
 
 ## File Structure
 ```
@@ -32,7 +33,8 @@ This application allows users to input their OpenAI API credentials, which are s
 │   ├── exercises.js    # Exercise generation and handling
 │   ├── ui.js           # UI manipulation
 │   ├── auth.js         # Credential management
-│   └── utils.js        # Helper functions
+│   ├── utils.js        # Helper functions
+│   └── writing.js      # Logic for Writing Collaborator mode
 ├── assets/             # For icons, images (not populated yet)
 │   ├── icons/
 │   └── images/

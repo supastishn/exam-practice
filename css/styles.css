@@ -73,6 +73,86 @@ header h1 {
     transform: translateY(-50%) scale(1.05);
 }
 
+/* Styles for writing.html elements */
+.generated-topic-box, .feedback-box, .diff-box {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.2rem; /* Consistent padding */
+    margin-bottom: 1.5rem;
+}
+
+.generated-topic-box h3, .feedback-box h3, .diff-box h3 { /* Shared heading style for these boxes */
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 0.75rem; /* Space below heading */
+    font-size: 1.1rem; /* Slightly smaller than section H2 */
+}
+
+#user-writing-area { /* Already styled by textarea global styles, but can be more specific */
+    width: 100%;
+    min-height: 200px; /* Good default height */
+    margin-bottom: 1rem; /* Space before action buttons */
+}
+
+.timer-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Spacing between timer elements */
+}
+
+.timer {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    padding: 0.3rem 0.6rem;
+    background-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.1); /* Using RGB for opacity with variables */
+    border-radius: 4px;
+}
+
+.timer-controls button { /* Smaller buttons for timer controls */
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.writing-actions {
+    margin-top: 1rem;
+    text-align: right; /* Align feedback button to the right */
+}
+.writing-actions button {
+    padding: 0.8rem 1.5rem; /* Standard button size */
+}
+
+#diff-pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    background-color: #f7f7f7; /* A very light grey for the diff background */
+    border: 1px solid #eee;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.diff-inserted {
+    background-color: #e6ffed; /* Light green */
+    color: #24292e; /* Dark text for readability */
+    display: block; /* Make each line distinct */
+}
+.diff-deleted {
+    background-color: #ffeef0; /* Light red */
+    color: #24292e; /* Dark text */
+    text-decoration: line-through;
+    display: block; /* Make each line distinct */
+}
+.diff-unchanged { /* For lines that are neither added nor removed, but part of the diff context */
+    color: #586069; /* Greyish text */
+    display: block;
+}
+
+
 .explain-button {
     background-color: #6c757d; /* A neutral secondary color */
     color: var(--light-text);

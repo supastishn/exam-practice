@@ -330,6 +330,16 @@ const Utils = (() => {
         // window.location.reload(); 
     };
 
+    const escapeHtml = (unsafe) => {
+        if (typeof unsafe !== 'string') return '';
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    };
+
     return {
         formatDate,
         getEquivalentForms,
@@ -337,6 +347,7 @@ const Utils = (() => {
         getContractionPairs,
         customMarkdownParse,
         copyToClipboard,
-        printElement
+        printElement,
+        escapeHtml
     };
 })();

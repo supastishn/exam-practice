@@ -29,7 +29,13 @@ A frontend-only web application that uses OpenAI's API to generate English langu
    - Option to regenerate exercises
    - Exercise history
 
-5. **Customization**
+5. **Writing Collaborator Mode**
+   - AI-generated writing topics/prompts
+   - User text input area with optional timer
+   - AI feedback on user's writing (general comments, specific suggestions, optional revised text with diff view)
+   - History of writing sessions
+
+6. **Customization**
    - Theme selection (light/dark mode)
    - Font size adjustment
    - Layout options
@@ -49,7 +55,8 @@ A frontend-only web application that uses OpenAI's API to generate English langu
 │   ├── exercises.js    # Exercise generation and handling
 │   ├── ui.js           # UI manipulation
 │   ├── auth.js         # Credential management
-│   └── utils.js        # Helper functions
+│   ├── utils.js        # Helper functions
+│   └── writing.js      # Logic for Writing Collaborator mode
 ├── assets/
 │   ├── icons/          # UI icons
 │   └── images/         # Other images

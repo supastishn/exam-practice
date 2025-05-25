@@ -216,3 +216,41 @@ body.dark-mode .follow-up-response {
 body.dark-mode .follow-up-response .ai-follow-up-answer pre {
     background-color: #222538; /* Slightly darker than input for pre */
 }
+
+/* Styles for writing.html elements in dark mode */
+body.dark-mode .generated-topic-box,
+body.dark-mode .feedback-box,
+body.dark-mode .diff-box {
+    background-color: var(--input-bg); /* Uses existing dark mode var */
+    border-color: var(--border-color); /* Uses existing dark mode var */
+}
+
+body.dark-mode .timer {
+    color: var(--primary-color); /* Uses existing dark mode var */
+}
+
+body.dark-mode .diff-deleted {
+    background-color: #502020; /* Dark red background */
+    color: #ffcccc; /* Lighter red text */
+}
+body.dark-mode .diff-inserted {
+    background-color: #205020; /* Dark green background */
+    color: #ccffcc; /* Lighter green text */
+}
+
+body.dark-mode #diff-pre {
+    background-color: #222538; /* Dark background for diff */
+    border-color: var(--border-color);
+}
+
+body.dark-mode .diff-inserted {
+    background-color: rgba(46, 160, 67, 0.2); /* More subtle green */
+    color: #adffb5; /* Lighter green text for dark bg */
+}
+body.dark-mode .diff-deleted {
+    background-color: rgba(215, 58, 73, 0.2); /* More subtle red */
+    color: #ffc9cc; /* Lighter red text for dark bg */
+}
+body.dark-mode .diff-unchanged {
+    color: #8b949e; /* Lighter grey for dark bg */
+}
