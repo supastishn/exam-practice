@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
             Memorization.init();
         }
     } else if (pathname.includes('writing.html')) {
-        // This page uses 'topic-generation-form' for Writing.js
-        if (document.getElementById('topic-generation-form')) { 
+        // This page uses 'topic-generation-form' for Writing.js, will be updated for note manager
+        if (document.getElementById('topic-generation-form') || document.getElementById('note-manager-section')) { 
             Writing.init();
         }
     }

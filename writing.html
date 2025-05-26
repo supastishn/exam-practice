@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Collaborator - Language Tools</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Diff library removed, AI will provide diff output -->
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-pencil-alt"></i> Writing Collaborator</h1>
+        <button id="theme-toggle" class="theme-button" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    </header>
+
+    <main>
+        <div class="back-to-portal-container" style="margin-bottom: 1.5rem; text-align: left;">
+            <a href="index.html" class="button-like-link"><i class="fas fa-arrow-left"></i> Back to Portal</a>
+        </div>
+
+        <section id="credentials-prompt-section" style="display: none;">
+            <h2><i class="fas fa-key"></i> API Credentials Needed</h2>
+            <p>To use the Writing Collaborator, you need to set up your OpenAI API credentials.</p>
+            <p><a href="settings.html" class="button-like-link" style="margin-top: 1rem;"><i class="fas fa-cog"></i> Go to Settings</a></p>
+        </section>
+
+        <section id="writing-setup-section" style="display: none;">
+            <h2>
+                <i class="fas fa-lightbulb"></i> Generate Writing Topic
+                <a href="settings.html" id="edit-api-settings-link" class="settings-button"><i class="fas fa-cog"></i> API Settings</a>
+            </h2>
+            <form id="topic-generation-form">
+                <div>
+                    <label for="writing-style"><i class="fas fa-paint-brush"></i> Desired Writing Style/Genre:</label>
+                    <input type="text" id="writing-style" name="writing-style" placeholder="e.g., narrative, descriptive, persuasive, short story, email">
+                </div>
+                <div>
+                    <label for="writing-keywords"><i class="fas fa-tags"></i> Keywords/Theme (optional):</label>
+                    <input type="text" id="writing-keywords" name="writing-keywords" placeholder="e.g., adventure, technology, friendship">
+                </div>
+                <div>
+                    <label for="writing-grade-level"><i class="fas fa-level-up-alt"></i> Target Grade Level (optional):</label>
+                    <input type="text" id="writing-grade-level" name="writing-grade-level" placeholder="e.g., 5th grade, High School, College Freshman">
+                </div>
+                <div>
+                    <label for="writing-model"><i class="fas fa-robot"></i> OpenAI Model (optional):</label>
+                    <input type="text" id="writing-model" name="writing-model" placeholder="gpt-4.1">
+                </div>
+                <button type="submit"><i class="fas fa-magic"></i> Generate Topic</button>
+            </form>
+        </section>
+
+        <section id="writing-practice-section" style="display: none;">
+            <h2><i class="fas fa-keyboard"></i> Your Writing Space</h2>
+            <div id="generated-topic-box" class="generated-topic-box" style="display:none;">
+                <h3><i class="fas fa-bullseye"></i> Your Topic:</h3>
+                <p id="generated-topic-text"></p>
+            </div>
+
+            <div class="timer-settings-container">
+                <div>
+                    <label for="timer-duration-input"><i class="fas fa-clock"></i> Set Timer (minutes, 0 or empty for stopwatch):</label>
+                    <input type="number" id="timer-duration-input" name="timer-duration" min="0" placeholder="e.g., 10">
+                </div>
+            </div>
+            
+            <div class="timer-controls">
+                <span id="timer-display" class="timer">00:00</span>
+                <button id="start-timer-button"><i class="fas fa-play"></i> Start</button>
+                <button id="pause-timer-button" style="display:none;"><i class="fas fa-pause"></i> Pause</button>
+                <button id="reset-timer-button"><i class="fas fa-stop"></i> Reset</button>
+            </div>
+
+            <textarea id="user-writing-area" rows="15" placeholder="Start writing here..."></textarea>
+            <div class="writing-actions">
+                <button id="submit-writing-button"><i class="fas fa-paper-plane"></i> Get Feedback</button>
+            </div>
+        </section>
+
+        <section id="feedback-display-section" style="display: none;">
+            <h2><i class="fas fa-comments"></i> AI Feedback</h2>
+            <div id="feedback-output" class="feedback-box">
+                <!-- AI feedback will be displayed here -->
+            </div>
+            <div id="diff-output" class="diff-box" style="display: none;">
+                <h3><i class="fas fa-exchange-alt"></i> Suggested Changes (Diff View)</h3>
+                <pre id="diff-pre"></pre>
+            </div>
+             <div class="action-buttons" style="margin-top: 1rem;">
+                <button id="copy-feedback-button"><i class="fas fa-copy"></i> Copy Feedback</button>
+            </div>
+        </section>
+        
+        <section id="writing-history-section">
+            <h2>
+                <span><i class="fas fa-history"></i> Writing Practice History</span>
+            </h2>
+            <ul id="writing-history-list">
+                <!-- History items will be populated here -->
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p><i class="fas fa-code"></i> Language Exercise Tools</p>
+        <p><a href="https://supastishn.github.io" target="_blank" rel="noopener noreferrer">See more cool stuff here</a></p>
+        <p><a href="https://github.com/supastishn/exam-practice" target="_blank" rel="noopener noreferrer">See the source code</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/writing.js"></script> <!-- New JS file for this page -->
+    <script src="js/main.js"></script>
+
+    <style>
+        .timer-settings-container {
+            margin-bottom: 1rem; /* Space before timer controls */
+        }
+        .timer-settings-container div {
+            margin-bottom: 0.5rem; /* Space between label and input if grouped */
+        }
+        .timer-settings-container label {
+            margin-bottom: 0.3rem; /* Smaller margin for grouped label */
+        }
+        .timer-settings-container input[type="number"] {
+            width: auto; /* Allow input to be smaller */
+            min-width: 100px;
+            max-width: 150px; /* Max width for timer input */
+            margin-bottom: 0; /* Remove default bottom margin for tighter grouping */
+        }
+
+        .button-like-link {
+            /* Styles already in global css, but ensure it's linked if needed */
+        }
+        .generated-topic-box, .feedback-box, .diff-box {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .generated-topic-box h3, .feedback-box h3, .diff-box h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        #user-writing-area {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            font-size: 1rem;
+            background-color: var(--input-bg); /* Match other inputs */
+            color: var(--text-color);
+        }
+        .timer-controls {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .timer {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-right: 1rem;
+        }
+        .timer-controls button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+        .writing-actions {
+            margin-top: 1rem;
+            text-align: right;
+        }
+        #diff-pre {
+            white-space: pre-wrap;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0; /* Light mode diff background */
+        }
+        .diff-inserted {
+            background-color: #e6ffed;
+            color: #22863a;
+        }
+        .diff-deleted {
+            background-color: #ffeef0;
+            color: #b31d28;
+            text-decoration: line-through;
+        }
+        /* Dark mode diff styles will be in themes.css */
+    </style>
+    <!-- Eruda for mobile debugging -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+</body>
+</html>
