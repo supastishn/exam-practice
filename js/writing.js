@@ -2,6 +2,9 @@
 
 const Writing = (() => {
     
+    // New note generator fields
+    let noteTopicInput, noteWordCountInput, noteGradeLevelInput, generateTopicButton;
+
     let topicGenerationForm, writingStyleInput, writingKeywordsInput, writingGradeLevelInput, writingModelInput,
         generatedTopicBox, generatedTopicText,
         userWritingArea,
@@ -114,18 +117,17 @@ const Writing = (() => {
     };
 
     const handleTopicGeneration = async (event) => {
-        event.preventDefault();
-        const style = writingStyleInput.value.trim();
-        const keywords = writingKeywordsInput.value.trim();
-        const gradeLevel = writingGradeLevelInput.value.trim();
+        event.preventDefault && event.preventDefault();
         const modelInputEl = writingModelInput; 
         const modelInputValue = modelInputEl.value.trim();
         const { defaultModel: savedDefaultModel } = Auth.getCredentials(); 
         const model = modelInputValue || savedDefaultModel || "gpt-4.1";
 
-        const generateButton = topicGenerationForm.querySelector('button[type="submit"]');
-        generateButton.disabled = true;
-        generateButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        const generateButton = generateTopicButton;
+        if (generateButton) {
+            generateButton.disabled = true;
+            generateButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        }
 
         if(generatedTopicBox) generatedTopicBox.style.display = 'none';
         if(generatedTopicText) generatedTopicText.textContent = '';
@@ -134,10 +136,10 @@ const Writing = (() => {
         if(diffPre) diffPre.innerHTML = '';
         if(userWritingArea) userWritingArea.value = ''; 
 
-        const prompt = constructTopicPrompt(style, keywords, gradeLevel);
+        // Use a generic prompt for AI topic generation
+        const prompt = constructTopicPrompt("", "", "");
 
         try {
-            
             if (generatedTopicBox) {
                  generatedTopicBox.style.display = 'block'; 
                  generatedTopicText.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Generating topic...</p>';
@@ -154,8 +156,8 @@ const Writing = (() => {
             const topic = await Api.generateWritingTopic(prompt, model, onProgressCallback); 
             
             if (topic) {
-                currentTopicDetails = { text: topic.trim(), gradeLevel: gradeLevel };
-                if (generatedTopicText) generatedTopicText.textContent = currentTopicDetails.text;
+                if (noteTopicInput) noteTopicInput.value = topic.trim();
+                if (generatedTopicText) generatedTopicText.textContent = topic.trim();
                 if (generatedTopicBox) generatedTopicBox.style.display = 'block';
                 document.getElementById('writing-practice-section').style.display = 'block';
                 if (userWritingArea) {
@@ -172,74 +174,47 @@ const Writing = (() => {
             if (generatedTopicText) generatedTopicText.textContent = `Error: ${error.message}`;
             if (generatedTopicBox) generatedTopicBox.style.display = 'block';
         } finally {
-            generateButton.disabled = false;
-            generateButton.innerHTML = '<i class="fas fa-magic"></i> Generate Topic';
+            if (generateButton) {
+                generateButton.disabled = false;
+                generateButton.innerHTML = '<i class="fas fa-magic"></i> Let AI generate a topic!';
+            }
         }
     };
     
-    const constructFeedbackPrompt = (topic, userText, gradeLevel) => {
+    const constructFeedbackPrompt = (topic, userText, gradeLevel, wordCount) => {
         let context = `
-The user was given the following writing topic:
+The user was given the following topic:
 <topic>
 ${topic}
-</topic>
-
-The user wrote the following text:`;
-        if (gradeLevel) {
-            context += `\nThe user was writing for this approximate grade level: "${gradeLevel}". Please tailor your feedback (e.g., complexity of suggestions, vocabulary used in feedback) to be appropriate for this level.`;
+</topic>`;
+        if (wordCount) {
+            context += `\nThe user was asked to write approximately ${wordCount} words.`;
         }
-        return `${context}
+        if (gradeLevel) {
+            context += `\nThe user wrote this at an approximate grade level: "${gradeLevel}".`;
+        }
+        context += `
+
 <user_text>
 ${userText}
 </user_text>
 
-You are an AI writing assistant. Please provide feedback on the user's text.
-Your feedback should be constructive and aim to help the user improve their writing.
-Structure your feedback in XML format with a root tag <writingFeedback>.
-Inside <writingFeedback>, include:
-1.  A <generalFeedback> tag: Overall comments on coherence, engagement, style, and adherence to the topic. Use Markdown for formatting.
-2.  A <specificSuggestions> tag: Bullet points or specific examples of areas for improvement (e.g., grammar, vocabulary, sentence structure). Use Markdown.
-3.  An optional <revisedText> tag: If you think significant revisions would be beneficial, provide a revised version of the user's text. This can be a partial or full revision. Output this as plain text (or CDATA if needed for XML safety).
-4.  An optional <diffView> tag: If <revisedText> is provided, also provide a textual diff view comparing the original <user_text> and your <revisedText>.
-    Use a line-by-line comparison format. Prefix added lines with "+ ", removed lines with "- ", and unchanged lines with "  " (two spaces).
-    Example of <diffView> content:
-    <diffView><![CDATA[
-- The quick brown fox jumpd over the lazy dog.
-+ The quick brown fox jumped over the lazy dog.
-  This is another sentence that remains the same.
-+ This is a new sentence added by the AI.
-    ]]></diffView>
-
-Example:
-<writingFeedback>
-  <generalFeedback>
-    Your response to the topic is creative and shows good imagination. The narrative flows fairly well.
-    You could strengthen the descriptive language to make the scenes more vivid.
-  </generalFeedback>
-  <specificSuggestions>
-    -   Consider using stronger verbs in the second paragraph.
-    -   There's a minor subject-verb agreement issue in the sentence: "The cats plays." It should be "The cats play."
-    -   Try to vary your sentence structure more; many sentences start with "Then...".
-  </specificSuggestions>
-  <revisedText><![CDATA[The old oak tree stood sentinel at the edge of the whispering woods. Its branches, gnarled and ancient, reached towards the bruised twilight sky... (etc.)]]></revisedText>
-  <diffView><![CDATA[
-- The user's original text line 1 that was changed.
-+ The AI's revised version of line 1.
-  A line that was kept the same.
-+ A new line added by the AI.
-  ]]></diffView>
-</writingFeedback>
-
-Ensure all text content within XML tags is properly escaped if necessary, or use CDATA sections for larger text blocks like <revisedText> and <diffView>.
-Focus on providing helpful, actionable feedback.
+You are an AI writing tutor. Please grade the user's text:
+- Assess coherence, grammar, style.
+- Check if it meets the topic and approximate length.
+- Provide a score out of 10 and brief justification.
 `;
+        return context;
     };
 
 
     const handleFeedbackSubmission = async () => {
-        const userText = userWritingArea.value.trim();
-        if (!currentTopicDetails || !currentTopicDetails.text || !userText) {
-            alert("Please generate a topic and write something before requesting feedback.");
+        const topic      = noteTopicInput.value.trim();
+        const wordCount  = parseInt(noteWordCountInput.value, 10) || 0;
+        const gradeLevel = noteGradeLevelInput.value.trim();
+        const userText   = userWritingArea.value.trim();
+        if (!topic || !userText) {
+            alert("Please set a topic and write something before grading.");
             return;
         }
         pauseTimer(); 
@@ -257,7 +232,7 @@ Focus on providing helpful, actionable feedback.
         const modelInputValue = modelInputEl ? modelInputEl.value.trim() : '';
         const model = modelInputValue || savedDefaultModel || "gpt-4.1";
 
-        const prompt = constructFeedbackPrompt(currentTopicDetails.text, userText, currentTopicDetails.gradeLevel);
+        const prompt = constructFeedbackPrompt(topic, userText, gradeLevel, wordCount);
 
         try {
             let accumulatedFeedbackXml = '';
@@ -346,7 +321,7 @@ Focus on providing helpful, actionable feedback.
                     
                     const durationToSave = isCountdown ? initialCountdownSeconds - secondsElapsed : secondsElapsed;
                     const setTimerDurationMinutes = isCountdown ? initialCountdownSeconds / 60 : null;
-                    saveToHistory(currentTopicDetails.text, userText, feedbackXml, revisedText, aiGeneratedDiff, durationToSave, currentTopicDetails.gradeLevel, setTimerDurationMinutes);
+                    saveToHistory(topic, userText, feedbackXml, revisedText, aiGeneratedDiff, durationToSave, gradeLevel, setTimerDurationMinutes);
                 }
             } else {
                 feedbackOutput.innerHTML = '<p class="error">Failed to get feedback from AI.</p>';
@@ -531,35 +506,42 @@ Focus on providing helpful, actionable feedback.
 
 
     const init = () => {
-        topicGenerationForm = document.getElementById('topic-generation-form');
-        writingStyleInput = document.getElementById('writing-style');
-        writingKeywordsInput = document.getElementById('writing-keywords');
-        writingGradeLevelInput = document.getElementById('writing-grade-level');
-        writingModelInput = document.getElementById('writing-model'); 
-        
-        generatedTopicBox = document.getElementById('generated-topic-box');
-        generatedTopicText = document.getElementById('generated-topic-text');
-        
-        userWritingArea = document.getElementById('user-writing-area');
-        timerDurationInput = document.getElementById('timer-duration-input');
-        
-        startTimerButton = document.getElementById('start-timer-button');
-        pauseTimerButton = document.getElementById('pause-timer-button');
-        resetTimerButton = document.getElementById('reset-timer-button');
-        timerDisplay = document.getElementById('timer-display');
-        
-        submitWritingButton = document.getElementById('submit-writing-button');
-        feedbackOutput = document.getElementById('feedback-output');
-        diffOutput = document.getElementById('diff-output');
-        diffPre = document.getElementById('diff-pre');
-        copyFeedbackButton = document.getElementById('copy-feedback-button');
-        
-        historyList = document.getElementById('writing-history-list');
+        // New note generator fields
+        noteTopicInput        = document.getElementById('note-topic');
+        noteWordCountInput    = document.getElementById('note-word-count');
+        noteGradeLevelInput   = document.getElementById('note-grade-level');
+        generateTopicButton   = document.getElementById('generate-topic-button');
 
+        topicGenerationForm   = document.getElementById('topic-generation-form');
+        writingStyleInput     = document.getElementById('writing-style');
+        writingKeywordsInput  = document.getElementById('writing-keywords');
+        writingGradeLevelInput= document.getElementById('writing-grade-level');
+        writingModelInput     = document.getElementById('writing-model'); 
         
+        generatedTopicBox     = document.getElementById('generated-topic-box');
+        generatedTopicText    = document.getElementById('generated-topic-text');
+        
+        userWritingArea       = document.getElementById('user-writing-area');
+        timerDurationInput    = document.getElementById('timer-duration-input');
+        
+        startTimerButton      = document.getElementById('start-timer-button');
+        pauseTimerButton      = document.getElementById('pause-timer-button');
+        resetTimerButton      = document.getElementById('reset-timer-button');
+        timerDisplay          = document.getElementById('timer-display');
+        
+        submitWritingButton   = document.getElementById('submit-writing-button');
+        feedbackOutput        = document.getElementById('feedback-output');
+        diffOutput            = document.getElementById('diff-output');
+        diffPre               = document.getElementById('diff-pre');
+        copyFeedbackButton    = document.getElementById('copy-feedback-button');
+        
+        historyList           = document.getElementById('writing-history-list');
+
+        // Only allow manual topic form submit for grading, not for topic generation
         if (topicGenerationForm) {
-            topicGenerationForm.addEventListener('submit', handleTopicGeneration);
+            topicGenerationForm.addEventListener('submit', (e) => { e.preventDefault(); });
         }
+        if (generateTopicButton) generateTopicButton.addEventListener('click', handleTopicGeneration);
         if (startTimerButton) startTimerButton.addEventListener('click', startTimer);
         if (pauseTimerButton) pauseTimerButton.addEventListener('click', pauseTimer);
         if (resetTimerButton) resetTimerButton.addEventListener('click', resetTimer);
@@ -567,39 +549,28 @@ Focus on providing helpful, actionable feedback.
 
         if (copyFeedbackButton && feedbackOutput) {
             copyFeedbackButton.addEventListener('click', () => {
-                
                 let textToCopy = "AI Feedback:\n\n";
-                
-                
                 const generalFeedbackText = feedbackOutput.querySelector("div:nth-of-type(1)")?.innerText || "";
                 const specificSuggestionsText = feedbackOutput.querySelector("div:nth-of-type(2)")?.innerText || "";
-                
                 if (generalFeedbackText.trim()) {
                     textToCopy += "General Feedback:\n" + generalFeedbackText.trim() + "\n\n";
                 }
                 if (specificSuggestionsText.trim()) {
                     textToCopy += "Specific Suggestions:\n" + specificSuggestionsText.trim() + "\n\n";
                 }
-
                 if (diffPre && diffOutput && diffOutput.style.display !== 'none' && diffPre.innerText.trim()) {
                     textToCopy += "Suggested Changes (Diff):\n" + diffPre.innerText.trim() + "\n";
                 }
-                
                 if (textToCopy.length <= "AI Feedback:\n\n".length) { 
                    textToCopy = feedbackOutput.innerText; 
                 }
-
                 Utils.copyToClipboard(textToCopy.trim(), "Feedback copied to clipboard!");
             });
         }
 
-        
-        
-        
         const { apiKey } = Auth.getCredentials();
         if (apiKey) {
             document.getElementById('writing-setup-section').style.display = 'block';
-            
             const { defaultModel: savedDefaultModel } = Auth.getCredentials();
              if (writingModelInput) {
                 if (savedDefaultModel) {

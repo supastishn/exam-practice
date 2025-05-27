@@ -34,23 +34,25 @@
                 <a href="settings.html" id="edit-api-settings-link" class="settings-button"><i class="fas fa-cog"></i> API Settings</a>
             </h2>
             <form id="topic-generation-form">
+                <button type="button" id="generate-topic-button">
+                    <i class="fas fa-magic"></i> Let AI generate a topic!
+                </button>
                 <div>
-                    <label for="writing-style"><i class="fas fa-paint-brush"></i> Desired Writing Style/Genre:</label>
-                    <input type="text" id="writing-style" name="writing-style" placeholder="e.g., narrative, descriptive, persuasive, short story, email">
+                    <label for="note-topic"><i class="fas fa-bullseye"></i> Topic:</label>
+                    <input type="text" id="note-topic" name="note-topic" placeholder="Enter your topic">
                 </div>
                 <div>
-                    <label for="writing-keywords"><i class="fas fa-tags"></i> Keywords/Theme (optional):</label>
-                    <input type="text" id="writing-keywords" name="writing-keywords" placeholder="e.g., adventure, technology, friendship">
+                    <label for="note-word-count"><i class="fas fa-list-ol"></i> Word Count:</label>
+                    <input type="number" id="note-word-count" name="note-word-count" min="1" placeholder="e.g. 200">
                 </div>
                 <div>
-                    <label for="writing-grade-level"><i class="fas fa-level-up-alt"></i> Target Grade Level (optional):</label>
-                    <input type="text" id="writing-grade-level" name="writing-grade-level" placeholder="e.g., 5th grade, High School, College Freshman">
+                    <label for="note-grade-level"><i class="fas fa-level-up-alt"></i> Grade Level:</label>
+                    <input type="text" id="note-grade-level" name="note-grade-level" placeholder="e.g. 5th grade">
                 </div>
                 <div>
                     <label for="writing-model"><i class="fas fa-robot"></i> OpenAI Model (optional):</label>
                     <input type="text" id="writing-model" name="writing-model" placeholder="gpt-4.1">
                 </div>
-                <button type="submit"><i class="fas fa-magic"></i> Generate Topic</button>
             </form>
         </section>
 
