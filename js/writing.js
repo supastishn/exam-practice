@@ -1,22 +1,22 @@
-// js/writing.js - Logic for the Writing Collaborator mode
+
 
 const Writing = (() => {
-    // DOM Elements
+    
     let topicGenerationForm, writingStyleInput, writingKeywordsInput, writingGradeLevelInput, writingModelInput,
         generatedTopicBox, generatedTopicText,
         userWritingArea,
-        timerDurationInput, // New
+        timerDurationInput, 
         startTimerButton, pauseTimerButton, resetTimerButton, timerDisplay,
         submitWritingButton,
         feedbackOutput, diffOutput, diffPre, copyFeedbackButton,
         historyList;
 
-    // State
-    let currentTopicDetails = null; // Changed from currentTopic to store more details
+    
+    let currentTopicDetails = null; 
     let timerInterval = null;
-    let secondsElapsed = 0; // For stopwatch: counts up. For countdown: remaining seconds.
-    let initialCountdownSeconds = 0; // Stores the initial duration for countdown resets
-    let isCountdown = false; // True if timer is in countdown mode
+    let secondsElapsed = 0; 
+    let initialCountdownSeconds = 0; 
+    let isCountdown = false; 
     let timerRunning = false;
     const HISTORY_STORAGE_KEY = 'writingPracticeHistory';
 
@@ -42,32 +42,32 @@ const Writing = (() => {
             if (timerDurationInput) timerDurationInput.disabled = true;
         } else {
             isCountdown = false;
-            initialCountdownSeconds = 0; // Explicitly set for stopwatch mode
+            initialCountdownSeconds = 0; 
             secondsElapsed = 0;
-            if (timerDurationInput) timerDurationInput.disabled = false; // Keep editable for stopwatch if user wants to set later
+            if (timerDurationInput) timerDurationInput.disabled = false; 
         }
         
         timerRunning = true;
         if (startTimerButton) startTimerButton.style.display = 'none';
         if (pauseTimerButton) pauseTimerButton.style.display = 'inline-block';
-        if (userWritingArea) userWritingArea.disabled = false; // Ensure writing area is enabled
+        if (userWritingArea) userWritingArea.disabled = false; 
 
         timerInterval = setInterval(() => {
             if (isCountdown) {
                 secondsElapsed--;
-                if (secondsElapsed < 0) secondsElapsed = 0; // Prevent negative display
+                if (secondsElapsed < 0) secondsElapsed = 0; 
                 if (secondsElapsed === 0) {
-                    pauseTimer(); // Stops interval, updates buttons
+                    pauseTimer(); 
                     alert("Time's up!");
                     if (userWritingArea) userWritingArea.disabled = true;
                     if (timerDurationInput) timerDurationInput.disabled = false;
                 }
-            } else { // Stopwatch mode
+            } else { 
                 secondsElapsed++;
             }
             updateTimerDisplay();
         }, 1000);
-        updateTimerDisplay(); // Initial display update
+        updateTimerDisplay(); 
     };
 
     const pauseTimer = () => {
@@ -76,22 +76,22 @@ const Writing = (() => {
         clearInterval(timerInterval);
         if (startTimerButton) startTimerButton.style.display = 'inline-block';
         if (pauseTimerButton) pauseTimerButton.style.display = 'none';
-        // Don't re-enable timerDurationInput here, only on reset or time up
+        
     };
 
     const resetTimer = () => {
-        pauseTimer(); // Clears interval and sets timerRunning to false
+        pauseTimer(); 
         
-        // Re-read duration from input for flexibility, or use stored initial for strict reset
-        // For now, let's reset to the `initialCountdownSeconds` if it was a countdown, or 0.
+        
+        
         if (isCountdown && initialCountdownSeconds > 0) {
             secondsElapsed = initialCountdownSeconds;
         } else {
             secondsElapsed = 0;
         }
-        // Reset countdown state for the next run unless startTimer re-evaluates
-        // isCountdown = false; 
-        // initialCountdownSeconds = 0; // This would forget the last set duration if user just wants to restart same countdown
+        
+        
+        
 
         if (userWritingArea) userWritingArea.disabled = false;
         if (timerDurationInput) timerDurationInput.disabled = false;
@@ -118,9 +118,9 @@ const Writing = (() => {
         const style = writingStyleInput.value.trim();
         const keywords = writingKeywordsInput.value.trim();
         const gradeLevel = writingGradeLevelInput.value.trim();
-        const modelInputEl = writingModelInput; // Direct reference to the input element
+        const modelInputEl = writingModelInput; 
         const modelInputValue = modelInputEl.value.trim();
-        const { defaultModel: savedDefaultModel } = Auth.getCredentials(); // Auth.getCredentials is correct
+        const { defaultModel: savedDefaultModel } = Auth.getCredentials(); 
         const model = modelInputValue || savedDefaultModel || "gpt-4.1";
 
         const generateButton = topicGenerationForm.querySelector('button[type="submit"]');
@@ -132,14 +132,14 @@ const Writing = (() => {
         if(feedbackOutput) feedbackOutput.innerHTML = '';
         if(diffOutput) diffOutput.style.display = 'none';
         if(diffPre) diffPre.innerHTML = '';
-        if(userWritingArea) userWritingArea.value = ''; // Clear previous writing
+        if(userWritingArea) userWritingArea.value = ''; 
 
         const prompt = constructTopicPrompt(style, keywords, gradeLevel);
 
         try {
-            // Using a generic stream display for topic generation as well
+            
             if (generatedTopicBox) {
-                 generatedTopicBox.style.display = 'block'; // Show the box for the loading message
+                 generatedTopicBox.style.display = 'block'; 
                  generatedTopicText.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Generating topic...</p>';
             }
             
@@ -147,7 +147,7 @@ const Writing = (() => {
             const onProgressCallback = (chunk) => {
                 accumulatedTopic += chunk;
                 if (generatedTopicText) {
-                    generatedTopicText.textContent = accumulatedTopic; // Update live
+                    generatedTopicText.textContent = accumulatedTopic; 
                 }
             };
 
@@ -159,10 +159,10 @@ const Writing = (() => {
                 if (generatedTopicBox) generatedTopicBox.style.display = 'block';
                 document.getElementById('writing-practice-section').style.display = 'block';
                 if (userWritingArea) {
-                    userWritingArea.disabled = false; // Ensure enabled
+                    userWritingArea.disabled = false; 
                     userWritingArea.focus();
                 }
-                resetTimer(); // Reset timer for the new topic
+                resetTimer(); 
             } else {
                 if (generatedTopicText) generatedTopicText.textContent = 'Failed to generate topic.';
                 if (generatedTopicBox) generatedTopicBox.style.display = 'block';
@@ -242,7 +242,7 @@ Focus on providing helpful, actionable feedback.
             alert("Please generate a topic and write something before requesting feedback.");
             return;
         }
-        pauseTimer(); // Pause timer when feedback is requested
+        pauseTimer(); 
 
         submitWritingButton.disabled = true;
         submitWritingButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Feedback...';
@@ -253,7 +253,7 @@ Focus on providing helpful, actionable feedback.
         document.getElementById('feedback-display-section').style.display = 'block';
         
         const { defaultModel: savedDefaultModel, apiKey } = Auth.getCredentials();
-        const modelInputEl = writingModelInput; // Use the same model input as for topic generation
+        const modelInputEl = writingModelInput; 
         const modelInputValue = modelInputEl ? modelInputEl.value.trim() : '';
         const model = modelInputValue || savedDefaultModel || "gpt-4.1";
 
@@ -271,7 +271,7 @@ Focus on providing helpful, actionable feedback.
             streamingFeedbackPre.style.marginTop = '10px';
             streamingFeedbackPre.textContent = 'Streaming feedback XML data...\n';
             if (feedbackOutput) {
-                feedbackOutput.innerHTML = ''; // Clear "Analyzing..."
+                feedbackOutput.innerHTML = ''; 
                 feedbackOutput.appendChild(streamingFeedbackPre);
             }
 
@@ -281,10 +281,10 @@ Focus on providing helpful, actionable feedback.
                 streamingFeedbackPre.scrollTop = streamingFeedbackPre.scrollHeight;
             };
             
-            const feedbackXml = await Api.generateWritingFeedback(prompt, model, onProgressCallback); // New API method
+            const feedbackXml = await Api.generateWritingFeedback(prompt, model, onProgressCallback); 
 
             if (feedbackOutput && feedbackOutput.contains(streamingFeedbackPre)) {
-                feedbackOutput.removeChild(streamingFeedbackPre); // Remove streaming pre
+                feedbackOutput.removeChild(streamingFeedbackPre); 
             }
 
             if (feedbackXml) {
@@ -299,7 +299,7 @@ Focus on providing helpful, actionable feedback.
                     const generalFeedback = xmlDoc.querySelector("generalFeedback")?.textContent;
                     const specificSuggestions = xmlDoc.querySelector("specificSuggestions")?.textContent;
                     const revisedTextNode = xmlDoc.querySelector("revisedText");
-                    const revisedText = revisedTextNode ? revisedTextNode.textContent : null; // Handles CDATA correctly
+                    const revisedText = revisedTextNode ? revisedTextNode.textContent : null; 
                     const diffViewNode = xmlDoc.querySelector("diffView");
                     const aiGeneratedDiff = diffViewNode ? diffViewNode.textContent : null;
 
@@ -310,9 +310,9 @@ Focus on providing helpful, actionable feedback.
                     if (specificSuggestions) {
                         htmlFeedback += `<h4>Specific Suggestions:</h4><div>${Utils.customMarkdownParse(specificSuggestions)}</div>`;
                     }
-                    if (!htmlFeedback && !aiGeneratedDiff) { // If no structured feedback and no diff, show raw XML
+                    if (!htmlFeedback && !aiGeneratedDiff) { 
                         htmlFeedback = "<p>No structured feedback or diff view received. Displaying raw XML:</p><pre>" + feedbackXml.replace(/</g, "&lt;") + "</pre>";
-                    } else if (!htmlFeedback && aiGeneratedDiff) { // If only diff view, but no general/specific
+                    } else if (!htmlFeedback && aiGeneratedDiff) { 
                          htmlFeedback = "<p>No specific textual feedback received, but a diff view is available.</p>";
                     }
                     feedbackOutput.innerHTML = htmlFeedback;
@@ -320,30 +320,30 @@ Focus on providing helpful, actionable feedback.
                     if (aiGeneratedDiff && diffPre && diffOutput) {
                         let diffHtml = '';
                         aiGeneratedDiff.split('\n').forEach(line => {
-                            const trimmedLine = line.trimEnd(); // Keep leading spaces, trim trailing
+                            const trimmedLine = line.trimEnd(); 
                             if (trimmedLine.startsWith('+ ')) {
                                 diffHtml += `<span class="diff-inserted">${trimmedLine.substring(2)}</span>\n`;
                             } else if (trimmedLine.startsWith('- ')) {
                                 diffHtml += `<span class="diff-deleted">${trimmedLine.substring(2)}</span>\n`;
-                            } else if (trimmedLine.startsWith('  ')) { // Unchanged line
+                            } else if (trimmedLine.startsWith('  ')) { 
                                 diffHtml += `<span class="diff-unchanged">${trimmedLine.substring(2)}</span>\n`;
-                            } else if (trimmedLine.trim() !== '') { // Other lines from diff header/context if AI includes them differently
+                            } else if (trimmedLine.trim() !== '') { 
                                 diffHtml += `${trimmedLine}\n`;
                             } else {
-                                diffHtml += '\n'; // Preserve empty lines
+                                diffHtml += '\n'; 
                             }
                         });
                         diffPre.innerHTML = diffHtml;
                         diffOutput.style.display = 'block';
                     } else if (revisedText && diffPre && diffOutput) {
-                        // Fallback: If AI gave revisedText but no diffView, show only the revised text
+                        
                         diffPre.innerHTML = `<span class="diff-inserted">${Utils.escapeHtml(revisedText)}</span>`;
                         diffOutput.style.display = 'block';
                          diffOutput.querySelector('h3').textContent = "AI Suggested Revision (no diff view provided)";
                     }
                     
-                    // Pass aiGeneratedDiff to history instead of revisedText directly for diff purposes.
-                    // revisedText is still useful for other things if needed.
+                    
+                    
                     const durationToSave = isCountdown ? initialCountdownSeconds - secondsElapsed : secondsElapsed;
                     const setTimerDurationMinutes = isCountdown ? initialCountdownSeconds / 60 : null;
                     saveToHistory(currentTopicDetails.text, userText, feedbackXml, revisedText, aiGeneratedDiff, durationToSave, currentTopicDetails.gradeLevel, setTimerDurationMinutes);
@@ -367,16 +367,16 @@ Focus on providing helpful, actionable feedback.
             date: new Date().toISOString(),
             topic: topic,
             userWriting: userWriting,
-            feedbackXml: feedbackXml, // Store the raw XML feedback
-            revisedText: revisedText, // Store AI's revised text if provided
-            aiGeneratedDiff: aiGeneratedDiff, // Store the AI-generated diff
-            duration: actualDuration, // Actual writing duration in seconds
-            gradeLevel: gradeLevel, // Store grade level
-            setTimerMinutes: setTimerMinutes, // Store initially set timer duration in minutes
+            feedbackXml: feedbackXml, 
+            revisedText: revisedText, 
+            aiGeneratedDiff: aiGeneratedDiff, 
+            duration: actualDuration, 
+            gradeLevel: gradeLevel, 
+            setTimerMinutes: setTimerMinutes, 
             model: (writingModelInput ? writingModelInput.value.trim() : null) || Auth.getCredentials().defaultModel || "gpt-4.1"
         };
         history.unshift(newEntry);
-        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 20))); // Keep last 20 entries
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 20))); 
         renderHistory();
     };
 
@@ -401,7 +401,7 @@ Focus on providing helpful, actionable feedback.
             detailsDiv.className = 'history-details';
 
             const topicSpan = document.createElement('span');
-            topicSpan.className = 'history-prompt'; // Re-use class for similar styling
+            topicSpan.className = 'history-prompt'; 
             let topicText = `Topic: "${item.topic.substring(0,50)}${item.topic.length > 50 ? "..." : ""}"`;
             if (item.gradeLevel) {
                 topicText += ` (Grade: ${item.gradeLevel})`;
@@ -437,8 +437,8 @@ Focus on providing helpful, actionable feedback.
                 }
                 if(timerDurationInput) timerDurationInput.value = item.setTimerMinutes || '';
                 
-                // Simulate feedback display from history
-                if(feedbackOutput) feedbackOutput.innerHTML = ''; // Clear current
+                
+                if(feedbackOutput) feedbackOutput.innerHTML = ''; 
                 if(diffOutput) diffOutput.style.display = 'none';
                 if(diffPre) diffPre.innerHTML = '';
 
@@ -474,7 +474,7 @@ Focus on providing helpful, actionable feedback.
                          diffOutput.querySelector('h3').textContent = "Suggested Changes (Diff View)";
                     }
                 } else if (item.revisedText && diffPre && diffOutput) {
-                    // Fallback for older history items or if AI only gave revisedText
+                    
                      diffPre.innerHTML = `<span class="diff-inserted">${Utils.escapeHtml(item.revisedText)}</span>`;
                      diffOutput.style.display = 'block';
                      if (diffOutput.querySelector('h3')) {
@@ -487,21 +487,21 @@ Focus on providing helpful, actionable feedback.
                 document.getElementById('feedback-display-section').style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
-                // Timer reset logic for history view
-                pauseTimer(); // Ensure any active timer is stopped
+                
+                pauseTimer(); 
                 if (item.setTimerMinutes && parseInt(item.setTimerMinutes, 10) > 0) {
                     isCountdown = true;
                     initialCountdownSeconds = parseInt(item.setTimerMinutes, 10) * 60;
-                    // Determine if the historic session finished or was partial
-                    // For simplicity, just show the original set duration if it was a countdown
+                    
+                    
                     secondsElapsed = initialCountdownSeconds; 
                 } else {
                     isCountdown = false;
                     initialCountdownSeconds = 0;
-                    secondsElapsed = item.duration || 0; // Show actual time spent if it was stopwatch
+                    secondsElapsed = item.duration || 0; 
                 }
                 if (timerDurationInput) timerDurationInput.disabled = false;
-                if (userWritingArea) userWritingArea.disabled = false; // Ensure it's enabled
+                if (userWritingArea) userWritingArea.disabled = false; 
                 updateTimerDisplay();
 
 
@@ -535,7 +535,7 @@ Focus on providing helpful, actionable feedback.
         writingStyleInput = document.getElementById('writing-style');
         writingKeywordsInput = document.getElementById('writing-keywords');
         writingGradeLevelInput = document.getElementById('writing-grade-level');
-        writingModelInput = document.getElementById('writing-model'); // For topic and feedback
+        writingModelInput = document.getElementById('writing-model'); 
         
         generatedTopicBox = document.getElementById('generated-topic-box');
         generatedTopicText = document.getElementById('generated-topic-text');
@@ -556,7 +556,7 @@ Focus on providing helpful, actionable feedback.
         
         historyList = document.getElementById('writing-history-list');
 
-        // Event Listeners
+        
         if (topicGenerationForm) {
             topicGenerationForm.addEventListener('submit', handleTopicGeneration);
         }
@@ -567,10 +567,10 @@ Focus on providing helpful, actionable feedback.
 
         if (copyFeedbackButton && feedbackOutput) {
             copyFeedbackButton.addEventListener('click', () => {
-                // Create a consolidated text from feedback and diff if available
+                
                 let textToCopy = "AI Feedback:\n\n";
                 
-                // Extract text from generalFeedback and specificSuggestions
+                
                 const generalFeedbackText = feedbackOutput.querySelector("div:nth-of-type(1)")?.innerText || "";
                 const specificSuggestionsText = feedbackOutput.querySelector("div:nth-of-type(2)")?.innerText || "";
                 
@@ -585,21 +585,21 @@ Focus on providing helpful, actionable feedback.
                     textToCopy += "Suggested Changes (Diff):\n" + diffPre.innerText.trim() + "\n";
                 }
                 
-                if (textToCopy.length <= "AI Feedback:\n\n".length) { // Check if any actual content was added
-                   textToCopy = feedbackOutput.innerText; // Fallback to raw innerText if structured extraction fails
+                if (textToCopy.length <= "AI Feedback:\n\n".length) { 
+                   textToCopy = feedbackOutput.innerText; 
                 }
 
                 Utils.copyToClipboard(textToCopy.trim(), "Feedback copied to clipboard!");
             });
         }
 
-        // Initial UI state controlled by Auth.js based on credentials
-        // If credentials exist, Auth.js calls UI.showExerciseGeneration() which needs to be adapted
-        // For writing.html, we'll use 'writing-setup-section'
+        
+        
+        
         const { apiKey } = Auth.getCredentials();
         if (apiKey) {
             document.getElementById('writing-setup-section').style.display = 'block';
-            // Update model placeholder based on saved default
+            
             const { defaultModel: savedDefaultModel } = Auth.getCredentials();
              if (writingModelInput) {
                 if (savedDefaultModel) {
