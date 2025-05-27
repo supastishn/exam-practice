@@ -214,125 +214,15 @@ You are an AI writing tutor. Please grade the user's text:
         const gradeLevel = noteGradeLevelInput.value.trim();
         const userText   = userWritingArea.value.trim();
         if (!topic || !userText) {
-            alert("Please set a topic and write something before grading.");
+            alert("Please set a title and write something before grading.");
             return;
         }
-        pauseTimer(); 
+        pauseTimer();
 
-        submitWritingButton.disabled = true;
-        submitWritingButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Feedback...';
-
-        if(feedbackOutput) feedbackOutput.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Analyzing your writing and generating feedback...</p>';
-        if(diffOutput) diffOutput.style.display = 'none';
-        if(diffPre) diffPre.innerHTML = '';
-        document.getElementById('feedback-display-section').style.display = 'block';
-        
-        const { defaultModel: savedDefaultModel, apiKey } = Auth.getCredentials();
-        const modelInputEl = writingModelInput; 
-        const modelInputValue = modelInputEl ? modelInputEl.value.trim() : '';
-        const model = modelInputValue || savedDefaultModel || "gpt-4.1";
-
-        const prompt = constructFeedbackPrompt(topic, userText, gradeLevel, wordCount);
-
-        try {
-            let accumulatedFeedbackXml = '';
-            const streamingFeedbackPre = document.createElement('pre');
-            streamingFeedbackPre.id = `streaming-feedback-xml-pre`;
-            streamingFeedbackPre.style.whiteSpace = 'pre-wrap';
-            streamingFeedbackPre.style.border = '1px dashed #ccc';
-            streamingFeedbackPre.style.padding = '10px';
-            streamingFeedbackPre.style.maxHeight = '200px';
-            streamingFeedbackPre.style.overflowY = 'auto';
-            streamingFeedbackPre.style.marginTop = '10px';
-            streamingFeedbackPre.textContent = 'Streaming feedback XML data...\n';
-            if (feedbackOutput) {
-                feedbackOutput.innerHTML = ''; 
-                feedbackOutput.appendChild(streamingFeedbackPre);
-            }
-
-            const onProgressCallback = (chunk) => {
-                accumulatedFeedbackXml += chunk;
-                streamingFeedbackPre.textContent += chunk;
-                streamingFeedbackPre.scrollTop = streamingFeedbackPre.scrollHeight;
-            };
-            
-            const feedbackXml = await Api.generateWritingFeedback(prompt, model, onProgressCallback); 
-
-            if (feedbackOutput && feedbackOutput.contains(streamingFeedbackPre)) {
-                feedbackOutput.removeChild(streamingFeedbackPre); 
-            }
-
-            if (feedbackXml) {
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(feedbackXml, "text/xml");
-                const errorNode = xmlDoc.querySelector("parsererror");
-
-                if (errorNode) {
-                    console.error("Error parsing feedback XML:", errorNode.textContent);
-                    feedbackOutput.innerHTML = `<p class="error">Error processing AI feedback. Invalid XML received.</p><pre>${feedbackXml.replace(/</g, "&lt;")}</pre>`;
-                } else {
-                    const generalFeedback = xmlDoc.querySelector("generalFeedback")?.textContent;
-                    const specificSuggestions = xmlDoc.querySelector("specificSuggestions")?.textContent;
-                    const revisedTextNode = xmlDoc.querySelector("revisedText");
-                    const revisedText = revisedTextNode ? revisedTextNode.textContent : null; 
-                    const diffViewNode = xmlDoc.querySelector("diffView");
-                    const aiGeneratedDiff = diffViewNode ? diffViewNode.textContent : null;
-
-                    let htmlFeedback = "";
-                    if (generalFeedback) {
-                        htmlFeedback += `<h4>General Feedback:</h4><div>${Utils.customMarkdownParse(generalFeedback)}</div>`;
-                    }
-                    if (specificSuggestions) {
-                        htmlFeedback += `<h4>Specific Suggestions:</h4><div>${Utils.customMarkdownParse(specificSuggestions)}</div>`;
-                    }
-                    if (!htmlFeedback && !aiGeneratedDiff) { 
-                        htmlFeedback = "<p>No structured feedback or diff view received. Displaying raw XML:</p><pre>" + feedbackXml.replace(/</g, "&lt;") + "</pre>";
-                    } else if (!htmlFeedback && aiGeneratedDiff) { 
-                         htmlFeedback = "<p>No specific textual feedback received, but a diff view is available.</p>";
-                    }
-                    feedbackOutput.innerHTML = htmlFeedback;
-
-                    if (aiGeneratedDiff && diffPre && diffOutput) {
-                        let diffHtml = '';
-                        aiGeneratedDiff.split('\n').forEach(line => {
-                            const trimmedLine = line.trimEnd(); 
-                            if (trimmedLine.startsWith('+ ')) {
-                                diffHtml += `<span class="diff-inserted">${trimmedLine.substring(2)}</span>\n`;
-                            } else if (trimmedLine.startsWith('- ')) {
-                                diffHtml += `<span class="diff-deleted">${trimmedLine.substring(2)}</span>\n`;
-                            } else if (trimmedLine.startsWith('  ')) { 
-                                diffHtml += `<span class="diff-unchanged">${trimmedLine.substring(2)}</span>\n`;
-                            } else if (trimmedLine.trim() !== '') { 
-                                diffHtml += `${trimmedLine}\n`;
-                            } else {
-                                diffHtml += '\n'; 
-                            }
-                        });
-                        diffPre.innerHTML = diffHtml;
-                        diffOutput.style.display = 'block';
-                    } else if (revisedText && diffPre && diffOutput) {
-                        
-                        diffPre.innerHTML = `<span class="diff-inserted">${Utils.escapeHtml(revisedText)}</span>`;
-                        diffOutput.style.display = 'block';
-                         diffOutput.querySelector('h3').textContent = "AI Suggested Revision (no diff view provided)";
-                    }
-                    
-                    
-                    
-                    const durationToSave = isCountdown ? initialCountdownSeconds - secondsElapsed : secondsElapsed;
-                    const setTimerDurationMinutes = isCountdown ? initialCountdownSeconds / 60 : null;
-                    saveToHistory(topic, userText, feedbackXml, revisedText, aiGeneratedDiff, durationToSave, gradeLevel, setTimerDurationMinutes);
-                }
-            } else {
-                feedbackOutput.innerHTML = '<p class="error">Failed to get feedback from AI.</p>';
-            }
-        } catch (error) {
-            console.error("Error getting writing feedback:", error);
-            feedbackOutput.innerHTML = `<p class="error">Error: ${error.message}</p>`;
-        } finally {
-            submitWritingButton.disabled = false;
-            submitWritingButton.innerHTML = '<i class="fas fa-paper-plane"></i> Get Feedback';
-        }
+        // now swap sections: let user pick title
+        document.getElementById('writing-practice-section').style.display = 'none';
+        document.getElementById('writing-setup-section').style.display = 'block';
+        return;   // stop here; title will trigger the actual grading when submitted
     };
     
     const saveToHistory = (topic, userWriting, feedbackXml, revisedText, aiGeneratedDiff, actualDuration, gradeLevel, setTimerMinutes) => {
@@ -539,9 +429,15 @@ You are an AI writing tutor. Please grade the user's text:
 
         // Only allow manual topic form submit for grading, not for topic generation
         if (topicGenerationForm) {
-            topicGenerationForm.addEventListener('submit', (e) => { e.preventDefault(); });
+            topicGenerationForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                // stash title if you need it:
+                const noteTitle = noteTopicInput.value.trim();
+                if (!noteTitle) { alert('Please enter a title.'); return; }
+                // now actually run your feedback logic
+                await handleFeedbackSubmission();
+            });
         }
-        if (generateTopicButton) generateTopicButton.addEventListener('click', handleTopicGeneration);
         if (startTimerButton) startTimerButton.addEventListener('click', startTimer);
         if (pauseTimerButton) pauseTimerButton.addEventListener('click', pauseTimer);
         if (resetTimerButton) resetTimerButton.addEventListener('click', resetTimer);
@@ -570,7 +466,8 @@ You are an AI writing tutor. Please grade the user's text:
 
         const { apiKey } = Auth.getCredentials();
         if (apiKey) {
-            document.getElementById('writing-setup-section').style.display = 'block';
+            document.getElementById('writing-practice-section').style.display = 'block';
+            document.getElementById('writing-setup-section').style.display = 'none';
             const { defaultModel: savedDefaultModel } = Auth.getCredentials();
              if (writingModelInput) {
                 if (savedDefaultModel) {
@@ -581,9 +478,9 @@ You are an AI writing tutor. Please grade the user's text:
             }
         } else {
             document.getElementById('credentials-prompt-section').style.display = 'block';
+            document.getElementById('writing-practice-section').style.display = 'none';
             document.getElementById('writing-setup-section').style.display = 'none';
         }
-        document.getElementById('writing-practice-section').style.display = 'none';
         document.getElementById('feedback-display-section').style.display = 'none';
 
         updateTimerDisplay();
