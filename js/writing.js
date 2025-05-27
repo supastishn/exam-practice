@@ -429,13 +429,17 @@ You are an AI writing tutor. Please grade the user's text:
 
         // Only allow manual topic form submit for grading, not for topic generation
         if (topicGenerationForm) {
-            topicGenerationForm.addEventListener('submit', async e => {
+            topicGenerationForm.addEventListener('submit', e => {
                 e.preventDefault();
-                // stash title if you need it:
-                const noteTitle = noteTopicInput.value.trim();
-                if (!noteTitle) { alert('Please enter a title.'); return; }
-                // now actually run your feedback logic
-                await handleFeedbackSubmission();
+                const title = noteTopicInput.value.trim();
+                if (!title) {
+                    alert('Please enter a title.');
+                    return;
+                }
+                // hide title form, show writing space
+                document.getElementById('writing-setup-section').style.display = 'none';
+                document.getElementById('writing-practice-section').style.display = 'block';
+                userWritingArea && userWritingArea.focus();
             });
         }
         if (startTimerButton) startTimerButton.addEventListener('click', startTimer);
@@ -466,8 +470,8 @@ You are an AI writing tutor. Please grade the user's text:
 
         const { apiKey } = Auth.getCredentials();
         if (apiKey) {
-            document.getElementById('writing-practice-section').style.display = 'block';
-            document.getElementById('writing-setup-section').style.display = 'none';
+            document.getElementById('writing-setup-section').style.display = 'block';
+            document.getElementById('writing-practice-section').style.display = 'none';
             const { defaultModel: savedDefaultModel } = Auth.getCredentials();
              if (writingModelInput) {
                 if (savedDefaultModel) {
