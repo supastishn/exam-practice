@@ -301,9 +301,6 @@ const Auth = (() => {
         // No specific Auth UI logic for index.html (portal page) or other pages
 
         // The 'edit-api-settings' button is now a link, so no event listener needed here for it.
-
-        // initialize presets dropdown and buttons
-        initPresetsUI();
     };
 
     return {
