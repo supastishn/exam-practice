@@ -624,7 +624,8 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
             return;
         }
         
-        const isAiJudgerQuiz = results.some(r => r.type === 'ai-judger');
+        const aiJudgedTypes = ['ai-judger', 'fill-in-the-blank'];
+        const isAiJudgerQuiz = results.some(r => aiJudgedTypes.includes(r.type));
         let tasksToJudge = []; // Declare tasksToJudge here to widen its scope
 
         if (isAiJudgerQuiz) {
@@ -649,7 +650,8 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
                 // scroll
             };
             
-            tasksToJudge = results.filter(r => r.type === 'ai-judger' && r.answered)
+            tasksToJudge = results
+                .filter(r => aiJudgedTypes.includes(r.type) && r.answered)
                 .map(r => ({ id: r.id, taskText: r.taskText, userAnswer: r.userAnswer }));
 
             if (tasksToJudge.length > 0) {
@@ -677,7 +679,7 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
                             const status = jNode.querySelector("status")?.textContent.toLowerCase();
                             const feedbackText = jNode.querySelector("feedback")?.textContent;
 
-                            const itemToUpdate = currentQuizItems.find(item => item.id === taskId && item.type === 'ai-judger');
+                            const itemToUpdate = currentQuizItems.find(item => item.id === taskId && aiJudgedTypes.includes(item.type));
                             if (itemToUpdate) {
                                 itemToUpdate.judgment = { status, feedback: feedbackText };
                                 itemToUpdate.isCorrect = (status === 'correct' || status === 'partially-correct');
