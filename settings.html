@@ -54,6 +54,15 @@
                     placeholder="e.g., 0.7"
                   >
                 </div>
+                <!-- PRESets UI -->
+                <div>
+                  <label for="preset-select"><i class="fas fa-folder-open"></i> Preset:</label>
+                  <select id="preset-select">
+                    <option value="">— None —</option>
+                  </select>
+                  <button type="button" id="save-preset-btn"><i class="fas fa-save"></i> Save as Preset</button>
+                  <button type="button" id="delete-preset-btn" disabled><i class="fas fa-trash"></i> Delete Preset</button>
+                </div>
                 <div class="form-buttons">
                     <button type="submit"><i class="fas fa-save"></i> Save Credentials</button>
                     <button type="button" id="test-api-button"><i class="fas fa-vial"></i> Test API</button>
