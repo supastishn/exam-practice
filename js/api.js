@@ -141,12 +141,15 @@ const Api = (() => {
     // promptInput can be a string (for text-only) or an object for multimodal.
     // e.g., { textPrompt: "Describe this image", base64Image: "data:image/jpeg;base64,..." }
     const generateExercise = async (promptInput, modelName = "gpt-4.1", onProgress) => {
-        const { apiKey, baseUrl } = Auth.getCredentials();
+        const { apiKey, baseUrl, defaultTemperature } = Auth.getCredentials();
         if (!apiKey) {
             alert('API Key not set. Please go to the Settings page to set it.');
             return null;
         }
         
+        const temp = parseFloat(defaultTemperature);
+        const temperature = (!isNaN(temp) && temp >= 0 && temp <= 1) ? temp : 0.7;
+
         console.log('Generating exercise with model:', modelName);
 
         let messagesPayload;
@@ -188,7 +191,7 @@ const Api = (() => {
                 model: modelName,
                 messages: messagesPayload,
                 max_tokens: 2048, // Consider adjusting max_tokens for vision models, as they might have different limits or costs.
-                temperature: 0.7,
+                temperature,
                 top_p: 1.0,
                 frequency_penalty: 0.0,
                 presence_penalty: 0.0,
@@ -233,12 +236,15 @@ const Api = (() => {
 
     // Function to call OpenAI API for explanations
     const generateExplanation = async (promptString, modelName = "gpt-4.1", onProgress) => {
-        const { apiKey, baseUrl } = Auth.getCredentials();
+        const { apiKey, baseUrl, defaultTemperature } = Auth.getCredentials();
         if (!apiKey) {
             alert('API Key not set. Please set it in the setup section.');
             UI.showSetupForm();
             return null;
         }
+
+        const temp = parseFloat(defaultTemperature);
+        const temperature = (!isNaN(temp) && temp >= 0 && temp <= 1) ? temp : 0.5;
 
         console.log('Generating explanation with model:', modelName);
 
@@ -249,7 +255,7 @@ const Api = (() => {
                     {role: "user", content: promptString}
                 ],
                 max_tokens: 500, 
-                temperature: 0.5, 
+                temperature,
                 top_p: 1.0,
                 frequency_penalty: 0.0,
                 presence_penalty: 0.0,
@@ -278,12 +284,15 @@ const Api = (() => {
 
     // Function to get AI judgment for user responses
     const judgeUserResponses = async (tasksWithAnswers, modelName = "gpt-4.1", onProgress, judgingContext = "general") => {
-        const { apiKey, baseUrl } = Auth.getCredentials();
+        const { apiKey, baseUrl, defaultTemperature } = Auth.getCredentials();
         if (!apiKey) {
             alert('API Key not set. Please set it in the setup section.');
             UI.showSetupForm();
             return null;
         }
+
+        const temp = parseFloat(defaultTemperature);
+        const temperature = (!isNaN(temp) && temp >= 0 && temp <= 1) ? temp : 0.3;
 
         console.log('Requesting AI judgment with model:', modelName);
 
@@ -357,7 +366,7 @@ Please provide your judgments in the XML format described above.
                     {role: "user", content: promptString}
                 ],
                 max_tokens: 2048, // Adjust as needed for multiple judgments
-                temperature: 0.3, // Lower temperature for more deterministic judgment
+                temperature,
                 top_p: 1.0,
                 frequency_penalty: 0.0,
                 presence_penalty: 0.0,
@@ -386,11 +395,14 @@ Please provide your judgments in the XML format described above.
 
     // Function to call OpenAI API for writing topics
     const generateWritingTopic = async (promptString, modelName = "gpt-4.1", onProgress) => {
-        const { apiKey, baseUrl } = Auth.getCredentials();
+        const { apiKey, baseUrl, defaultTemperature } = Auth.getCredentials();
         if (!apiKey) {
             alert('API Key not set. Please go to the Settings page to set it.');
             return null;
         }
+
+        const temp = parseFloat(defaultTemperature);
+        const temperature = (!isNaN(temp) && temp >= 0 && temp <= 1) ? temp : 0.7;
 
         console.log('Generating writing topic with model:', modelName);
 
@@ -401,7 +413,7 @@ Please provide your judgments in the XML format described above.
                     {role: "user", content: promptString}
                 ],
                 max_tokens: 200, // Topics are usually short
-                temperature: 0.7, 
+                temperature,
                 top_p: 1.0,
                 frequency_penalty: 0.0,
                 presence_penalty: 0.0,
@@ -430,11 +442,14 @@ Please provide your judgments in the XML format described above.
 
     // Function to call OpenAI API for writing feedback
     const generateWritingFeedback = async (promptString, modelName = "gpt-4.1", onProgress) => {
-        const { apiKey, baseUrl } = Auth.getCredentials();
+        const { apiKey, baseUrl, defaultTemperature } = Auth.getCredentials();
         if (!apiKey) {
             alert('API Key not set. Please go to the Settings page to set it.');
             return null;
         }
+
+        const temp = parseFloat(defaultTemperature);
+        const temperature = (!isNaN(temp) && temp >= 0 && temp <= 1) ? temp : 0.5;
 
         console.log('Generating writing feedback with model:', modelName);
 
@@ -445,7 +460,7 @@ Please provide your judgments in the XML format described above.
                     {role: "user", content: promptString}
                 ],
                 max_tokens: 2048, // Feedback can be extensive, including diffs
-                temperature: 0.5, 
+                temperature,
                 top_p: 1.0,
                 frequency_penalty: 0.0,
                 presence_penalty: 0.0,

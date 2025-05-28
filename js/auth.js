@@ -3,11 +3,13 @@ const Auth = (() => {
     const API_KEY_STORAGE_KEY = 'openai_api_key';
     const BASE_URL_STORAGE_KEY = 'openai_base_url';
     const DEFAULT_MODEL_STORAGE_KEY = 'openai_default_model';
+    const DEFAULT_TEMP_STORAGE_KEY = 'openai_default_temperature';
 
     const credentialsForm = document.getElementById('credentials-form');
     const apiKeyInput = document.getElementById('api-key');
     const baseUrlInput = document.getElementById('base-url');
     const defaultModelInput = document.getElementById('default-model');
+    const defaultTempInput = document.getElementById('default-temperature');
     const clearCredentialsButton = document.getElementById('clear-credentials'); // Specific to settings.html
     const credentialsStatus = document.getElementById('credentials-status'); // Specific to settings.html
     
@@ -39,7 +41,7 @@ const Auth = (() => {
         }
     };
 
-    const saveCredentials = (apiKey, baseUrl, defaultModel) => {
+    const saveCredentials = (apiKey, baseUrl, defaultModel, defaultTemperature) => {
         // Remove trailing slash from baseUrl if present
         if (baseUrl && baseUrl.endsWith('/')) {
             baseUrl = baseUrl.slice(0, -1);
@@ -54,6 +56,11 @@ const Auth = (() => {
             localStorage.setItem(DEFAULT_MODEL_STORAGE_KEY, encrypt(defaultModel));
         } else {
             localStorage.removeItem(DEFAULT_MODEL_STORAGE_KEY);
+        }
+        if (defaultTemperature) {
+            localStorage.setItem(DEFAULT_TEMP_STORAGE_KEY, encrypt(defaultTemperature));
+        } else {
+            localStorage.removeItem(DEFAULT_TEMP_STORAGE_KEY);
         }
         updateCredentialStatus(true); // This will update status on settings.html if present
         updateExerciseModelPlaceholder(); // Update placeholder on index.html
@@ -74,12 +81,14 @@ const Auth = (() => {
         const encryptedApiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
         const encryptedBaseUrl = localStorage.getItem(BASE_URL_STORAGE_KEY);
         const encryptedDefaultModel = localStorage.getItem(DEFAULT_MODEL_STORAGE_KEY);
+        const encryptedDefaultTemp = localStorage.getItem(DEFAULT_TEMP_STORAGE_KEY);
 
         const apiKey = decrypt(encryptedApiKey);
         const baseUrl = decrypt(encryptedBaseUrl);
         const defaultModel = decrypt(encryptedDefaultModel);
-        
-        return { apiKey, baseUrl, defaultModel };
+        const defaultTemperature = decrypt(encryptedDefaultTemp);
+
+        return { apiKey, baseUrl, defaultModel, defaultTemperature };
     };
 
     const clearCredentials = () => {
@@ -123,8 +132,9 @@ const Auth = (() => {
                     const apiKey = apiKeyInput.value.trim();
                     const baseUrl = baseUrlInput.value.trim();
                     const defaultModel = defaultModelInput ? defaultModelInput.value.trim() : '';
+                    const defaultTemperature = defaultTempInput ? defaultTempInput.value.trim() : '';
                     if (apiKey) {
-                        saveCredentials(apiKey, baseUrl, defaultModel);
+                        saveCredentials(apiKey, baseUrl, defaultModel, defaultTemperature);
                     } else {
                         alert('API Key is required.');
                     }
@@ -174,6 +184,7 @@ const Auth = (() => {
             if (apiKeyInput) apiKeyInput.value = creds.apiKey || '';
             if (baseUrlInput) baseUrlInput.value = creds.baseUrl || '';
             if (defaultModelInput) defaultModelInput.value = creds.defaultModel || '';
+            if (defaultTempInput) defaultTempInput.value = creds.defaultTemperature || '';
             updateCredentialStatus(!!creds.apiKey); // Update status text based on loaded key
 
         } else if (document.getElementById('exercise-form')) { // Logic for english.html
