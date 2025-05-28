@@ -11,7 +11,7 @@ const Exercises = (() => {
         captureCameraImageButton, closeCameraModalButton;
 
     let currentCameraStream = null;
-    let capturedImageDataURL = null; // To store base64 data from camera
+    let capturedImageDataURLs = []; // To store base64 data from camera (multiple)
 
     const getCurrentSubject = () => {
         const pathname = window.location.pathname;
@@ -636,7 +636,7 @@ ${batchInfo}`;
         const generateButton = exerciseForm.querySelector('button[type="submit"]');
         const promptText = document.getElementById('prompt').value.trim();
         // imageFileInput is already defined at module scope
-        const imageFile = imageFileInput && imageFileInput.files && imageFileInput.files[0] ? imageFileInput.files[0] : null;
+        const imageFiles = Array.from(imageFileInput && imageFileInput.files ? imageFileInput.files : []);
 
         const exerciseType = document.getElementById('exercise-type').value;
         const difficulty = document.getElementById('difficulty').value;
@@ -714,10 +714,29 @@ ${batchInfo}`;
             streamingPre.textContent = 'Streaming XML data...\n';
             currentExerciseDisplayContainer.appendChild(streamingPre);
             
+            // Build base64Images array from camera or file input
+            let base64Images = [];
+            if (capturedImageDataURLs.length) {
+                base64Images = capturedImageDataURLs.slice();
+            } else if (imageFiles.length) {
+                base64Images = await Promise.all(
+                    imageFiles.map(f =>
+                        new Promise((res, rej) => {
+                            const r = new FileReader();
+                            r.onload = _=> res(r.result);
+                            r.onerror = e=> rej(e);
+                            r.readAsDataURL(f);
+                        })
+                    )
+                );
+            }
+
             const promptDetails = {
-                prompt: promptText, // This is the user's text input (instructions/topic)
-                materialType: imageFile ? 'image' : 'text', // Determine material type
-                materialContent: imageFile ? `Image: ${imageFile.name}` : promptText, // For history: image name or the text prompt itself if no image
+                prompt: promptText,
+                materialType: base64Images.length ? 'image' : 'text',
+                materialContent: base64Images.length
+                    ? (imageFiles.map(f=>f.name).concat(capturedImageDataURLs.map((_,i)=>`camera_${i}`)).join(', '))
+                    : promptText,
                 exerciseType: exerciseType,
                 difficulty: difficulty,
                 targetLanguage: targetLanguage,
@@ -727,47 +746,14 @@ ${batchInfo}`;
                 batchIndex: i,
                 batchTotal: actualBatchCount
             };
-            
-            let base64Image = null;
-            let apiCallInput = promptText; 
-            let materialSourceForHistory = promptText;
 
-            if (capturedImageDataURL) {
-                base64Image = capturedImageDataURL;
-                materialSourceForHistory = `Captured Photo: ${fileNameDisplay ? fileNameDisplay.textContent : 'camera_capture.webp'}`;
-                apiCallInput = { textPrompt: promptText, base64Image: base64Image };
-                if (!model.includes('vision') && model !== 'gpt-4o' && model !== 'gpt-4-turbo' && model !== "gpt-4-turbo-preview") {
-                    console.warn(`Captured image provided with potentially non-vision model: ${model}.`);
-                }
-            } else if (imageFile) {
-                try {
-                    base64Image = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = e => resolve(e.target.result);
-                        reader.onerror = e => reject(e);
-                        reader.readAsDataURL(imageFile);
-                    });
-                    materialSourceForHistory = `Image: ${imageFile.name}`;
-                    apiCallInput = { textPrompt: promptText, base64Image: base64Image };
-                    if (!model.includes('vision') && model !== 'gpt-4o' && model !== 'gpt-4-turbo' && model !== "gpt-4-turbo-preview") {
-                        console.warn(`Uploaded image provided with potentially non-vision model: ${model}.`);
-                    }
-                } catch (e) {
-                    currentExerciseDisplayContainer.innerHTML = `<p class="error">Error reading image file: ${e.message}</p>`;
-                    console.error("Error reading image:", e);
-                    continue; 
-                }
-            }
-            
-            promptDetails.materialType = base64Image ? 'image' : 'text';
-            promptDetails.materialContent = materialSourceForHistory; // For history and constructPrompt
-            
+            let apiCallInput;
             const llmTextPrompt = constructPrompt(promptDetails);
-            
-            if (base64Image) {
-                apiCallInput.textPrompt = llmTextPrompt; 
+
+            if (base64Images.length) {
+                apiCallInput = { textPrompt: llmTextPrompt, base64Images };
             } else {
-                apiCallInput = llmTextPrompt; 
+                apiCallInput = llmTextPrompt;
             }
 
             try {
@@ -798,7 +784,6 @@ ${batchInfo}`;
                     } else { 
                         displayExercise(exerciseXml); 
                     }
-                    // promptDetails.materialContent is already set for history (e.g. "Captured Photo: ...", "Image: ...", or prompt text)
                     saveExerciseToHistory(promptDetails, exerciseXml);
                 } else {
                     currentExerciseDisplayContainer.innerHTML = '<p class="error">Failed to generate this exercise. API returned no content.</p>';
@@ -1603,10 +1588,11 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
         const context = cameraCanvas.getContext('2d');
         context.drawImage(cameraVideoFeed, 0, 0, videoWidth, videoHeight);
 
-        capturedImageDataURL = cameraCanvas.toDataURL('image/webp'); // Use webp
-        
+        const dataURL = cameraCanvas.toDataURL('image/webp');
+        capturedImageDataURLs.push(dataURL);
+
         if (fileNameDisplay) {
-            fileNameDisplay.textContent = `camera_capture_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.webp`;
+            fileNameDisplay.textContent = capturedImageDataURLs.map((_,i)=>`camera_${i}.webp`).join(', ');
         }
         if (imageFileInput) imageFileInput.value = ''; // Clear file input selection
 
@@ -1677,9 +1663,10 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
         // Handle file input changes
         if (imageFileInput && fileNameDisplay) {
             imageFileInput.addEventListener('change', () => {
+                // whenever user picks files, forget previous camera shots
+                capturedImageDataURLs = [];
                 if (imageFileInput.files && imageFileInput.files.length > 0) {
-                    fileNameDisplay.textContent = imageFileInput.files[0].name;
-                    capturedImageDataURL = null; // Clear any camera capture
+                    fileNameDisplay.textContent = Array.from(imageFileInput.files).map(f=>f.name).join(', ');
                     closeCamera(); // Close camera modal if it was open
                 } else {
                     fileNameDisplay.textContent = 'No file selected';

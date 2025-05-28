@@ -11,7 +11,7 @@ const Memorization = (() => {
         captureCameraImageButton, closeCameraModalButton;
     
     let currentCameraStream = null;
-    let capturedImageDataURL = null; // To store base64 data from camera
+    let capturedImageDataURLs = []; // To store base64 data from camera (multiple)
 
     const CURRENT_CONTEXT = 'memorization';
     const HISTORY_STORAGE_KEY = `${CURRENT_CONTEXT}History`;
@@ -325,10 +325,9 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
         event.preventDefault();
         const generateButton = exerciseForm.querySelector('button[type="submit"]');
         const textToMemorize = memorizationTextEl.value.trim();
-        // memorizationImageEl is the file input, defined at module scope
-        const imageFile = memorizationImageEl && memorizationImageEl.files && memorizationImageEl.files[0] ? memorizationImageEl.files[0] : null;
+        const imageFiles = Array.from(memorizationImageEl && memorizationImageEl.files ? memorizationImageEl.files : []);
 
-        if (!textToMemorize && !imageFile && !capturedImageDataURL) {
+        if (!textToMemorize && !imageFiles.length && !capturedImageDataURLs.length) {
             alert('Please provide text, upload an image, or capture a photo to generate a quiz from.');
             return;
         }
@@ -353,66 +352,49 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
         let model = modelInputValue || savedDefaultModel || "gpt-4.1"; 
         const mcOptionCount = quizStyle === 'multiple-choice' ? parseInt(document.getElementById('mc-options-count').value) : null;
 
+        // Build base64Images array from camera or file input
+        let base64Images = [];
+        if (capturedImageDataURLs.length) {
+            base64Images = capturedImageDataURLs.slice();
+        } else if (imageFiles.length) {
+            base64Images = await Promise.all(
+                imageFiles.map(f =>
+                    new Promise((res, rej) => {
+                        const r = new FileReader();
+                        r.onload = _=> res(r.result);
+                        r.onerror = e=> rej(e);
+                        r.readAsDataURL(f);
+                    })
+                )
+            );
+        }
+
         const promptDetails = {
-            materialType: 'text', // Default
-            materialContent: textToMemorize, // Will be replaced by base64 if image is used
+            materialType: base64Images.length ? 'image' : 'text',
+            materialContent: base64Images.length
+                ? (imageFiles.map(f=>f.name).concat(capturedImageDataURLs.map((_,i)=>`camera_${i}`)).join(', '))
+                : textToMemorize,
             quizLanguage,
             quizStyle,
             difficulty,
             questionCount,
-            // model will be set below after image processing
-            mcOptionCount
+            mcOptionCount,
+            model
         };
-        
-        let base64Image = null;
-        let materialSourceForHistory = textToMemorize;
 
-        if (textToMemorize) {
-            promptDetails.materialType = 'text';
-            // materialSourceForHistory is already textToMemorize
-        } else if (capturedImageDataURL) {
-            promptDetails.materialType = 'image';
-            base64Image = capturedImageDataURL;
-            materialSourceForHistory = `Captured Photo: ${fileNameDisplay ? fileNameDisplay.textContent : 'camera_capture.webp'}`;
-        } else if (imageFile) {
-            promptDetails.materialType = 'image';
-            try {
-                base64Image = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = e => resolve(e.target.result);
-                    reader.onerror = e => reject(e);
-                    reader.readAsDataURL(imageFile);
-                });
-                materialSourceForHistory = `Image: ${imageFile.name}`;
-            } catch (e) {
-                alert('Error reading uploaded image file.');
-                console.error("Error reading image:", e);
-                if (generateButton) {
-                    generateButton.disabled = false;
-                    generateButton.textContent = 'Generate Quiz';
-                }
-                exerciseOutput.innerHTML = `<p class="error">Error reading uploaded image file.</p>`;
-                return;
-            }
-        }
-        
-        promptDetails.materialContent = materialSourceForHistory; // For constructPrompt and history
-        promptDetails.model = model;
-
-        if (promptDetails.materialType === 'image' && base64Image) {
+        if (promptDetails.materialType === 'image' && base64Images.length) {
             const isLikelyNonVisionModel = !model.includes('vision') && !model.includes('4o') && !model.includes('4-turbo') && model !== "gpt-4-turbo-preview";
             if (isLikelyNonVisionModel) {
-                console.warn(`Image provided (type: ${capturedImageDataURL ? 'camera' : 'upload'}) with model '${model}'. This model might not be vision-capable.`);
+                console.warn(`Image provided (type: ${capturedImageDataURLs.length ? 'camera' : 'upload'}) with model '${model}'. This model might not be vision-capable.`);
             }
         }
         
         const textPromptForLlm = constructPrompt(promptDetails);
         let apiInput;
-
-        if (promptDetails.materialType === 'image' && base64Image) {
-            apiInput = { textPrompt: textPromptForLlm, base64Image: base64Image };
+        if (base64Images.length) {
+            apiInput = { textPrompt: textPromptForLlm, base64Images };
         } else {
-            apiInput = textPromptForLlm; // Text-only or text prioritized
+            apiInput = textPromptForLlm;
         }
         
         let quizXml = null;
@@ -852,10 +834,11 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
         const context = cameraCanvas.getContext('2d');
         context.drawImage(cameraVideoFeed, 0, 0, videoWidth, videoHeight);
 
-        capturedImageDataURL = cameraCanvas.toDataURL('image/webp');
-        
+        const dataURL = cameraCanvas.toDataURL('image/webp');
+        capturedImageDataURLs.push(dataURL);
+
         if (fileNameDisplay) {
-            fileNameDisplay.textContent = `camera_capture_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.webp`;
+            fileNameDisplay.textContent = capturedImageDataURLs.map((_,i)=>`camera_${i}.webp`).join(', ');
         }
         if (memorizationImageEl) memorizationImageEl.value = ''; // Clear file input
         if (memorizationTextEl) memorizationTextEl.value = ''; // Clear text input
@@ -926,14 +909,13 @@ The <explanation> tag (or <explanationForIdealAnswer> for ai-judger) within each
         }
         if (memorizationImageEl && fileNameDisplay) {
             memorizationImageEl.addEventListener('change', () => {
+                // whenever user picks files, forget previous camera shots
+                capturedImageDataURLs = [];
                 if (memorizationImageEl.files && memorizationImageEl.files.length > 0) {
-                    fileNameDisplay.textContent = memorizationImageEl.files[0].name;
+                    fileNameDisplay.textContent = Array.from(memorizationImageEl.files).map(f=>f.name).join(', ');
                     if (memorizationTextEl) memorizationTextEl.value = '';
-                    capturedImageDataURL = null;
                     closeCamera();
                 } else {
-                    // If file selection is cleared, but text is also empty, it's fine.
-                    // If text has content, it takes precedence.
                     if (!memorizationTextEl || memorizationTextEl.value.trim() === '') {
                          fileNameDisplay.textContent = 'No file selected';
                     }

@@ -157,8 +157,23 @@ const Api = (() => {
         if (typeof promptInput === 'string') {
             messagesPayload = [{ role: "user", content: promptInput }];
         } else if (typeof promptInput === 'object' && promptInput.textPrompt) {
-            if (promptInput.base64Image) {
-                console.log('Constructing multimodal message with image.');
+            if (Array.isArray(promptInput.base64Images)) {
+                messagesPayload = [{
+                    role: "user",
+                    content: [
+                        { type: "text", text: promptInput.textPrompt },
+                        ...promptInput.base64Images.map(b64 => ({
+                            type: "image_url",
+                            image_url: { url: b64 }
+                        }))
+                    ]
+                }];
+                // Ensure a vision-capable model is being used (caller should ideally set this,
+                // but we can log a warning or have a fallback if a known non-vision model is passed).
+                if (!modelName.includes('vision') && modelName !== 'gpt-4o' && modelName !== 'gpt-4-turbo') {
+                    console.warn(`Image(s) provided with potentially non-vision model: ${modelName}. Results may vary. Consider using gpt-4o or a vision-specific model.`);
+                }
+            } else if (promptInput.base64Image) {
                 messagesPayload = [{
                     role: "user",
                     content: [
@@ -167,17 +182,14 @@ const Api = (() => {
                             type: "image_url",
                             image_url: {
                                 "url": promptInput.base64Image
-                                // "detail": "low" // Optional: can be low, high, auto. Defaults to auto.
                             }
                         }
                     ]
                 }];
-                // Ensure a vision-capable model is being used (caller should ideally set this,
-                // but we can log a warning or have a fallback if a known non-vision model is passed).
-                if (!modelName.includes('vision') && modelName !== 'gpt-4o' && modelName !== 'gpt-4-turbo') { // Basic check
+                if (!modelName.includes('vision') && modelName !== 'gpt-4o' && modelName !== 'gpt-4-turbo') {
                     console.warn(`Image provided with potentially non-vision model: ${modelName}. Results may vary. Consider using gpt-4o or a vision-specific model.`);
                 }
-            } else { // Text prompt in object, but no image
+            } else {
                 messagesPayload = [{ role: "user", content: promptInput.textPrompt }];
             }
         } else {
