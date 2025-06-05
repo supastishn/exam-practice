@@ -1,28 +1,4 @@
 
-const DIFF_STYLES = {
-  DIFF_INSERT: '<span class="diff-inserted">$1</span>',
-  DIFF_DELETE: '<span class="diff-deleted">$1</span>',
-};
-
-function generateDiffHTML(original, revised) {
-  const diffLines = Diff.diffLines(original, revised);
-  let diffHtml = '';
-  
-  diffLines.forEach(part => {
-    const value = part.value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    
-    if (part.added) {
-      diffHtml += DIFF_STYLES.DIFF_INSERT.replace('$1', value);
-    } else if (part.removed) {
-      diffHtml += DIFF_STYLES.DIFF_DELETE.replace('$1', value);
-    } else {
-      diffHtml += value;
-    }
-  });
-  
-  return diffHtml;
-}
-
 const Writing = (() => {
     
     // New note generator fields
@@ -267,36 +243,47 @@ You are an AI writing tutor. Please grade the user's text:
             // Parse XML response
             let feedbackContent = '';
             let improvedText = '';
+            let highlightsHtml = '';
             if (fullResponse) {
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(`<root>${fullResponse}</root>`, "text/xml");
                 
-                // Handle both XML formats
-                const feedbackTag = xmlDoc.querySelector('feedback');
-                const improvedTag = xmlDoc.querySelector('improved');
+                // Extract tags
+                feedbackContent = xmlDoc.querySelector("feedback")?.textContent || "";
+                improvedText = xmlDoc.querySelector("improved")?.textContent || "";
                 
-                if (feedbackTag) {
-                    feedbackContent = feedbackTag.textContent;
-                }
-                
-                if (improvedTag) {
-                    improvedText = improvedTag.textContent;
-                }
-                
-                // Also check for parsing errors
-                if (xmlDoc.querySelector("parsererror") && !feedbackTag && !improvedTag) {
-                    // Fallback - use entire response as feedback
-                    feedbackContent = fullResponse;
-                    console.warn("XML parsing failed, using full response as feedback");
-                }
+                // Process highlights
+                const highlightElements = xmlDoc.querySelectorAll("highlight > change");
+                highlightElements.forEach(change => {
+                    const original = change.querySelector("original")?.textContent || "";
+                    // revised may contain <del> and <ins> tags, so use innerHTML if possible
+                    let revised = "";
+                    const revisedNode = change.querySelector("revised");
+                    if (revisedNode) {
+                        // If the node has children, get its inner XML/HTML
+                        if (revisedNode.children && revisedNode.children.length > 0) {
+                            // Serialize the children as HTML
+                            let tempDiv = document.createElement("div");
+                            Array.from(revisedNode.childNodes).forEach(n => tempDiv.appendChild(n.cloneNode(true)));
+                            revised = tempDiv.innerHTML;
+                        } else {
+                            revised = revisedNode.textContent;
+                        }
+                    }
+                    highlightsHtml += `
+                        <div class="highlight-block">
+                            <div class="original">${Utils.escapeHtml(original)}</div>
+                            <div class="revised">${revised}</div>
+                        </div>
+                    `;
+                });
             }
 
             // Display feedback
-            feedbackOutput.innerHTML = Utils.customMarkdownParse(feedbackContent);
+            feedbackOutput.innerHTML = `<div class="ai-feedback">${Utils.customMarkdownParse(feedbackContent)}</div>`;
 
-            // Generate and show diff
-            const diffHtml = generateDiffHTML(userText, improvedText);
-            diffPre.innerHTML = diffHtml;
+            // Display highlights instead of diff
+            diffPre.innerHTML = highlightsHtml || "<p>No highlighting suggestions</p>";
 
             // Add tab switching functionality
             document.querySelectorAll('.tab-button').forEach(button => {
@@ -315,7 +302,7 @@ You are an AI writing tutor. Please grade the user's text:
                 userText,
                 feedbackContent,
                 improvedText,
-                diffHtml,
+                highlightsHtml,
                 secondsElapsed,
                 gradeLevel,
                 timerDurationInput.value

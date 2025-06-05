@@ -454,14 +454,14 @@ Please provide your judgments in the XML format described above.
 
     // Function to call OpenAI API for writing feedback
     const generateWritingFeedback = async (promptString, modelName = "gpt-4.1", onProgress) => {
-        const { apiKey, baseUrl, defaultTemperature } = Auth.getCredentials();
+        const { apiKey, baseUrl } = Auth.getCredentials();
         if (!apiKey) {
             alert('API Key not set. Please go to the Settings page to set it.');
             return null;
         }
 
-        const temp = parseFloat(defaultTemperature);
-        const temperature = (!isNaN(temp) && temp >= 0 && temp <= 1) ? temp : 0.5;
+        // Always use temperature 0 for grading
+        const temperature = 0;
 
         console.log('Generating writing feedback with model:', modelName);
 
@@ -471,7 +471,15 @@ Please provide your judgments in the XML format described above.
                 messages: [
                     {
                         role: "system",
-                        content: "ALWAYS strictly return only XML format with: <feedback>Your feedback comments</feedback> followed by <improved>The rewritten text</improved>\nNO other text, explanations or formatting outside the XML tags."
+                        content: "ALWAYS strictly return XML format: <feedback>(analytical feedback)</feedback>\n" +
+                                 "<improved>(full revised text)</improved>\n" +
+                                 "<highlight>(text showing changes. For each change, use:\n" +
+                                 "   <change>\n" +
+                                 "     <original>(exactly 1 sentence from original)</original>\n" +
+                                 "     <revised>(modified version using <del>deleted text</del> and <ins>added text</ins>)</revised>\n" +
+                                 "   </change>\n" +
+                                 ")</highlight>\n" +
+                                 "NO other text outside XML tags. Generate highlights using <del> and <ins> tags ONLY."
                     },
                     {
                         role: "user",
@@ -479,7 +487,7 @@ Please provide your judgments in the XML format described above.
                     }
                 ],
                 max_tokens: 2048,
-                temperature,
+                temperature: 0,
                 top_p: 1.0,
                 frequency_penalty: 0.0,
                 presence_penalty: 0.0,

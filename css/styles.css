@@ -152,6 +152,51 @@ header h1 {
     display: block;
 }
 
+/* Highlighted AI diff blocks for writing feedback */
+.highlight-block {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-left: 3px solid var(--primary-color);
+}
+
+.highlight-block .original {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.highlight-block .revised {
+    line-height: 1.5;
+}
+
+.highlight-block del {
+    background-color: #ffebee;
+    color: #b71c1c;
+    text-decoration: line-through;
+}
+
+.highlight-block ins {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    text-decoration: none;
+}
+
+/* Dark mode specific styles */
+body.dark-mode .highlight-block {
+    background: #2d3142;
+}
+
+body.dark-mode .highlight-block del {
+    background-color: #502020;
+    color: #ffcccc;
+}
+
+body.dark-mode .highlight-block ins {
+    background-color: #205020;
+    color: #ccffcc;
+}
+
 
 .explain-button {
     background-color: #6c757d; /* A neutral secondary color */
