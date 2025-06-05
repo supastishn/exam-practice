@@ -265,18 +265,31 @@ You are an AI writing tutor. Please grade the user's text:
             const fullResponse = await Api.generateWritingFeedback(prompt, model, onProgressCallback);
 
             // Parse XML response
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(fullResponse, "text/xml");
-            const feedbackTag = xmlDoc.querySelector('feedback');
-            const improvedTag = xmlDoc.querySelector('improved');
-            
-            if (!feedbackTag || !improvedTag) {
-                throw new Error('API response missing required XML tags');
+            let feedbackContent = '';
+            let improvedText = '';
+            if (fullResponse) {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(`<root>${fullResponse}</root>`, "text/xml");
+                
+                // Handle both XML formats
+                const feedbackTag = xmlDoc.querySelector('feedback');
+                const improvedTag = xmlDoc.querySelector('improved');
+                
+                if (feedbackTag) {
+                    feedbackContent = feedbackTag.textContent;
+                }
+                
+                if (improvedTag) {
+                    improvedText = improvedTag.textContent;
+                }
+                
+                // Also check for parsing errors
+                if (xmlDoc.querySelector("parsererror") && !feedbackTag && !improvedTag) {
+                    // Fallback - use entire response as feedback
+                    feedbackContent = fullResponse;
+                    console.warn("XML parsing failed, using full response as feedback");
+                }
             }
-
-            // Extract content from XML
-            const feedbackContent = feedbackTag.textContent;
-            const improvedText = improvedTag.textContent;
 
             // Display feedback
             feedbackOutput.innerHTML = Utils.customMarkdownParse(feedbackContent);
