@@ -1,4 +1,27 @@
 
+const DIFF_STYLES = {
+  DIFF_INSERT: '<span class="diff-inserted">$1</span>',
+  DIFF_DELETE: '<span class="diff-deleted">$1</span>',
+};
+
+function generateDiffHTML(original, revised) {
+  const diffLines = Diff.diffLines(original, revised);
+  let diffHtml = '';
+  
+  diffLines.forEach(part => {
+    const value = part.value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    if (part.added) {
+      diffHtml += DIFF_STYLES.DIFF_INSERT.replace('$1', value);
+    } else if (part.removed) {
+      diffHtml += DIFF_STYLES.DIFF_DELETE.replace('$1', value);
+    } else {
+      diffHtml += value;
+    }
+  });
+  
+  return diffHtml;
+}
 
 const Writing = (() => {
     
@@ -234,16 +257,37 @@ You are an AI writing tutor. Please grade the user's text:
 
         try {
             let accumulatedFeedback = '';
+            let fullResponse = '';
+
             const onProgressCallback = (chunk) => {
                 accumulatedFeedback += chunk;
                 feedbackOutput.innerHTML = `<div class="ai-feedback">${Utils.customMarkdownParse(accumulatedFeedback)}</div>`;
+                fullResponse += chunk;
             };
 
-            const feedbackText = await Api.generateWritingFeedback(prompt, model, onProgressCallback);
-            feedbackOutput.innerHTML = `<div class="ai-feedback">${Utils.customMarkdownParse(feedbackText)}</div>`;
-            
+            await Api.generateWritingFeedback(prompt, model, onProgressCallback);
+
+            // Generate AI revised text
+            const revisedPrompt = `Revise this text to improve it while keeping the core meaning:\n\n"${userText}"\n\nProvide only the revised text, no additional commentary.`;
+            const revisedText = await Api.generateWritingFeedback(revisedPrompt, model);
+
+            // Generate and show diff
+            const diffHtml = generateDiffHTML(userText, revisedText);
+            diffPre.innerHTML = diffHtml;
+
+            // Add tab switching functionality
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    button.classList.add('active');
+                    document.getElementById(`${button.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+
             // Save to history
-            saveToHistory(topic, userText, feedbackText, '', '', secondsElapsed, gradeLevel, timerDurationInput.value);
+            saveToHistory(topic, userText, accumulatedFeedback, revisedText, diffHtml, secondsElapsed, gradeLevel, timerDurationInput.value);
         } catch (error) {
             console.error("Error generating feedback:", error);
             feedbackOutput.innerHTML = `<p>Error generating feedback: ${error.message}</p>`;
@@ -483,13 +527,26 @@ You are an AI writing tutor. Please grade the user's text:
                 if (specificSuggestionsText.trim()) {
                     textToCopy += "Specific Suggestions:\n" + specificSuggestionsText.trim() + "\n\n";
                 }
-                if (diffPre && diffOutput && diffOutput.style.display !== 'none' && diffPre.innerText.trim()) {
+                if (diffPre && diffPre.innerText.trim()) {
                     textToCopy += "Suggested Changes (Diff):\n" + diffPre.innerText.trim() + "\n";
                 }
                 if (textToCopy.length <= "AI Feedback:\n\n".length) { 
                    textToCopy = feedbackOutput.innerText; 
                 }
                 Utils.copyToClipboard(textToCopy.trim(), "Feedback copied to clipboard!");
+            });
+        }
+
+        // Tab switching for feedback section
+        if (document.getElementById('feedback-display-section')) {
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    button.classList.add('active');
+                    document.getElementById(`${button.dataset.tab}-tab`).classList.add('active');
+                });
             });
         }
 
