@@ -219,10 +219,35 @@ You are an AI writing tutor. Please grade the user's text:
         }
         pauseTimer();
 
-        // now swap sections: let user pick title
-        document.getElementById('writing-practice-section').style.display = 'none';
-        document.getElementById('writing-setup-section').style.display = 'block';
-        return;   // stop here; title will trigger the actual grading when submitted
+        // Show feedback section and spinner
+        document.getElementById('feedback-display-section').style.display = 'block';
+        feedbackOutput.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Grading your writing...</p>';
+
+        // Scroll to feedback section
+        document.getElementById('feedback-display-section').scrollIntoView({ behavior: 'smooth' });
+
+        // Construct prompt and call API
+        const prompt = constructFeedbackPrompt(topic, userText, gradeLevel, wordCount);
+        const modelInputValue = writingModelInput.value.trim();
+        const { defaultModel: savedDefaultModel } = Auth.getCredentials(); 
+        const model = modelInputValue || savedDefaultModel || "gpt-4.1";
+
+        try {
+            let accumulatedFeedback = '';
+            const onProgressCallback = (chunk) => {
+                accumulatedFeedback += chunk;
+                feedbackOutput.innerHTML = `<div class="ai-feedback">${Utils.customMarkdownParse(accumulatedFeedback)}</div>`;
+            };
+
+            const feedbackText = await Api.generateWritingFeedback(prompt, model, onProgressCallback);
+            feedbackOutput.innerHTML = `<div class="ai-feedback">${Utils.customMarkdownParse(feedbackText)}</div>`;
+            
+            // Save to history
+            saveToHistory(topic, userText, feedbackText, '', '', secondsElapsed, gradeLevel, timerDurationInput.value);
+        } catch (error) {
+            console.error("Error generating feedback:", error);
+            feedbackOutput.innerHTML = `<p>Error generating feedback: ${error.message}</p>`;
+        }
     };
     
     const saveToHistory = (topic, userWriting, feedbackXml, revisedText, aiGeneratedDiff, actualDuration, gradeLevel, setTimerMinutes) => {
