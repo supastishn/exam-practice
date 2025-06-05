@@ -469,7 +469,10 @@ Please provide your judgments in the XML format described above.
             const data = {
                 model: modelName,
                 messages: [
-                    {role: "user", content: promptString}
+                    {
+                        role: "user",
+                        content: `${promptString}\n\nReturn your result in this exact format:\n<feedback>Your feedback comments</feedback>\n<improved>The rewritten text</improved>`
+                    }
                 ],
                 max_tokens: 2048, // Feedback can be extensive, including diffs
                 temperature,

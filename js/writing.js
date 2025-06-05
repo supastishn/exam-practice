@@ -257,22 +257,32 @@ You are an AI writing tutor. Please grade the user's text:
 
         try {
             let accumulatedFeedback = '';
-            let fullResponse = '';
-
             const onProgressCallback = (chunk) => {
                 accumulatedFeedback += chunk;
                 feedbackOutput.innerHTML = `<div class="ai-feedback">${Utils.customMarkdownParse(accumulatedFeedback)}</div>`;
-                fullResponse += chunk;
             };
 
-            await Api.generateWritingFeedback(prompt, model, onProgressCallback);
+            const fullResponse = await Api.generateWritingFeedback(prompt, model, onProgressCallback);
 
-            // Generate AI revised text
-            const revisedPrompt = `Revise this text to improve it while keeping the core meaning:\n\n"${userText}"\n\nProvide only the revised text, no additional commentary.`;
-            const revisedText = await Api.generateWritingFeedback(revisedPrompt, model);
+            // Parse XML response
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(fullResponse, "text/xml");
+            const feedbackTag = xmlDoc.querySelector('feedback');
+            const improvedTag = xmlDoc.querySelector('improved');
+            
+            if (!feedbackTag || !improvedTag) {
+                throw new Error('API response missing required XML tags');
+            }
+
+            // Extract content from XML
+            const feedbackContent = feedbackTag.textContent;
+            const improvedText = improvedTag.textContent;
+
+            // Display feedback
+            feedbackOutput.innerHTML = Utils.customMarkdownParse(feedbackContent);
 
             // Generate and show diff
-            const diffHtml = generateDiffHTML(userText, revisedText);
+            const diffHtml = generateDiffHTML(userText, improvedText);
             diffPre.innerHTML = diffHtml;
 
             // Add tab switching functionality
@@ -287,7 +297,16 @@ You are an AI writing tutor. Please grade the user's text:
             });
 
             // Save to history
-            saveToHistory(topic, userText, accumulatedFeedback, revisedText, diffHtml, secondsElapsed, gradeLevel, timerDurationInput.value);
+            saveToHistory(
+                topic,
+                userText,
+                feedbackContent,
+                improvedText,
+                diffHtml,
+                secondsElapsed,
+                gradeLevel,
+                timerDurationInput.value
+            );
         } catch (error) {
             console.error("Error generating feedback:", error);
             feedbackOutput.innerHTML = `<p>Error generating feedback: ${error.message}</p>`;
