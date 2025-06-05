@@ -470,11 +470,15 @@ Please provide your judgments in the XML format described above.
                 model: modelName,
                 messages: [
                     {
+                        role: "system",
+                        content: "ALWAYS strictly return only XML format with: <feedback>Your feedback comments</feedback> followed by <improved>The rewritten text</improved>\nNO other text, explanations or formatting outside the XML tags."
+                    },
+                    {
                         role: "user",
-                        content: `${promptString}\n\nReturn your result in this exact format:\n<feedback>Your feedback comments</feedback>\n<improved>The rewritten text</improved>`
+                        content: `${promptString}`
                     }
                 ],
-                max_tokens: 2048, // Feedback can be extensive, including diffs
+                max_tokens: 2048,
                 temperature,
                 top_p: 1.0,
                 frequency_penalty: 0.0,
