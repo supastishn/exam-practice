@@ -26,7 +26,10 @@ const Exercises = (() => {
         console.warn("Exercises.js: Could not determine subject from pathname:", pathname, ". Defaulting to 'english'.");
         return 'english'; 
     };
-    
+
+    // Expose getCurrentSubject for performance tracking
+    const getCurrentSubjectPublic = () => getCurrentSubject();
+
     const CURRENT_SUBJECT = getCurrentSubject();
     const HISTORY_STORAGE_KEY = `${CURRENT_SUBJECT}ExerciseHistory`;
     let currentExerciseAnswers = null; // Will store the parsed answers for current exercise
