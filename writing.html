@@ -85,18 +85,28 @@
         <section id="feedback-display-section" style="display: none;">
           <div class="tabs">
             <button class="tab-button active" data-tab="assessment">Assessment</button>
-            <button class="tab-button" data-tab="suggested-improvements">Suggested Improvements</button>
+            <button class="tab-button" data-tab="line-by-line">Line-by-Line Changes</button>
+            <button class="tab-button" data-tab="full-revision">Full Revision</button>
           </div>
           
           <div id="assessment-tab" class="tab-content active">
-            <div id="feedback-output" class="feedback-box"></div>
+            <div id="feedback-output" class="feedback-box">
+                <!-- This will be populated with summary, grammar, style, vocab -->
+            </div>
           </div>
           
-          <div id="suggested-improvements-tab" class="tab-content">
+          <div id="line-by-line-tab" class="tab-content">
             <h3>Revised Writing with Changes Highlighted</h3>
             <p><em>Red: Removed content | Green: Added content</em></p>
             <div id="diff-output" class="diff-box">
               <pre id="diff-pre"></pre>
+            </div>
+          </div>
+
+          <div id="full-revision-tab" class="tab-content">
+            <h3>Complete Revised Text</h3>
+            <div id="revised-text-output" class="feedback-box">
+              <!-- This will hold the clean, improved text -->
             </div>
           </div>
           

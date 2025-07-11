@@ -471,15 +471,15 @@ Please provide your judgments in the XML format described above.
                 messages: [
                     {
                         role: "system",
-                        content: "ALWAYS strictly return XML format: <feedback>(analytical feedback)</feedback>\n" +
-                                 "<improved>(full revised text)</improved>\n" +
-                                 "<highlight>(text showing changes. For each change, use:\n" +
-                                 "   <change>\n" +
-                                 "     <original>(exactly 1 sentence from original)</original>\n" +
-                                 "     <revised>(modified version using <del>deleted text</del> and <ins>added text</ins>)</revised>\n" +
-                                 "   </change>\n" +
-                                 ")</highlight>\n" +
-                                 "NO other text outside XML tags. Generate highlights using <del> and <ins> tags ONLY."
+                        content: "You are an expert writing tutor. Strictly return your analysis in an XML format with a root tag of <writingAnalysis>. " +
+                                 "Inside this tag, provide the following elements in this exact order: " +
+                                 "1. <summary>: Contains a <score> (e.g., 8/10) and a brief <justification> for it. " +
+                                 "2. <grammar>: Contains one or more <issue> tags detailing grammatical errors and corrections. " +
+                                 "3. <style>: Contains one or more <issue> tags for style improvements (e.g., clarity, conciseness, tone). " +
+                                 "4. <vocabulary>: Contains one or more <suggestion> tags for better word choices. " +
+                                 "5. <improvedText>: Contains the complete, revised version of the text. This should be clean text with NO diff tags. " +
+                                 "6. <highlightChanges>: Contains one or more <change> blocks. Each <change> must have an <original> sentence and a <revised> sentence using <del> and <ins> tags for modifications. " +
+                                 "Do not output any text outside the <writingAnalysis> XML structure."
                     },
                     {
                         role: "user",

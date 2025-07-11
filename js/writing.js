@@ -11,6 +11,7 @@ const Writing = (() => {
         startTimerButton, pauseTimerButton, resetTimerButton, timerDisplay,
         submitWritingButton,
         feedbackOutput, diffOutput, diffPre, copyFeedbackButton,
+        revisedTextOutput,
         historyList;
 
     
@@ -221,6 +222,9 @@ You are an AI writing tutor. Please grade the user's text:
         // Show feedback section and spinner
         document.getElementById('feedback-display-section').style.display = 'block';
         feedbackOutput.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Grading your writing...</p>';
+        if(revisedTextOutput) revisedTextOutput.innerHTML = '';
+        if(diffPre) diffPre.innerHTML = '';
+
 
         // Scroll to feedback section
         document.getElementById('feedback-display-section').scrollIntoView({ behavior: 'smooth' });
@@ -235,74 +239,94 @@ You are an AI writing tutor. Please grade the user's text:
             let accumulatedFeedback = '';
             const onProgressCallback = (chunk) => {
                 accumulatedFeedback += chunk;
-                feedbackOutput.innerHTML = `<div class="ai-feedback">${Utils.customMarkdownParse(accumulatedFeedback)}</div>`;
+                // Since feedback is complex XML, we can't render progress easily.
+                // We'll just show a generic message.
+                // feedbackOutput.innerHTML = `<p><i class="fas fa-spinner fa-spin"></i> Receiving feedback stream...</p>`;
             };
 
             const fullResponse = await Api.generateWritingFeedback(prompt, model, onProgressCallback);
 
             // Parse XML response
-            let feedbackContent = '';
+            let feedbackHtml = '';
             let improvedText = '';
             let highlightsHtml = '';
+            let revisedTextForHistory = '';
+
             if (fullResponse) {
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(`<root>${fullResponse}</root>`, "text/xml");
-                
-                // Extract tags
-                feedbackContent = xmlDoc.querySelector("feedback")?.textContent || "";
-                improvedText = xmlDoc.querySelector("improved")?.textContent || "";
-                
-                // Process highlights
-                const highlightElements = xmlDoc.querySelectorAll("highlight > change");
-                highlightElements.forEach(change => {
-                    const original = change.querySelector("original")?.textContent || "";
-                    // revised may contain <del> and <ins> tags, so use innerHTML if possible
-                    let revised = "";
-                    const revisedNode = change.querySelector("revised");
-                    if (revisedNode) {
-                        // If the node has children, get its inner XML/HTML
-                        if (revisedNode.children && revisedNode.children.length > 0) {
-                            // Serialize the children as HTML
-                            let tempDiv = document.createElement("div");
-                            Array.from(revisedNode.childNodes).forEach(n => tempDiv.appendChild(n.cloneNode(true)));
-                            revised = tempDiv.innerHTML;
-                        } else {
-                            revised = revisedNode.textContent;
-                        }
+                const analysisNode = xmlDoc.querySelector("writingAnalysis");
+
+                if (analysisNode) {
+                    // 1. Summary
+                    const summaryNode = analysisNode.querySelector("summary");
+                    if (summaryNode) {
+                        const score = summaryNode.querySelector("score")?.textContent || "N/A";
+                        const justification = summaryNode.querySelector("justification")?.textContent || "No justification provided.";
+                        feedbackHtml += `<div class="feedback-analysis-section"><h4><i class="fas fa-chart-bar"></i> Summary</h4><p><strong>Score:</strong> ${score}</p><p>${Utils.customMarkdownParse(justification)}</p></div>`;
                     }
-                    highlightsHtml += `
-                        <div class="highlight-block">
-                            <div class="original">${Utils.escapeHtml(original)}</div>
-                            <div class="revised">${revised}</div>
-                        </div>
-                    `;
-                });
+
+                    // Helper function to build sections
+                    const buildSection = (title, iconClass, items) => {
+                        if (!items || items.length === 0) return '';
+                        let sectionHtml = `<div class="feedback-analysis-section"><h4><i class="${iconClass}"></i> ${title}</h4><ul>`;
+                        items.forEach(item => {
+                            sectionHtml += `<li>${Utils.customMarkdownParse(item.textContent)}</li>`;
+                        });
+                        sectionHtml += `</ul></div>`;
+                        return sectionHtml;
+                    };
+
+                    // 2. Grammar, Style, Vocabulary
+                    feedbackHtml += buildSection('Grammar', 'fas fa-spell-check', analysisNode.querySelectorAll("grammar > issue"));
+                    feedbackHtml += buildSection('Style', 'fas fa-palette', analysisNode.querySelectorAll("style > issue"));
+                    feedbackHtml += buildSection('Vocabulary', 'fas fa-book-open', analysisNode.querySelectorAll("vocabulary > suggestion"));
+
+                    // 5. Improved Text for "Full Revision" tab
+                    improvedText = analysisNode.querySelector("improvedText")?.textContent || "No revised text provided.";
+                    revisedTextForHistory = improvedText;
+
+                    // 6. Highlight Changes for "Line-by-Line" tab
+                    const highlightNode = analysisNode.querySelector("highlightChanges");
+                    if (highlightNode) {
+                        const changeElements = highlightNode.querySelectorAll("change");
+                        changeElements.forEach(change => {
+                            const original = change.querySelector("original")?.textContent || "";
+                            let revised = "";
+                            const revisedNode = change.querySelector("revised");
+                            if (revisedNode) {
+                                let tempDiv = document.createElement("div");
+                                Array.from(revisedNode.childNodes).forEach(n => tempDiv.appendChild(n.cloneNode(true)));
+                                revised = tempDiv.innerHTML;
+                            }
+                            highlightsHtml += `<div class="highlight-block"><div class="original">${Utils.escapeHtml(original)}</div><div class="revised">${revised}</div></div>`;
+                        });
+                    }
+                } else {
+                    // Fallback for non-XML or old format response
+                    feedbackHtml = `<div class="ai-feedback">${Utils.customMarkdownParse(fullResponse)}</div>`;
+                    improvedText = 'Could not parse revised text from response.';
+                }
             }
 
             // Display feedback
-            feedbackOutput.innerHTML = `<div class="ai-feedback">${Utils.customMarkdownParse(feedbackContent)}</div>`;
+            feedbackOutput.innerHTML = feedbackHtml || "<p>No analytical feedback was provided.</p>";
+            if (revisedTextOutput) {
+                revisedTextOutput.innerHTML = Utils.customMarkdownParse(improvedText);
+            }
+            diffPre.innerHTML = highlightsHtml || "<p>No line-by-line suggestions were provided.</p>";
 
-            // Display highlights instead of diff
-            diffPre.innerHTML = highlightsHtml || "<p>No highlighting suggestions</p>";
-
-            // Add tab switching functionality
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    button.classList.add('active');
-                    document.getElementById(`${button.dataset.tab}-tab`).classList.add('active');
-                });
-            });
+            // Activate the first tab by default
+            const firstTabButton = document.querySelector('.tab-button');
+            if(firstTabButton) firstTabButton.click();
 
             // Save to history
             saveToHistory(
                 topic,
                 userText,
-                feedbackContent,
-                improvedText,
-                highlightsHtml,
+                fullResponse, // Save the raw XML response
+                revisedTextForHistory,
+                highlightsHtml, // The generated HTML for highlights
                 secondsElapsed,
                 gradeLevel,
                 timerDurationInput.value
@@ -392,52 +416,65 @@ You are an AI writing tutor. Please grade the user's text:
                 
                 
                 if(feedbackOutput) feedbackOutput.innerHTML = ''; 
-                if(diffOutput) diffOutput.style.display = 'none';
                 if(diffPre) diffPre.innerHTML = '';
+                if(revisedTextOutput) revisedTextOutput.innerHTML = '';
 
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(item.feedbackXml, "text/xml");
-                const generalFeedback = xmlDoc.querySelector("generalFeedback")?.textContent;
-                const specificSuggestions = xmlDoc.querySelector("specificSuggestions")?.textContent;
-                
-                let htmlFeedback = "";
-                if (generalFeedback) htmlFeedback += `<h4>General Feedback:</h4><div>${Utils.customMarkdownParse(generalFeedback)}</div>`;
-                if (specificSuggestions) htmlFeedback += `<h4>Specific Suggestions:</h4><div>${Utils.customMarkdownParse(specificSuggestions)}</div>`;
-                if (feedbackOutput) feedbackOutput.innerHTML = htmlFeedback || "<p>No feedback content found in this history item.</p>";
+                let feedbackHtml = '';
+                let improvedText = '';
+                let highlightsHtml = '';
 
-                if (item.aiGeneratedDiff && diffPre && diffOutput) {
-                    let diffHtml = '';
-                    item.aiGeneratedDiff.split('\n').forEach(line => {
-                        const trimmedLine = line.trimEnd();
-                        if (trimmedLine.startsWith('+ ')) {
-                            diffHtml += `<span class="diff-inserted">${trimmedLine.substring(2)}</span>\n`;
-                        } else if (trimmedLine.startsWith('- ')) {
-                            diffHtml += `<span class="diff-deleted">${trimmedLine.substring(2)}</span>\n`;
-                        } else if (trimmedLine.startsWith('  ')) {
-                            diffHtml += `<span class="diff-unchanged">${trimmedLine.substring(2)}</span>\n`;
-                        } else if (trimmedLine.trim() !== '') {
-                            diffHtml += `${trimmedLine}\n`;
-                        } else {
-                            diffHtml += '\n';
+                if (item.feedbackXml) {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(`<root>${item.feedbackXml}</root>`, "text/xml");
+                    const analysisNode = xmlDoc.querySelector("writingAnalysis");
+
+                    if (analysisNode) {
+                        const summaryNode = analysisNode.querySelector("summary");
+                        if (summaryNode) {
+                            const score = summaryNode.querySelector("score")?.textContent || "N/A";
+                            const justification = summaryNode.querySelector("justification")?.textContent || "No justification provided.";
+                            feedbackHtml += `<div class="feedback-analysis-section"><h4><i class="fas fa-chart-bar"></i> Summary</h4><p><strong>Score:</strong> ${score}</p><p>${Utils.customMarkdownParse(justification)}</p></div>`;
                         }
-                    });
-                    diffPre.innerHTML = diffHtml;
-                    diffOutput.style.display = 'block';
-                    if (diffOutput.querySelector('h3')) {
-                         diffOutput.querySelector('h3').textContent = "Suggested Changes (Diff View)";
+                        const buildSection = (title, iconClass, items) => {
+                            if (!items || items.length === 0) return '';
+                            let sectionHtml = `<div class="feedback-analysis-section"><h4><i class="${iconClass}"></i> ${title}</h4><ul>`;
+                            items.forEach(item => { sectionHtml += `<li>${Utils.customMarkdownParse(item.textContent)}</li>`; });
+                            sectionHtml += `</ul></div>`;
+                            return sectionHtml;
+                        };
+                        feedbackHtml += buildSection('Grammar', 'fas fa-spell-check', analysisNode.querySelectorAll("grammar > issue"));
+                        feedbackHtml += buildSection('Style', 'fas fa-palette', analysisNode.querySelectorAll("style > issue"));
+                        feedbackHtml += buildSection('Vocabulary', 'fas fa-book-open', analysisNode.querySelectorAll("vocabulary > suggestion"));
+                        
+                        improvedText = analysisNode.querySelector("improvedText")?.textContent || item.revisedText || "No revised text found in history.";
+                        
+                        // For history, aiGeneratedDiff *is* the highlightsHtml.
+                        highlightsHtml = item.aiGeneratedDiff || '<p>No highlighting suggestions found in this history item.</p>';
+
+                    } else {
+                        // Fallback for old history items
+                        feedbackHtml = `<div class="ai-feedback">${Utils.customMarkdownParse(item.feedbackXml)}</div>`;
+                        improvedText = item.revisedText || 'No revised text found in this old history item.';
+                        highlightsHtml = item.aiGeneratedDiff || '<p>No highlighting suggestions found in this old history item.</p>';
                     }
-                } else if (item.revisedText && diffPre && diffOutput) {
-                    
-                     diffPre.innerHTML = `<span class="diff-inserted">${Utils.escapeHtml(item.revisedText)}</span>`;
-                     diffOutput.style.display = 'block';
-                     if (diffOutput.querySelector('h3')) {
-                        diffOutput.querySelector('h3').textContent = "AI Suggested Revision (no diff view provided)";
-                     }
                 }
+                
+                if (feedbackOutput) feedbackOutput.innerHTML = feedbackHtml || "<p>No feedback content found in this history item.</p>";
+                if (revisedTextOutput) revisedTextOutput.innerHTML = Utils.customMarkdownParse(improvedText);
+                if (diffPre) diffPre.innerHTML = highlightsHtml;
                 
                 document.getElementById('writing-setup-section').style.display = 'block';
                 document.getElementById('writing-practice-section').style.display = 'block';
                 document.getElementById('feedback-display-section').style.display = 'block';
+                
+                // Set the first tab to be active
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                const assessmentButton = document.querySelector('.tab-button[data-tab="assessment"]');
+                const assessmentTab = document.getElementById('assessment-tab');
+                if (assessmentButton) assessmentButton.classList.add('active');
+                if (assessmentTab) assessmentTab.classList.add('active');
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
                 
@@ -445,8 +482,6 @@ You are an AI writing tutor. Please grade the user's text:
                 if (item.setTimerMinutes && parseInt(item.setTimerMinutes, 10) > 0) {
                     isCountdown = true;
                     initialCountdownSeconds = parseInt(item.setTimerMinutes, 10) * 60;
-                    
-                    
                     secondsElapsed = initialCountdownSeconds; 
                 } else {
                     isCountdown = false;
@@ -456,8 +491,6 @@ You are an AI writing tutor. Please grade the user's text:
                 if (timerDurationInput) timerDurationInput.disabled = false;
                 if (userWritingArea) userWritingArea.disabled = false; 
                 updateTimerDisplay();
-
-
             });
 
             const deleteButton = document.createElement('button');
@@ -511,6 +544,7 @@ You are an AI writing tutor. Please grade the user's text:
         feedbackOutput        = document.getElementById('feedback-output');
         diffOutput            = document.getElementById('diff-output');
         diffPre               = document.getElementById('diff-pre');
+        revisedTextOutput     = document.getElementById('revised-text-output');
         copyFeedbackButton    = document.getElementById('copy-feedback-button');
         
         historyList           = document.getElementById('writing-history-list');

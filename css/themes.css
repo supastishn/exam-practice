@@ -265,3 +265,14 @@ body.dark-mode .transcript-message.user-message {
 body.dark-mode .transcript-message.ai-message {
     background-color: #2d3142; /* Slightly different from transcript bg for contrast */
 }
+
+/* Writing Analysis Feedback Sections - Dark Mode */
+body.dark-mode .feedback-analysis-section {
+    background-color: var(--section-bg);
+    border-color: var(--border-color);
+    border-left-color: var(--primary-color);
+}
+
+body.dark-mode .feedback-analysis-section li {
+    border-bottom-color: #3a3f50;
+}

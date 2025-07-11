@@ -989,3 +989,34 @@ footer a:hover {
 .ai-message .message-speaker { 
     color: var(--primary-color);
 }
+
+/* Writing Analysis Feedback Sections */
+.feedback-analysis-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    background-color: var(--input-bg);
+}
+
+.feedback-analysis-section h4 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.feedback-analysis-section ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.feedback-analysis-section li {
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.feedback-analysis-section li:last-child {
+    border-bottom: none;
+}
