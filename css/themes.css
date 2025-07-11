@@ -254,3 +254,14 @@ body.dark-mode .diff-deleted {
 body.dark-mode .diff-unchanged {
     color: #8b949e; /* Lighter grey for dark bg */
 }
+
+/* Debate Mode Dark Mode Styles */
+body.dark-mode #display-ai-stance { 
+    color: #f27582; 
+}
+body.dark-mode .transcript-message.user-message {
+    background-color: var(--primary-color);
+}
+body.dark-mode .transcript-message.ai-message {
+    background-color: #2d3142; /* Slightly different from transcript bg for contrast */
+}

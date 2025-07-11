@@ -932,3 +932,60 @@ footer a:hover {
   border-radius: 8px;
   margin-left: 8px;
 }
+
+/* Debate Mode Styles */
+.stance-badge { 
+    font-weight: bold; 
+    padding: 0.2em 0.6em; 
+    border-radius: 4px; 
+}
+#display-user-stance { 
+    background-color: rgba(67, 97, 238, 0.2); 
+    color: var(--primary-color); 
+}
+#display-ai-stance { 
+    background-color: rgba(220, 53, 69, 0.2); 
+    color: #dc3545; 
+}
+#debate-transcript {
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    min-height: 300px;
+    max-height: 50vh;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    background-color: var(--input-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.transcript-message { 
+    padding: 0.75rem 1rem; 
+    border-radius: var(--border-radius); 
+    max-width: 80%;
+    line-height: 1.5;
+}
+.transcript-message.user-message { 
+    background-color: var(--primary-color); 
+    color: var(--light-text); 
+    margin-left: auto; 
+    border-bottom-right-radius: 0;
+}
+.transcript-message.ai-message { 
+    background-color: var(--section-bg); 
+    border: 1px solid var(--border-color); 
+    margin-right: auto; 
+    border-bottom-left-radius: 0;
+}
+.message-speaker { 
+    font-weight: bold; 
+    display: block; 
+    margin-bottom: 0.3rem; 
+    font-size: 0.9rem;
+}
+.user-message .message-speaker { 
+    color: rgba(255, 255, 255, 0.85); 
+}
+.ai-message .message-speaker { 
+    color: var(--primary-color);
+}

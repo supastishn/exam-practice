@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debate Mode - Language Tools</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-gavel"></i> Debate Mode</h1>
+        <button id="theme-toggle" class="theme-button" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    </header>
+
+    <main>
+        <div class="back-to-portal-container" style="margin-bottom: 1.5rem; text-align: left;">
+            <a href="index.html" class="button-like-link"><i class="fas fa-arrow-left"></i> Back to Portal</a>
+        </div>
+
+        <section id="credentials-prompt-section" style="display: none;">
+            <h2><i class="fas fa-key"></i> API Credentials Needed</h2>
+            <p>To use Debate Mode, you need to set up your OpenAI API credentials.</p>
+            <p><a href="settings.html" class="button-like-link" style="margin-top: 1rem;"><i class="fas fa-cog"></i> Go to Settings</a></p>
+        </section>
+
+        <section id="debate-setup-section">
+            <h2><i class="fas fa-cogs"></i> Debate Setup</h2>
+            <form id="debate-setup-form">
+                <div>
+                    <label for="debate-topic"><i class="fas fa-bullhorn"></i> Debate Topic:</label>
+                    <input type="text" id="debate-topic" name="debate-topic" required placeholder="e.g., 'Social media does more good than harm.'">
+                </div>
+                <div>
+                    <label for="user-stance"><i class="fas fa-hand-paper"></i> Your Stance:</label>
+                    <select id="user-stance" name="user-stance">
+                        <option value="for">For</option>
+                        <option value="against">Against</option>
+                        <option value="random">Let AI Decide</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="debate-model"><i class="fas fa-robot"></i> OpenAI Model (optional):</label>
+                    <input type="text" id="debate-model" name="debate-model" placeholder="gpt-4.1">
+                </div>
+                <button type="submit"><i class="fas fa-play-circle"></i> Start Debate</button>
+            </form>
+        </section>
+
+        <section id="debate-arena-section" style="display: none;">
+            <h2>Debate on: <span id="display-topic"></span></h2>
+            <p>
+                <strong>Your Stance:</strong> <span id="display-user-stance" class="stance-badge"></span> | 
+                <strong>AI's Stance:</strong> <span id="display-ai-stance" class="stance-badge"></span>
+            </p>
+            
+            <div id="debate-transcript">
+                <!-- Debate messages will appear here -->
+            </div>
+
+            <div id="turn-indicator" style="font-weight: bold; margin-bottom: 1rem;"></div>
+
+            <form id="debate-input-form">
+                <textarea id="user-argument-input" rows="5" placeholder="Enter your argument..." disabled></textarea>
+                <div class="form-buttons" style="margin-top: 1rem;">
+                    <button type="submit" id="submit-argument-button" disabled><i class="fas fa-paper-plane"></i> Submit Argument</button>
+                    <button type="button" id="end-debate-button"><i class="fas fa-flag-checkered"></i> End Debate & Analyze</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="debate-analysis-section" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Debate Analysis</h2>
+            <div id="debate-analysis-output" class="solution-box">
+                <!-- Final analysis will be displayed here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-code"></i> Language Exercise Tools</p>
+        <p><a href="https://supastishn.github.io" target="_blank" rel="noopener noreferrer">See more cool stuff here</a></p>
+        <p><a href="https://github.com/supastishn/exam-practice" target="_blank" rel="noopener noreferrer">See the source code</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/debate.js"></script>
+    <script src="js/main.js"></script>
+
+    <style>
+        .button-like-link {
+            display: inline-block; background: var(--primary-color); color: var(--light-text);
+            padding: 0.8rem 1.5rem; border: none; border-radius: var(--border-radius); cursor: pointer;
+            font-size: 1rem; transition: var(--transition); font-weight: 500; text-decoration: none; text-align: center;
+        }
+        .button-like-link:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .stance-badge { font-weight: bold; padding: 0.2em 0.6em; border-radius: 4px; }
+        #display-user-stance { background-color: rgba(67, 97, 238, 0.2); color: var(--primary-color); }
+        #display-ai-stance { background-color: rgba(220, 53, 69, 0.2); color: #dc3545; }
+        #debate-transcript {
+            border: 1px solid var(--border-color); padding: 1rem; min-height: 300px;
+            max-height: 50vh; overflow-y: auto; margin-bottom: 1rem; background-color: var(--input-bg);
+        }
+        .transcript-message { margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: var(--border-radius); max-width: 80%; }
+        .transcript-message.user-message { background-color: var(--primary-color); color: var(--light-text); margin-left: auto; border-bottom-right-radius: 0; }
+        .transcript-message.ai-message { background-color: var(--section-bg); border: 1px solid var(--border-color); margin-right: auto; border-bottom-left-radius: 0;}
+        .message-speaker { font-weight: bold; display: block; margin-bottom: 0.3rem; font-size: 0.9rem; }
+        .user-message .message-speaker { color: rgba(255, 255, 255, 0.8); }
+        .ai-message .message-speaker { color: var(--primary-color); }
+    </style>
+    <!-- Eruda for mobile debugging -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+</body>
+</html>

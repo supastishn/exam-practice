@@ -514,12 +514,97 @@ Please provide your judgments in the XML format described above.
         }
     };
 
+    // Function to call OpenAI API for debate arguments
+    const generateDebateArgument = async (topic, transcript, aiStance, modelName = "gpt-4.1", onProgress) => {
+        const { apiKey, baseUrl, defaultTemperature } = Auth.getCredentials();
+        if (!apiKey) {
+            alert('API Key not set. Please go to the Settings page.');
+            return null;
+        }
+        const temp = parseFloat(defaultTemperature);
+        const temperature = (!isNaN(temp) && temp >= 0 && temp <= 1) ? temp : 0.8; // Higher temp for more creative debate
+
+        const transcriptString = transcript.map(msg => `${msg.speaker.toUpperCase()}: ${msg.text}`).join('\n\n');
+
+        const systemPrompt = `You are a skilled and assertive debater. The debate topic is: "${topic}".
+Your assigned stance is: FOR the motion.
+Your opponent is the "USER". You must counter their arguments, introduce your own points, and stay consistently in your role.
+Keep your responses concise, focused, and impactful. Address the user's last point directly before making your own. Do not begin with phrases like "As an AI..." or "In my opinion...". State your arguments as facts from your perspective.`;
+
+        const finalPrompt = `This is the debate transcript so far:
+<transcript>
+${transcriptString}
+</transcript>
+
+Based on the user's last argument, deliver your next rebuttal or point. Remember your stance is: ${aiStance.toUpperCase()}.`;
+
+        try {
+            const data = {
+                model: modelName,
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: finalPrompt }
+                ],
+                max_tokens: 500,
+                temperature,
+                stream: true
+            };
+            const fullResponse = await makeApiRequest(apiKey, baseUrl, 'chat/completions', data, onProgress);
+            return fullResponse ? fullResponse.trim() : null;
+        } catch (error) {
+            console.error('Error generating debate argument:', error);
+            alert(`API Error: ${error.message}`);
+            return null;
+        }
+    };
+
+    // Function to call OpenAI API for debate analysis
+    const analyzeDebate = async (topic, transcript, modelName = "gpt-4.1", onProgress) => {
+        const { apiKey, baseUrl } = Auth.getCredentials();
+        if (!apiKey) {
+            alert('API Key not set. Please go to the Settings page.');
+            return null;
+        }
+
+        const transcriptString = transcript.map(msg => `${msg.speaker.toUpperCase()}: ${msg.text}`).join('\n\n');
+
+        const promptString = `You are an impartial and expert debate judge.
+The debate topic was: "${topic}".
+Here is the full transcript:
+<transcript>
+${transcriptString}
+</transcript>
+
+Your task is to provide a final analysis of the debate. Please structure your response using Markdown with the following sections:
+1.  **Debate Summary:** Briefly summarize the main arguments presented by both the USER and the AI.
+2.  **Critique and Feedback:** For both the USER and the AI, provide constructive feedback. Point out logical fallacies, strong points, weak points, and areas for improvement.
+3.  **Conclusion:** Based *only* on the arguments presented in the transcript, declare a winner and provide a clear justification for your decision.`;
+
+        try {
+            const data = {
+                model: modelName,
+                messages: [{ role: "user", content: promptString }],
+                max_tokens: 1500,
+                temperature: 0.4, // Lower temp for analytical tasks
+                stream: true
+            };
+            const fullResponse = await makeApiRequest(apiKey, baseUrl, 'chat/completions', data, onProgress);
+            return fullResponse ? fullResponse.trim() : null;
+        } catch (error) {
+            console.error('Error analyzing debate:', error);
+            alert(`API Error: ${error.message}`);
+            return null;
+        }
+    };
+
     return {
         generateExercise,
         testApiConnection,
         generateExplanation,
         judgeUserResponses,
         generateWritingTopic,
-        generateWritingFeedback
+        generateWritingFeedback,
+        generateDebateArgument,
+        analyzeDebate
     };
 })();

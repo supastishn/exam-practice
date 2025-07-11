@@ -29,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.getElementById('topic-generation-form') || document.getElementById('note-manager-section')) { 
             Writing.init();
         }
+    } else if (pathname.includes('debate.html')) {
+        if (document.getElementById('debate-setup-form')) {
+            Debate.init();
+        }
     }
     // Other initializations for API etc. can go here
 });
