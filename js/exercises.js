@@ -638,8 +638,25 @@ ${batchInfo}`;
         // imageFileInput is already defined at module scope
         const imageFiles = Array.from(imageFileInput && imageFileInput.files ? imageFileInput.files : []);
 
+        // Difficulty auto-tuning logic
+        let difficulty = document.getElementById('difficulty').value;
+        let autoTuned = false;
+        try {
+            const autoTuneCheckbox = document.getElementById('auto-tune');
+            if (autoTuneCheckbox && autoTuneCheckbox.checked && window.PerformanceTracker) {
+                const suggested = PerformanceTracker.getSuggestedDifficulty(CURRENT_SUBJECT);
+                document.getElementById('difficulty').value = suggested;
+                difficulty = suggested;
+                const badge = document.getElementById('auto-tune-badge');
+                if (badge) badge.style.display = 'inline';
+                console.log(`Auto-tuned difficulty to: ${suggested}`);
+                autoTuned = true;
+            }
+        } catch (e) {
+            console.warn("Auto-tune error:", e);
+        }
+
         const exerciseType = document.getElementById('exercise-type').value;
-        const difficulty = document.getElementById('difficulty').value;
         const targetLanguage = document.getElementById('target-language').value.trim() || "English";
         
         const modelInputEl = document.getElementById('model');
@@ -1424,6 +1441,26 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
             return;
         }
 
+        // Difficulty auto-tuning performance tracking
+        try {
+            // Only track if difficulty select exists
+            const difficultySelect = document.getElementById('difficulty');
+            if (difficultySelect) {
+                const correctCount = resultsFromCheckAnswer.filter(r => r.isCorrect).length;
+                const totalQuestions = resultsFromCheckAnswer.length;
+                const accuracy = totalQuestions > 0 ? correctCount / totalQuestions : 0;
+                if (window.PerformanceTracker) {
+                    PerformanceTracker.trackPerformance(
+                        getCurrentSubjectPublic(),
+                        difficultySelect.value,
+                        accuracy
+                    );
+                }
+            }
+        } catch (e) {
+            console.warn("Performance tracking error:", e);
+        }
+
         // If AI Judger type (now applies to both Math and English for API-based judgment)
         if (exerciseOverallType === 'ai-judger') {
             // Math AI Judger now also uses the API, so local script execution is removed.
@@ -1622,6 +1659,15 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
         captureCameraImageButton = document.getElementById('capture-camera-image-button');
         closeCameraModalButton = document.getElementById('close-camera-modal-button');
 
+        // Difficulty auto-tuning: user override badge hide
+        const difficultySelect = document.getElementById('difficulty');
+        if (difficultySelect) {
+            difficultySelect.addEventListener('change', () => {
+                const badge = document.getElementById('auto-tune-badge');
+                if (badge) badge.style.display = 'none';
+            });
+        }
+
         if (exerciseForm) {
             exerciseForm.addEventListener('submit', handleFormSubmit);
         }
@@ -1700,6 +1746,7 @@ You are a ${tutorSubject} tutor. Please answer the user's follow-up question con
         init,
         displayExercise,
         checkAnswer,
-        showSolution
+        showSolution,
+        getCurrentSubject: getCurrentSubjectPublic
     };
 })();

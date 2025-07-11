@@ -4,12 +4,14 @@ const Auth = (() => {
     const BASE_URL_STORAGE_KEY = 'openai_base_url';
     const DEFAULT_MODEL_STORAGE_KEY = 'openai_default_model';
     const DEFAULT_TEMP_STORAGE_KEY = 'openai_default_temperature';
+    const AUTO_TUNE_STORAGE_KEY = 'auto_difficulty_tuning';
 
     const credentialsForm = document.getElementById('credentials-form');
     const apiKeyInput = document.getElementById('api-key');
     const baseUrlInput = document.getElementById('base-url');
     const defaultModelInput = document.getElementById('default-model');
     const defaultTempInput = document.getElementById('default-temperature');
+    const autoTuneInput = document.getElementById('auto-tune');
     const clearCredentialsButton = document.getElementById('clear-credentials'); // Specific to settings.html
     const credentialsStatus = document.getElementById('credentials-status'); // Specific to settings.html
     
@@ -41,7 +43,7 @@ const Auth = (() => {
         }
     };
 
-    const saveCredentials = (apiKey, baseUrl, defaultModel, defaultTemperature) => {
+    const saveCredentials = (apiKey, baseUrl, defaultModel, defaultTemperature, autoTune) => {
         // Remove trailing slash from baseUrl if present
         if (baseUrl && baseUrl.endsWith('/')) {
             baseUrl = baseUrl.slice(0, -1);
@@ -61,6 +63,9 @@ const Auth = (() => {
             localStorage.setItem(DEFAULT_TEMP_STORAGE_KEY, encrypt(defaultTemperature));
         } else {
             localStorage.removeItem(DEFAULT_TEMP_STORAGE_KEY);
+        }
+        if (typeof autoTune !== "undefined") {
+            localStorage.setItem(AUTO_TUNE_STORAGE_KEY, autoTune ? "1" : "0");
         }
         updateCredentialStatus(true); // This will update status on settings.html if present
         updateExerciseModelPlaceholder(); // Update placeholder on index.html
@@ -82,13 +87,15 @@ const Auth = (() => {
         const encryptedBaseUrl = localStorage.getItem(BASE_URL_STORAGE_KEY);
         const encryptedDefaultModel = localStorage.getItem(DEFAULT_MODEL_STORAGE_KEY);
         const encryptedDefaultTemp = localStorage.getItem(DEFAULT_TEMP_STORAGE_KEY);
+        const autoTune = localStorage.getItem(AUTO_TUNE_STORAGE_KEY);
 
         const apiKey = decrypt(encryptedApiKey);
         const baseUrl = decrypt(encryptedBaseUrl);
         const defaultModel = decrypt(encryptedDefaultModel);
         const defaultTemperature = decrypt(encryptedDefaultTemp);
+        const autoDifficultyTuning = autoTune === "1";
 
-        return { apiKey, baseUrl, defaultModel, defaultTemperature };
+        return { apiKey, baseUrl, defaultModel, defaultTemperature, autoDifficultyTuning };
     };
 
     const clearCredentials = () => {
@@ -134,8 +141,9 @@ const Auth = (() => {
                     const baseUrl = baseUrlInput.value.trim();
                     const defaultModel = defaultModelInput ? defaultModelInput.value.trim() : '';
                     const defaultTemperature = defaultTempInput ? defaultTempInput.value.trim() : '';
+                    const autoTune = autoTuneInput ? autoTuneInput.checked : false;
                     if (apiKey) {
-                        saveCredentials(apiKey, baseUrl, defaultModel, defaultTemperature);
+                        saveCredentials(apiKey, baseUrl, defaultModel, defaultTemperature, autoTune);
                     } else {
                         alert('API Key is required.');
                     }
@@ -186,6 +194,7 @@ const Auth = (() => {
             if (baseUrlInput) baseUrlInput.value = creds.baseUrl || '';
             if (defaultModelInput) defaultModelInput.value = creds.defaultModel || '';
             if (defaultTempInput) defaultTempInput.value = creds.defaultTemperature || '';
+            if (autoTuneInput) autoTuneInput.checked = !!creds.autoDifficultyTuning;
             updateCredentialStatus(!!creds.apiKey); // Update status text based on loaded key
 
         } else if (document.getElementById('exercise-form')) { // Logic for english.html

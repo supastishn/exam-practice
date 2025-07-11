@@ -2,6 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     Auth.init(); // Auth.init now has logic to detect page
     UI.init();   // UI.init is generic (theme)
 
+    // Load performance tracker if available
+    if (typeof PerformanceTracker === "undefined") {
+        // Try to load js/performance.js dynamically if not already loaded
+        const script = document.createElement('script');
+        script.src = 'js/performance.js';
+        script.onload = () => { /* Loaded */ };
+        document.head.appendChild(script);
+    }
+
     // Conditionally initialize modules based on the page
     const pathname = window.location.pathname;
 

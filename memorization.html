@@ -72,13 +72,14 @@
                     <label for="model"><i class="fas fa-robot"></i> OpenAI Model (optional):</label>
                     <input type="text" id="model" name="model" placeholder="gpt-4.1 (or a vision model if using images)">
                 </div>
-                <div>
-                    <label for="difficulty"><i class="fas fa-chart-line"></i> Quiz Difficulty Level:</label>
+                <div id="difficulty-group">
+                    <label for="difficulty"><i class="fas fa-chart-line"></i> Difficulty:</label>
                     <select id="difficulty" name="difficulty">
                         <option value="beginner">Beginner</option>
                         <option value="intermediate">Intermediate</option>
                         <option value="advanced">Advanced</option>
                     </select>
+                    <span id="auto-tune-badge" class="badge" style="display:none">Auto-set ✓</span>
                 </div>
                 <div>
                     <label for="exercise-count"><i class="fas fa-list-ol"></i> Number of Questions in Quiz:</label>
