@@ -1,0 +1,1760 @@
+
+# 2025-05-17 12:20:08.401744
++/model openai/claude-3.7-sonnet
+
+# 2025-05-17 12:21:04.299492
++develop an html/css/js website that uses openai's api to generate English exercises from a prompt. develop a comprehensive UI. make it frontend-only with the user inputting the base url and api key which gets stored as a secure cookie
+
+# 2025-05-17 12:21:26.334821
++develop a plan in PLAN.md to make html/css/js website that uses openai's api to generate English exercises from a prompt. develop a comprehensive UI. make it frontend-only with the user inputting the base url and api key which gets stored as a secure cookie. do not write any code right now.
+
+# 2025-05-17 12:22:56.954681
++can you develop all phases from one to four right now
+
+# 2025-05-17 12:26:25.557432
++n
+
+# 2025-05-17 12:26:31.261631
++/model openai/gemini-2.5-pro
+
+# 2025-05-17 12:26:34.105462
++can you develop all phases from one to four right now
+
+# 2025-05-17 12:26:44.234186
++/clear
+
+# 2025-05-17 12:26:45.989162
++can you develop all phases from one to four right now
+
+# 2025-05-17 12:28:42.127422
++n
+
+# 2025-05-17 12:28:46.972485
++make phase 2 now please.
+
+# 2025-05-17 12:31:09.704767
++now phase 3 please
+
+# 2025-05-17 12:32:21.818750
++n
+
+# 2025-05-17 12:32:25.053851
++can you implement stage four
+
+# 2025-05-17 12:33:35.449006
++allow picking the model to use 
+
+# 2025-05-17 12:33:39.034841
++allow picking the model to use via text
+
+# 2025-05-17 12:34:38.872035
++/model openai/claude-3.7-sonnet-thought
+
+# 2025-05-17 12:34:54.592107
++refine the ui, make itclean and modern
+
+# 2025-05-17 12:37:41.501903
++n
+
+# 2025-05-17 12:38:04.963006
++make the light/dark mode just an icon and dont have it fall down after pressing
+
+# 2025-05-17 12:38:57.375094
++n
+
+# 2025-05-17 12:39:03.832735
++make default model gpt-4.1
+
+# 2025-05-17 12:39:20.752823
++make default model gpt-4.1. allow for batch exercise generation. allow for modifying api key/url after savkng
+
+# 2025-05-17 12:40:42.902928
++n
+
+# 2025-05-17 12:41:33.623226
++add eruda
+
+# 2025-05-17 12:42:03.596313
++allow for changing openai url and/or key via a button, after setting it up
+
+# 2025-05-17 12:42:47.915981
++n
+
+# 2025-05-17 12:43:19.557733
++error 422 unprocessable entity. add eruda
+
+# 2025-05-17 12:44:17.285142
++n
+
+# 2025-05-17 12:44:20.573611
++remove max tokens and temperature
+
+# 2025-05-17 12:45:37.203654
++add a test api button tnst tests with an example hello world request
+
+# 2025-05-17 12:47:09.540664
++n
+
+# 2025-05-17 12:47:15.247212
++/model openai/gpt-4.1
+
+# 2025-05-17 12:47:18.084707
++hi
+
+# 2025-05-17 12:47:33.510126
++/model openai/gemini-2.5-pro
+
+# 2025-05-17 12:49:33.331067
++gpt-4.1 gives me a 422 error
+
+# 2025-05-17 12:49:56.974137
++gpt-4.1 is a model
+
+# 2025-05-17 12:50:46.405768
++Error: API 422 Error (Unprocessable Entity): null
+
+# 2025-05-17 12:52:04.445905
++default model make it gemini-2.5-pro
+
+# 2025-05-17 12:52:38.772628
++use cdn for using openai api librsry instead of fetch
+
+# 2025-05-17 12:53:47.297487
++n
+
+# 2025-05-17 12:54:06.468651
++Error: Error generating exercise: 
++ReferenceError {}
++message: "OpenAI is not defined"
++stack: "ReferenceError: OpenAI is not defined↵ at getOpenAIClient (http://localhost:8000/js/api.js:9:9)↵ at Object.generateExercise (http://localhost:8000/js/api.js:69:28)↵ at HTMLFormElement.handleFormSubmit (http://localhost:8000/js/exercises.js:108:48)"
++get stack: ƒ ()
++set stack: ƒ ()
++[[Prototype]]: Object
+
+# 2025-05-17 12:54:09.169264
++n
+
+# 2025-05-17 12:56:41.604679
++use this
++https://cdn.jsdelivr.net/npm/openai
+
+# 2025-05-17 12:56:42.500168
++n
+
+# 2025-05-17 12:58:52.042481
++use fetch requests instead
+
+# 2025-05-17 12:58:58.619877
++/clear
+
+# 2025-05-17 12:59:01.750635
++use fetch requests instead of openai cdn
+
+# 2025-05-17 13:00:10.178292
++use responses api. tis is te format:
++curl "https://api.openai.com/v1/responses" \
++    -H "Content-Type: application/json" \
++    -H "Authorization: Bearer $OPENAI_API_KEY" \
++    -d '{
++        "model": "gpt-4.1",
++        "input": "Write a one-sentence bedtime story about a unicorn."
++    }'
+
+# 2025-05-17 13:00:11.592413
++n
+
+# 2025-05-17 13:01:03.655390
++/model openai/claude-3.7-sonnet-thought
+
+# 2025-05-17 13:01:07.232197
++/clear
+
+# 2025-05-17 13:01:34.572129
++use responses api rather than comoletions api or openai cdn. this is the format:
++curl "https://api.openai.com/v1/responses" \
++    -H "Content-Type: application/json" \
++    -H "Authorization: Bearer $OPENAI_API_KEY" \
++    -d '{
++        "model": "gpt-4.1",
++        "input": "Write a one-sentence bedtime story about a unicorn."
++    }'
+
+# 2025-05-17 13:01:37.506292
++n
+
+# 2025-05-17 13:03:22.176893
++/model openai/gpt-4.1
+
+# 2025-05-17 13:03:25.131477
++/ask hi
+
+# 2025-05-17 13:03:34.921515
++make it use completions api
+
+# 2025-05-17 13:04:22.639391
++/model openai/claude-3.7-sonnet-thought
+
+# 2025-05-17 13:04:26.824752
++make it use completions api correctly
+
+# 2025-05-17 13:04:56.358109
++n
+
+# 2025-05-17 13:05:16.336119
++i mean the /chat/completions endpoint
+
+# 2025-05-17 13:06:06.332289
++n
+
+# 2025-05-17 13:06:11.960676
++make model default to gemini-2.5-pro
+
+# 2025-05-17 13:17:27.324296
++n
+
+# 2025-05-17 13:21:52.563516
++can you make it so that the user is able to solve the question and input an answer?
+
+# 2025-05-17 13:28:49.969920
++n
+
+# 2025-05-17 13:32:10.567619
++make it default to deepseek-r1:free (model)
+
+# 2025-05-17 13:33:33.151998
++make it deepseek/deepseek-r1:free
+
+# 2025-05-17 13:35:49.862478
++make the number of exercises generated passed to the ai. also, make text wrap for generatedexercises and allow deleting exercises
+
+# 2025-05-17 13:37:17.193211
++n
+
+# 2025-05-17 13:37:32.050774
++/model openai/gemini-2.5-pro
+
+# 2025-05-17 13:38:07.549228
++make it an interactive ai agent that doesnt use mcp server, instead, it generates the question in an xml format that allows for the user to pick/type an answer before seeing if his answer is write or not
+
+# 2025-05-17 13:40:11.850202
++n
+
+# 2025-05-17 13:40:17.677192
++make base model gpt-4.1
+
+# 2025-05-17 13:40:42.962208
++make the system get all models from the api via the endpoint for getting models, then showing it in a neat dropdown
+
+# 2025-05-17 13:41:34.724066
++n
+
+# 2025-05-17 13:42:04.666966
++/undo
+
+# 2025-05-17 13:42:08.048488
++set gpt-4
+
+# 2025-05-17 13:42:11.951941
++set gpt-4.1 to default model
+
+# 2025-05-17 13:43:16.854223
++add support for generating multiple xml exercises
+
+# 2025-05-17 13:43:31.064259
++add support for generating multiple xml questions per exercise at once. add support for deleting exercises
+
+# 2025-05-17 13:49:46.811881
++n
+
+# 2025-05-17 13:49:57.475279
++add support for multiple blanks in fill-in-the-blank questions.
+
+# 2025-05-17 13:51:36.531511
++add text wrapping to exercise history title
+
+# 2025-05-17 13:54:29.081667
++add support for multiple answers in fill in the blank to handle contractions, or csses where two things are the same meqning, e.g to vs in order to
+
+# 2025-05-17 13:55:26.923233
++n
+
+# 2025-05-17 13:56:47.627868
++ReferenceError: Exercises is not defined
+
+# 2025-05-17 13:57:54.646951
++it still occufs. ReferenceError: Exercises is not defined
+
+# 2025-05-17 14:00:30.613778
++n
+
+# 2025-05-17 14:00:32.039915
++/clear
+
+# 2025-05-17 14:00:33.013709
++/lint
+
+# 2025-05-17 14:03:03.160782
++/git log --oneline
+
+# 2025-05-17 14:03:17.628139
++/git reset --hard 722f9c9
+
+# 2025-05-17 14:03:25.953039
++/git reset --hard HEAD^
+
+# 2025-05-17 14:03:32.862029
++/c
+
+# 2025-05-17 14:03:33.618788
++ear
+
+# 2025-05-17 14:03:37.960036
++/clear
+
+# 2025-05-17 14:04:00.421000
++can you add support for multiple answers in fill in the blank/grammar/vocabulary if needed, e.g to handle contractions or similar meaning words
+
+# 2025-05-17 14:07:06.747676
++/undo
+
+# 2025-05-17 14:07:08.624501
++/clear
+
+# 2025-05-17 14:07:11.564313
++can you add support for multiple answers in fill in the blank/grammar/vocabulary if needed, e.g to handle contractions or similar meaning words
+
+# 2025-05-17 14:08:05.597796
++add option for saving custom default models
+
+# 2025-05-17 14:11:28.442952
++add comake it so thst the prompt includes examples for multiple answers:
++in order to/to
++so and so that
++
+
+# 2025-05-17 14:12:04.262105
++add contraction handling feature
+
+# 2025-05-17 14:22:40.222771
++/ask dowz contraction handle word before it even  if it is not a blank? e.g 
++I do _____ (know, negstive)
++will n't know be valid?
+
+# 2025-05-17 14:30:59.973890
++can you make this change?
+
+# 2025-05-17 14:31:41.813960
++add contraction handling for words outside the blank (i.e directly before)
+
+# 2025-05-17 14:36:23.696693
++/undo
+
+# 2025-05-17 14:38:06.489763
++add contraction handling for words outside the blank (i.e directly before)
+
+# 2025-05-17 14:39:59.211449
++add option to get ai explanation for why your answer is wrong and ai is correct
+
+# 2025-05-17 15:07:03.789439
++/add *
+
+# 2025-05-17 15:07:14.816862
++add support for streaming responses
+
+# 2025-05-17 15:10:06.344927
++can you havdd it show exercises as each xml is being generated
+
+# 2025-05-17 15:10:28.955885
++can you havdd it show questions as each xml is being generated
+
+# 2025-05-17 15:13:26.829248
++/undo
+
+# 2025-05-17 15:14:21.351197
++/git push
+
+# 2025-05-17 16:20:14.690434
++/add *
+
+# 2025-05-17 16:24:30.340778
++make it so there cannot be multiple blanks right next to each other. if they are, only the firstblank iw shown, the rest are ignored 
+
+# 2025-05-17 16:30:58.057593
++add an optiom to ask the ai further questions of your cjoice with explain incorrect
+
+# 2025-05-17 16:31:04.874791
++add an optiom to ask the ai further questions of your cjoice with explain incorrect, and make explain incorrect display markdown
+
+# 2025-05-17 16:31:10.785863
++add an optiom to ask the ai further questions of your cjoice with explain incorrect, and make explain incorrect display markdown and newlines
+
+# 2025-05-17 16:35:01.806979
++/git push
+
+# 2025-05-17 16:40:36.811575
++markdown and newline rendering doesnt work. make custom markdlwn implementation thst inserts brs for newline, and other html tags
+
+# 2025-05-17 16:50:56.603208
++fir multiple choice questions add an optiom to choose the amount of choices. have it be from 2 to 10.
+
+# 2025-05-17 16:51:32.178951
++Error fetching explanation: Utils.customMarkdownParse is not a function
+
+# 2025-05-17 16:53:36.394955
++remove copyright
+
+# 2025-05-17 16:55:07.984532
++add support for lines (---) and headings (# = h1, ## = h2, ### = h3, #### = h4, ##### = h5, ###### = h6)
+
+# 2025-05-17 16:55:57.348917
++remove grammar & vocabulary types of auestions
+
+# 2025-05-17 16:56:04.621154
++remove grammar & vocabulary from the dropdown
+
+# 2025-05-17 16:57:15.278841
++add an "AI Judger" which makes you type in a full sentence and ai judges if it is correct or not.
+
+# 2025-05-17 16:57:49.774911
++add an "AI Judger" exercise type which makes you type in a full sentence or text and ai judges if it is correct or not. have batch processing so the ai checks all 20 questions at once via xml
+
+# 2025-05-17 16:59:11.592822
++implement the actusl ai judging logic
+
+# 2025-05-17 17:01:49.825953
++TypeError: Api.judgeUserResponses is not a function
+
+# 2025-05-17 17:03:12.450042
++make ai judgement use streaming
+
+# 2025-05-17 17:04:25.889844
++/git push
+
+# 2025-05-17 17:05:23.945451
++Add multilingual support, so you can write a langusge and AI generstes an example in thst
+
+# 2025-05-17 17:06:52.922460
++/git push
+
+# 2025-05-17 17:43:51.697636
++can you make the api key/base url/default model settings in a separate page?
+
+# 2025-05-17 17:52:53.320556
++make the english translation page in english.html, and have the index.html be a sort of portal that directs you to either the english or the api key depending on what you pick from buttons
+
+# 2025-05-17 17:55:45.388864
++can you add a math.html which is the same as english.html but it has a separate storsge for exercises
+
+# 2025-05-17 17:58:52.218083
++can you make the math exercixe page use code for exercises? essentislly, the ai can write javascript code which runs via new Function() and then has a return value.
++e.g for 9+10 the code will be
++return 9+10
++for 3323*833 it will be
++return 3323*833
++add examples for more complex logic too e.g solving equations
+
+# 2025-05-17 17:59:06.702633
++can you make the math exercixe page use code for exercises? essentislly, the ai can write javascript code which runs via new Function() and then has a return value.
++e.g for 9+10 the code will be
++return 9+10
++for 3323*833 it will be
++return 3323*833
++add examples for more complex logic too e.g solving equations.
++have the return value be the correct answer of the equation
+
+# 2025-05-17 18:02:33.943070
++Error generating exercise: executionError is not defined
+
+# 2025-05-17 18:03:26.669468
++is code used for multipe choice?
+
+# 2025-05-17 18:05:42.062094
++Can you have it provide executable code? Essentizlly the AI gives wrong answers for all but one, then, the AI chooses which answer is correct, and writes code to display which number/letter tl be displahd
+
+# 2025-05-17 18:08:35.553073
++allow AI to write code which gets runned for the "AI judger" in mat
+
+# 2025-05-17 18:08:37.383969
++allow AI to write code which gets runned for the "AI judger" in math
+
+# 2025-05-17 18:14:04.693001
++make the AI judger run the code and judgement *after* the user writes the answers, just to check answers
+
+# 2025-05-17 18:14:09.221116
++make the AI judger run the code and judgement *after* the user writes the answers, just to check answers are correcr
+
+# 2025-05-17 18:15:58.411417
++option B
+
+# 2025-05-17 18:17:53.912040
++/git push
+
+# 2025-05-17 18:45:03.300763
++add "kemorization questions" in which you can either write something you must memorize or take a picture of it and it is sent to the llm.
++then, the llm quizzes you on what you must memorize
+
+# 2025-05-17 18:45:15.895242
++add ⁹"kemorization questions generator" page in which you can either write something you must memorize or take a picture of it and it is sent to the llm.
++then, the llm quizzes you on what you must memorize
+
+# 2025-05-17 18:47:31.399680
++/undo
+
+# 2025-05-17 18:47:39.092592
++/git reset --hard HEAD^
+
+# 2025-05-17 18:47:51.358475
++add ⁹"kemorization questions generator" page in which you can either write something you must memorize or take a picture of it and it is sent to the llm.
++then, the llm quizzes you on what you must memorize. make it a copy of the english.html psge with the same modes.
+
+# 2025-05-17 18:50:21.262633
++n
+
+# 2025-05-17 18:50:22.935415
++/clear
+
+# 2025-05-17 18:50:25.506411
++add ⁹"kemorization questions generator" page in which you can either write something you must memorize or take a picture of it and it is sent to the llm.
++then, the llm quizzes you on what you must memorize. make it a copy of the english.html psge with the same modes.
+
+# 2025-05-17 18:54:17.862743
++n
+
+# 2025-05-17 18:54:51.886813
++/model openai/claude-3.7-sonnet
+
+# 2025-05-17 18:54:55.518785
++style the upload an image button
+
+# 2025-05-17 18:56:21.746776
++/model openai/gemini-2.5-pro
+
+# 2025-05-17 18:58:23.369204
++Image data was prepared, but sending it to the LLM requires API layer changes for multimodal input.
++can you make the api layer changes
+
+# 2025-05-17 19:01:17.404587
++Error: Error parsing XML: This page contains the following errors:error on line 1 at column 1: Start tag expected, '<' not foundBelow is a rendering of the page up to the first error.
+
+# 2025-05-17 19:01:34.935154
++Error: Error parsing XML: This page contains the following errors:error on line 1 at column 1: Start tag expected, '<' not foundBelow is a rendering of the page up to the first error.
++<memorizationQuiz>
++  <instruction>Based on the provided material, answer the following questions. These instructions should be in English.</instruction>
++  <quizItems>
++    <quizItem id="1">
++      <questionType>true-false</questionType>
++      <questionText>The Haifa (Haifa) massacre occurred in 1938.</questionText>
++      <answerKey>True</answerKey>
++      <explanation>The document lists the Haifa massacre as happening in 1938.</explanation>
++    </quizItem>
++    <quizItem id="2">
++      <questionType>true-false</questionType>
++      <questionText>The Yaffa (Tel Aviv) and Deir Yassin massacres occurred in 1947.</questionText>
++      <answerKey>False</answerKey>
++      <explanation>The Yaffa and Deir Yassin massacres occurred in 1948, not 1947.</explanation>
++    </quizItem>
++    <quizItem id="3">
++      <questionType>true-false</questionType>
++      <questionText>The Sabra & Shatila refugee camp massacres took place in Beirut, Lebanon, in 1982.</questionText>
++      <answerKey>True</answerKey>
++      <explanation>The document confirms the Sabra & Shatila massacres happened in 1982 in Beirut.</explanation>
++    </quizItem>
++    <quizItem id="4">
++      <questionType>true-false</questionType>
++      <questionText>The Gaza massacre of 2014 is listed among the atrocities.</questionText>
++      <answerKey>True</answerKey>
++      <explanation>The document explicitly mentions the Gaza massacre in 2014.</explanation>
++    </quizItem>
++    <quizItem id="5">
++      <questionType>true-false</questionType>
++      <questionText>The Khan Yunis massacre occurred in 1956.</questionText>
++      <answerKey>True</answerKey>
++      <explanation>The document lists the Khan Yunis massacre as happening in 1956.</explanation>
++    </quizItem>
++  </quizItems>
++</memorizationQuiz>
+
+# 2025-05-17 19:05:32.277801
++/clear
+
+# 2025-05-17 19:05:34.869616
++/tokens
+
+# 2025-05-17 19:06:28.873707
++<memorizationQuiz>
++  <instruction>Based on the provided material, answer the following questions. These instructions should be in English.</instruction>
++  <quizItems>
++    <quizItem id="1">
++      <questionType>multiple-choice</questionType>
++      <questionText>In which year did the Hayfa (Haifa) and Al-Quds (Jerusalem) massacres occur?</questionText>
++      <options>
++        <option id="A">1937</option>
++        <option id="B">1947</option>
++        <option id="C">1956</option>
++      </options>
++      <answerKey>A</answerKey>
++      <explanation>The Hayfa and Al-Quds massacres took place in 1937, as indicated in the provided material.</explanation>
++    </quizItem>
++    <quizItem id="2">
++      <questionType>fill-in-the-blank</questionType>
++      <questionText>The Sabra & Shatila Refugee Camp massacres in Beirut, Lebanon, occurred in the year ___.</questionText>
++      <answerKey>1982</answerKey>
++      <explanation>This event is listed in the material as having occurred in 1982.</explanation>
++    </quizItem>
++    <quizItem id="3">
++      <questionType>true-false</questionType>
++      <questionText>The Al-Aqsa Mosque massacre in Al-Quds (Jerusalem) occurred in 1990.</questionText>
++      <answerKey>True</answerKey>
++      <explanation>The material confirms that the Al-Aqsa Mosque massacre took place in 1990.</explanation>
++    </quizItem>
++    <quizItem id="4">
++      <questionType>short-answer</questionType>
++      <questionText>What location experienced a massacre in 1948, along with Yaffa (Tel Aviv)?</questionText>
++      <answerKey>Deir Yassin</answerKey>
++      <explanation>The material mentions Yaffa (Tel Aviv) and Deir Yassin massacres in 1948.</explanation>
++    </quizItem>
++    <quizItem id="5">
++      <questionType>multiple-choice</questionType>
++      <questionText>Which of the following years saw a Gaza genocide?</questionText>
++      <options>
++        <option id="A">1994</option>
++        <option id="B">2008 to 2009</option>
++        <option id="C">2021</option>
++      </options>
++      <answerKey>B</answerKey>
++      <explanation>The material lists a Gaza genocide in the years 2008 to 2009.</explanation>
++    </quizItem>
++  </quizItems>
++</memorizationQuiz>
++this is correct xml but it says
++Error: XML parsing still failed after stripping prefix. Error on stripped XML: This page contains the following errors:error on line 17 at column 32: xmlParseEntityRef: no name
++Below is a rendering of the page up to the first error.
++Error: Final Error parsing XML. Displaying original input. Error details: This page contains the following errors:error on line 1 at column 1: Start tag expected, '<' not foundBelow is a rendering of the page up to the first error.
++
++also, make it not change models to gpt4o
+
+# 2025-05-17 19:08:30.850164
++tell the ai to explicitly escape characterd thst need to be escaped
+
+# 2025-05-17 19:10:18.121625
++it seems fill in the blank questions are broken
++Instead of asking "why are there so many cameras everywhere?", you should say "The Regime <input type="text" class="inline-blank memorization-blank"> best".
+
+# 2025-05-17 19:11:33.715825
++replace short answer with AI  judger that judges your input to see if its correft
+
+# 2025-05-17 19:14:14.826007
++ReferenceError: tasksToJudge is not defined
+
+# 2025-05-17 19:17:24.940250
++fill in the blanks are still  broken
++Question 2
++The text in the image says "I'm 99% human, 1% _".
+
+# 2025-05-17 19:19:44.538021
++tel \l the ai to explicity use triple underscores
+
+# 2025-05-17 19:21:59.524638
++the llm is still not doing triple underscore
+
+# 2025-05-17 19:23:31.527640
++use the same system for blanks in memorization as english/math
+
+# 2025-05-17 19:25:35.253328
++make all pages include a back to portal page
+
+# 2025-05-17 19:25:39.463693
++make all pages include a back to portal sectiln
+
+# 2025-05-17 19:26:53.226644
++/git push
+
+# 2025-05-17 19:42:57.876285
++/add *
+
+# 2025-05-17 19:43:43.860974
++can you add a link to https://supastishn.github.io thst says "see more cool stuff here" and a link to https://github.com/supastishn/exam-practice that says "see the source code" at the footer?
++
+
+# 2025-05-17 19:43:45.527580
++s
+
+# 2025-05-17 19:44:30.683186
++make it adjust to dark and light mode
+
+# 2025-05-17 19:45:11.439171
++make the footer links adjust to dark and light mode
+
+# 2025-05-17 19:58:40.006551
++/model openai/claude-3.7-sonnet
+
+# 2025-05-17 19:58:41.592267
++/clear
+
+# 2025-05-17 19:58:44.240312
++make the footer links adjust to dark and light mode
+
+# 2025-05-18 03:22:23.871466
++/add *
+
+# 2025-05-18 03:22:53.590165
++remove eruds theming swithch upon theme change.
+
+# 2025-05-18 11:08:50.953968
++can you make the copy quiz button woek
+
+# 2025-05-18 11:08:56.554436
++/add *
+
+# 2025-05-18 11:09:00.026796
++can you make the copy quiz button woek
+
+# 2025-05-18 11:11:04.553706
++make it so that the blanks are represented as 10 underscores, true/false and multiple choice questions are separared by tabs not new lines
+
+# 2025-05-18 11:15:27.718254
++/add *
+
+# 2025-05-18 11:15:33.793830
++/drop LICENSE
+
+# 2025-05-18 11:16:02.998917
++can you give me commands to remove all commits from the master branch and make a new one called initial commit
+
+# 2025-05-18 11:17:09.207393
++/run git checkout --orphan temp_initial_branch
+
+# 2025-05-18 11:17:09.210024
++/run git checkout --orphan temp_initial_branch
+
+# 2025-05-18 11:17:09.457762
++/run git add -A
+
+# 2025-05-18 11:17:09.458332
++/run git add -A
+
+# 2025-05-18 11:17:09.653517
++/run git commit -m "Initial commit"
+
+# 2025-05-18 11:17:09.653875
++/run git commit -m "Initial commit"
+
+# 2025-05-18 11:17:09.919463
++/run git branch -D master
+
+# 2025-05-18 11:17:09.920336
++/run git branch -D master
+
+# 2025-05-18 11:17:10.091537
++/run git branch -m master
+
+# 2025-05-18 11:17:10.091842
++/run git branch -m master
+
+# 2025-05-18 11:17:10.276066
++/run git push -f origin master
+
+# 2025-05-18 11:17:10.288079
++/run git push -f origin master
+
+# 2025-05-18 11:17:15.768829
++n
+
+# 2025-05-18 11:17:42.258064
++add a "how to setup openrouter api key" guide page, and add a link to it in the settings.html
+
+# 2025-05-18 11:20:27.332165
++give recommendations for free models:
++text only (no image support): deepseek/deepseek-r1:free or deepseek/deepseek-chat-v3-0324:free
++multimodal (has image support): meta-llama/llama-4-maverick:free
++
+
+# 2025-05-18 11:21:25.146951
++add a setup guide for google ai studio with openai compatibility, and add a link to it in settings.html
+
+# 2025-05-18 11:23:33.131223
++add a setup guide for google ai studio with openai compatibility, and add a link to it in settings.html.
++for google ai studio, mention that it uses your data for training prompts.
++mention recommended models:
++gemini-2.5-flash-preview-04-17 (supports both text and images, 500 requests per day)
++gemini-2.0-flash (supports both text and images, 1500 requests per day, worse than gemini 2.5 flash)
++
++for openrouter, mention tthat there is s 50 reauest per day limit for the free models
+
+# 2025-05-18 11:27:02.965761
++n
+
+# 2025-05-18 11:27:10.161374
++use https://generativelanguage.googleapis.com/v1beta/openai/ for openai compatibility via gemini
+
+# 2025-05-18 11:27:10.935258
++n
+
+# 2025-05-18 11:28:19.574581
++/git push
+
+# 2025-05-18 11:28:30.896278
++/git push --set-upstream origin master
+
+# 2025-05-18 11:29:14.787744
++add image supportto english and math as well
+
+# 2025-05-18 11:29:25.093570
++add image supportto english and math as well in order to generste questions similar format to the image
+
+# 2025-05-18 12:18:16.809515
++make it so that, in ai judge questions in math, the ai can "iterate" over running code snd getting results, before actually giving the user an answer
+
+# 2025-05-18 12:22:02.547826
++add emphasis on the ai using rhe code tool so thst the ai *must* use code interpreter once
+
+# 2025-05-18 12:25:58.171581
++/git push
+
+# 2025-05-18 12:26:04.077034
++/undo
+
+# 2025-05-18 12:26:08.522477
++/git reset --hard
+
+# 2025-05-18 12:26:14.711048
++/git reset --hard HEAD^
+
+# 2025-05-18 12:26:25.249980
++/git push
+
+# 2025-05-18 12:26:28.033023
++/git push --force
+
+# 2025-05-21 12:36:16.103478
++/add *
+
+# 2025-05-21 12:36:17.936088
++/tokens
+
+# 2025-05-21 12:36:37.760077
++can you add gemini-2.5-flash-preview-05-20 to the list of recommended models for ai studio
+
+# 2025-05-21 12:36:40.077671
++can you add gemini-2.5-flash-preview-05-20 to the list of recommended models for ai studio guide
+
+# 2025-05-21 12:39:26.740019
++add camera support
+
+# 2025-05-21 12:39:45.248044
++add camera support to all the modes (english memorization and math)
+
+# 2025-05-21 12:45:07.587667
++/clear
+
+# 2025-05-21 12:45:10.066281
++/lint
+
+# 2025-05-21 12:45:25.520627
++/undo
+
+# 2025-05-21 12:45:29.431485
++/clear
+
+# 2025-05-21 12:45:34.238158
++add camera support to all the modes (english memorization and math) please.
+
+# 2025-05-21 12:51:19.647939
++# THE DEVELOPER OF THIS PROGRAM IS AGAINST THE GENOCIDE IN GAZA.
++[Learn More](https://www.amnesty.org/en/wp-content/uploads/2024/12/MDE1586682024ENGLISH.pdf)
++
++add that to the begnning of rwadme.md and make contributing.md
+
+# 2025-05-21 12:51:20.819172
++n
+
+# 2025-05-21 12:54:34.199663
++add a code of conduct
+
+# 2025-05-21 12:56:50.755619
++can you fix uploading images and camera, it stopped working.
+
+# 2025-05-21 12:57:54.710244
++can you fix uploading images and camera, it stopped working. on mobile
+
+# 2025-05-21 13:00:55.878502
++/git reset --hard HEAD¢3
+
+# 2025-05-21 13:00:59.621973
++/git reset --hard HEAD^3
+
+# 2025-05-21 13:01:04.090451
++/git reset --hard HEAD^
+
+# 2025-05-21 13:02:58.129399
++add camera support. make sure it works on both android and pc. heres an example of a camerw function
++async function openCamera() {
++        if (!cameraModal || !cameraVideoFeed) return;
++        cameraModal.classList.remove('hidden');
++        try {
++            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
++            cameraVideoFeed.srcObject = currentStream;
++            // Ensure video plays, especially on mobile
++            cameraVideoFeed.play().catch(err => console.error("Error playing video:", err));
++        } catch (err) {
++            console.error("Error accessing camera:", err);
++            alert("Could not access the camera. Please ensure permissions are granted and no other app is using it. Error: " + err.message);
++            closeCamera(); // Close modal if camera access fails
++        }
++    }
++
++    function closeCamera() {
++        if (currentStream) {
++            currentStream.getTracks().forEach(track => track.stop());
++        }
++        currentStream = null;
++        if (cameraVideoFeed) cameraVideoFeed.srcObject = null;
++        if (cameraModal) cameraModal.classList.add('hidden');
++    }
++
++    function captureImageFromCamera() {
++        if (!cameraVideoFeed || !cameraCanvas || !imagePreview || !imagePreviewContainer) return;
++
++        // Set canvas dimensions to video dimensions
++        const videoWidth = cameraVideoFeed.videoWidth;
++        const videoHeight = cameraVideoFeed.videoHeight;
++        cameraCanvas.width = videoWidth;
++        cameraCanvas.height = videoHeight;
++
++        const context = cameraCanvas.getContext('2d');
++        context.drawImage(cameraVideoFeed, 0, 0, videoWidth, videoHeight);
++
++        currentImageDataUrl = cameraCanvas.toDataURL('image/webp'); // Use webp for good compression/quality
++        imagePreview.src = currentImageDataUrl;
++        imagePreviewContainer.classList.remove('hidden');
++        sourceInputEl.placeholder = "Describe what to do with the captured image, or add text related to it...";
++
++        closeCamera();
++    }
++
++
+
+# 2025-05-21 13:07:50.771773
++/clear
+
+# 2025-05-21 13:07:57.962898
++can ypu fix image uploading not working on mobile?
+
+# 2025-05-21 13:09:10.303970
++camera modal doesnt work on android either
+
+# 2025-05-21 13:09:55.553572
++camera modal doesnt work on android now
+
+# 2025-05-21 13:10:05.223597
++camera modal doesnt work on android now. i dont see any alert, nothing appears
+
+# 2025-05-21 13:12:31.549626
++Error: Camera modal or video feed element not found.
+
+# 2025-05-21 13:17:15.814963
++the first item in a multiple choice question is not indented (it is stuck to the left of container)
+
+# 2025-05-21 13:18:43.856683
++make the radik buttons appear line after line notnext to each other
+
+# 2025-05-21 13:22:18.963354
++make use camera ajd choose image buttons same size and symmetrical
+
+# 2025-05-21 13:25:00.429265
++/git push
+
+# 2025-05-21 13:25:26.525787
++# THE DEVELOPER OF THIS PROGRAM IS AGAINST THE GENOCIDE IN GAZA.
++[Learn More](https://www.amnesty.org/en/wp-content/uploads/2024/12/MDE1586682024ENGLISH.pdf)
++
++add that to the begnning of rwadme.md and make contributing.md file
+
+# 2025-05-21 13:26:02.303046
++add a code of conduct
+
+# 2025-05-21 13:26:32.894708
++/git push --force
+
+# 2025-05-23 18:35:44.502235
++/add *
+
+# 2025-05-23 18:35:53.346490
++implement streaming to writing collaboratiion
+
+# 2025-05-23 18:42:52.254732
++make it so if you write a  prompt, the ai generstes frkm it. for example f you write explaining essay ai generates a prompt
+
+# 2025-05-23 18:46:09.268186
++the ai suggestions dont seem to work. it just shows the old essay
+
+# 2025-05-24 09:36:14.059321
++/add *
+
+# 2025-05-24 09:36:28.965731
++make it so when you press "review writing" the xml gets streamed to you
+
+# 2025-05-24 09:40:53.872470
++/run python -m http.server
+
+# 2025-05-24 09:41:12.369314
++/run python -m http.server 8001
+
+# 2025-05-24 09:41:58.169907
++n
+
+# 2025-05-24 09:42:01.750136
++/git rexet --hard HEAD
+
+# 2025-05-24 09:42:07.319313
++/git reset --hard HEAD
+
+# 2025-05-24 09:42:14.735162
++/run python -m http.server 8001
+
+# 2025-05-24 09:42:31.531831
++n
+
+# 2025-05-24 09:42:34.213793
++/run pwd
+
+# 2025-05-24 09:42:37.042666
++n
+
+# 2025-05-24 09:42:39.882345
++/run sh
+
+# 2025-05-24 09:42:50.916536
++n
+
+# 2025-05-24 09:43:38.340948
++/git log --oneline
+
+# 2025-05-24 09:44:33.341113
++can you make the ak give feedback after finishing the session?
+
+# 2025-05-24 09:47:54.101602
++/commit
+
+# 2025-05-24 09:48:53.177848
++/git log --oneline
+
+# 2025-05-24 09:49:52.921588
++/git reset --hard 56b9708
+
+# 2025-05-24 09:50:09.854350
++/undo
+
+# 2025-05-24 09:50:17.280332
++/git reset --hard HEAD^
+
+# 2025-05-24 09:50:55.984473
++/git reset --hard c93d7e8
+
+# 2025-05-24 09:53:25.890329
++add a writing collaborator in writing.html where you can practice writinf, you can optionally provide a prompt for ai to generate a writing topic, pick a language, a time limit, and a grade level, then ai generates a writing topic and you must completr in time limit or finish ewrly. then, ai reviews your writing.
+
+# 2025-05-24 10:03:01.819875
++make it not use query strings, they dont work.
+
+# 2025-05-24 10:03:35.610395
++make it not use query strings, they dont work.. also in writing.html i dont see anything, just see the history
+
+# 2025-05-24 10:05:34.300479
++Error: Error getting AI feedback: 
++TypeError {}
++message: "Api.makeRequest is not a function"
++stack: "TypeError: Api.makeRequest is not a function↵ at getFeedback (http://localhost:8001/js/writing.js:272:23)↵ at endWritingSession (http://localhost:8001/js/writing.js:182:57)↵ at HTMLButtonElement.<anonymous> (http://localhost:8001/js/writing.js:390:63)"
++get stack: ƒ ()
++set stack: ƒ ()
++[[Prototype]]: Object
+
+# 2025-05-24 10:05:38.352306
++s
+
+# 2025-05-24 10:08:25.500063
++remove eruda
+
+# 2025-05-24 10:32:04.711165
++make it use markdown detection. use a diff system for updsted version.
+
+# 2025-05-24 10:32:28.051411
++make it use markdown detection. use a diff system for updsted version in which deleted parts are highlightdd red, added parts are highlited green
+
+# 2025-05-24 10:35:29.230419
++make it so ai escaped characters like quot are parsed correctly in improved version
+
+# 2025-05-24 10:35:41.022556
++make it so ai escaped characters like quot are parsed correctly in improved version.
+
+# 2025-05-24 11:48:56.217419
++/commit
+
+# 2025-05-24 11:49:37.627867
++/undo
+
+# 2025-05-24 11:49:48.686958
++/git reset --hard HEAD^
+
+# 2025-05-24 11:49:57.766566
++/undo
+
+# 2025-05-24 11:50:04.397949
++/clear
+
+# 2025-05-24 11:50:44.956618
++add a writing collaborator in writing.html where you can practice writinf, you can optionally provide a prompt for ai to generate a writing topic, pick a language, a time limit, and a grade level, then ai generates a writing topic and you must completr in time limit or finish ewrly. then, ai reviews your writing. then, it suggess an improved version with diff formatting. removed parts highlit]ghted in red, added parts highlighted in green
+
+# 2025-05-24 12:45:39.877115
++n
+
+# 2025-05-24 12:48:04.010675
++can you help, i cant see the actual writing section, only the history
+
+# 2025-05-24 12:52:33.161554
++make it not use query strings.
+
+# 2025-05-24 13:12:53.554937
++qhwn i click the "begin session" in qriting collaborator it redirects me to the url with query strings
+
+# 2025-05-24 13:15:04.507097
++it os because the button is a submit button, meaning it sends the data to url via query strings. make the button not of type=submit
+
+# 2025-05-24 13:52:42.163850
++n
+
+# 2025-05-24 13:52:49.027982
++TypeError: Cannot read properties of undefined (reading 'length') when i open writing.htm;
+
+# 2025-05-24 15:33:06.395929
++/im pfessing start session but nothing happens
+
+# 2025-05-24 15:33:09.345829
++im pfessing start session but nothing happens
+
+# 2025-05-24 15:40:34.398074
++n
+
+# 2025-05-24 16:30:10.273541
++Error: Error getting AI review: 
++ReferenceError {}
++message: "diff_match_patch is not defined"
++stack: "ReferenceError: diff_match_patch is not defined↵ at simpleDiff (http://localhost:8001/js/writing.js:52:21)↵ at HTMLButtonElement.handleFinishWriting (http://localhost:8001/js/writing.js:272:56)"
++get stack: ƒ ()
++set stack: ƒ ()
++[[Prototype]]: Object
+
+# 2025-05-24 16:54:04.216413
++s
+
+# 2025-05-24 16:55:57.626907
++n
+
+# 2025-05-24 16:56:08.981524
++`diff_match_patch` is not defined. it seems theres an error
+
+# 2025-05-24 16:56:23.932617
++`diff_match_patch` is not defined. it seems theres an synrax error
+
+# 2025-05-24 16:58:51.719909
++/run desktop
+
+# 2025-05-24 17:00:02.561759
++n
+
+# 2025-05-24 17:00:04.101884
++The resource from “https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/1.0.1/javascript/diff_match_patch.js” was blocked due to MIME type (“text/html”) mismatch (X-Content-Type-Options: nosniff).
+
+# 2025-05-24 18:02:35.172896
++n
+
+# 2025-05-24 18:15:00.739264
++<script src="https://cdnjs.cloudflare.com/ajax/libs/diff-match-patch/1.0.5/index.js" integrity="sha512-Tlwo4f73Gi/8rJinnJUJHsGaGDjU+RAw90XsYzSBf7XIGNlBKQwbj44ew9f5m2Zybp345RbYyRcFRJvvsLMmdg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
++use this
+
+# 2025-05-24 18:15:02.177140
++n
+
+# 2025-05-24 18:17:07.476340
++dontuse diff match path library. use custom implementation. only make highlighting, no advanced features, fkr example, the llm could give xml tags for what is removed and what is added.
+
+# 2025-05-24 18:18:01.518122
++n
+
+# 2025-05-24 18:18:49.965114
++is therw a different library for diffs? if there is, use that instead,
+
+# 2025-05-24 18:22:17.026737
++n
+
+# 2025-05-24 18:23:04.572608
++make an apply chsnges button, and make it so if you type a prompt, the ai generatesna prompt from thatpromot. e.g if you type explaining writing ai generates a writing topic abput explaining writing
+
+# 2025-05-25 03:09:53.754851
++/add *
+
+# 2025-05-25 03:10:48.614237
++add a writing collaborator in writing.html where you can practice writinf, you can optionally provide a prompt for ai to generate a writing topic, pick a language, a time limit, and a grade level, then ai generates a writing topic and you must completr in time limit or finish ewrly. then, ai reviews your writing. then, it suggess an improved version with diff formatting. removed parts highlit]ghted in red, added parts highlighted in green
+
+# 2025-05-25 03:15:01.602244
++n
+
+# 2025-05-25 04:16:48.957879
++/add *
+
+# 2025-05-25 04:17:05.879594
++/tokens
+
+# 2025-05-25 05:27:38.861979
++/add *
+
+# 2025-05-25 05:27:42.138184
++/tokens
+
+# 2025-05-25 05:27:53.887632
++/drop memorization guide
+
+# 2025-05-25 05:28:11.973300
++/add writing.html
+
+# 2025-05-25 05:28:18.003397
++/add js/writing.js
+
+# 2025-05-25 05:28:52.456669
++can you make a writing practice mode?
+
+# 2025-05-25 05:33:38.234202
++/run echo "New files writing.html and js/writing.js created."
+
+# 2025-05-25 05:33:38.234778
++/run echo "New files writing.html and js/writing.js created."
+
+# 2025-05-25 05:33:43.114706
++n
+
+# 2025-05-25 05:33:47.407246
++/run [wd
+
+# 2025-05-25 05:33:49.211029
++n
+
+# 2025-05-25 05:33:51.464243
++/run pwd
+
+# 2025-05-25 05:35:34.017889
++n
+
+# 2025-05-25 05:35:39.513972
++i dont see the writing practice element.
+
+# 2025-05-25 05:37:44.658882
++remove use of diff library. rely on ai for genersting diffs
+
+# 2025-05-25 05:40:18.632386
++/run desktop
+
+# 2025-05-25 05:41:12.854912
++n
+
+# 2025-05-25 05:41:14.899946
++Uncaught ReferenceError: generateWritingTopic is not defined
++    Api http://localhost:8001/js/api.js:392
++    <anonymous> http://localhost:8001/js/api.js:395
++
+
+# 2025-05-25 05:41:17.697126
++s
+
+# 2025-05-25 05:44:45.394692
++/git reset --hardError: Error generating writing topic: 
++ReferenceError {}
++message: "Api is not defined"
++stack: "ReferenceError: Api is not defined↵ at HTMLFormElement.handleTopicGeneration (http://localhost:8001/js/writing.js:106:27)"
++get stack: ƒ ()
++set stack: ƒ ()
++[[Prototype]]: Object
+
+# 2025-05-25 05:44:48.607034
++Error: Error generating writing topic: 
++ReferenceError {}
++message: "Api is not defined"
++stack: "ReferenceError: Api is not defined↵ at HTMLFormElement.handleTopicGeneration (http://localhost:8001/js/writing.js:106:27)"
++get stack: ƒ ()
++set stack: ƒ ()
++[[Prototype]]: Object
+
+# 2025-05-25 05:44:55.287940
++d
+
+# 2025-05-25 05:47:48.010899
++yes i am sure. it is not a browser error.
+
+# 2025-05-25 05:47:49.610569
++/clear
+
+# 2025-05-25 05:47:58.398369
++Error: Error generating writing topic: 
++ReferenceError {}
++message: "Api is not defined"
++stack: "ReferenceError: Api is not defined↵ at HTMLFormElement.handleTopicGeneration (http://localhost:8001/js/writing.js:106:27)"
++get stack: ƒ ()
++set stack: ƒ ()
++[[Prototype]]: Object
++i am sure it isnt a browser error
+
+# 2025-05-25 05:52:41.274833
++add optiom for setting a timer, and add grade level suport
+
+# 2025-05-25 05:54:52.062004
++/clear
+
+# 2025-05-25 05:55:08.269498
++add optiom for setting a timer in writing, and add grade level suport for writing
+
+# 2025-05-25 06:02:50.764825
++/commit
+
+# 2025-05-26 07:52:15.959416
++/add *
+
+# 2025-05-26 07:52:26.357058
++/model flash2.5
+
+# 2025-05-26 07:52:29.988982
++/ask hi
+
+# 2025-05-26 07:52:44.247746
++/model gemini/gemini-2.5-flash-preview-04-17
+
+# 2025-05-26 07:52:45.834733
++/ask hi
+
+# 2025-05-26 07:53:25.866132
++/model flash2.5
+
+# 2025-05-26 07:53:26.597822
++hi
+
+# 2025-05-26 07:53:46.282025
++/model gemini/gemini-2.0-flash
+
+# 2025-05-26 07:53:46.911599
++hi
+
+# 2025-05-26 07:53:53.978988
++/model gemini/gemini-2.5-pro
+
+# 2025-05-26 07:54:01.015946
++/model openai/gemini-2.5-pro
+
+# 2025-05-26 07:54:08.811593
++/ask hi
+
+# 2025-05-26 07:54:56.817553
++/model flash2.5
+
+# 2025-05-26 07:55:02.201481
++Hello!
+
+# 2025-05-26 07:55:15.534641
++/model openai/gemini-2.5-pro
+
+# 2025-05-26 07:55:20.040110
++/add *
+
+# 2025-05-26 07:55:25.854043
++/mtokens
+
+# 2025-05-26 07:55:31.525113
++ /tike
+
+# 2025-05-26 07:55:35.893744
++/toke
+
+# 2025-05-26 07:55:47.156659
++/model openai/claude-sonnet-4
+
+# 2025-05-26 07:55:54.911392
++/drop .md LICENSE
+
+# 2025-05-26 07:56:02.383994
++/drop guide
+
+# 2025-05-26 07:56:06.736629
++/toke
+
+# 2025-05-26 07:58:10.779220
++can you make a "writing playground" in which you enter a manager in which you can add and delete notes. then, when you open the note, the playground gui appears with a full screen notepad and an expandeable/closeable sidebar. the sidebar should contain:
+
+# 2025-05-26 08:02:00.410426
++can you change writing collaborstor to "writing playground" in which you enter a manager in which you can add and delete notes. then, when you open the note, the playground gui appears with a full screen notepad and an expandeable/closeable sidebar. the sidebar should contain:
++"writing topic" what you are writing about (you can also make ai generate this by typing in a prompt)
++grade level (your grade level)
++then, you can click "ai review" on the sidebar, which makes reviews grammar, vocabulary, use of linking words, and other important categories on a scale of 0-10, then gives you a final grade out of 100, along with a letter grade, then it duggests improvements to your essay, and then, it uses diffs to give an improved vesion of your essay. have the diff appear in the notepad instead. make ai handle the diff generation by providing search and replace blocks, then, use a custom diff impoementation ti highlight chsnges/added parts in green, and removed parts in red. allow for applying each search and replace block 1 by 1, or discarding them.
+
+# 2025-05-26 08:02:21.012097
++/ask make a plan for this: can you change writing collaborstor to "writing playground" in which you enter a manager in which you can add and delete notes. then, when you open the note, the playground gui appears with a full screen notepad and an expandeable/closeable sidebar. the sidebar should contain:
++"writing topic" what you are writing about (you can also make ai generate this by typing in a prompt)
++grade level (your grade level)
++then, you can click "ai review" on the sidebar, which makes reviews grammar, vocabulary, use of linking words, and other important categories on a scale of 0-10, then gives you a final grade out of 100, along with a letter grade, then it duggests improvements to your essay, and then, it uses diffs to give an improved vesion of your essay. have the diff appear in the notepad instead. make ai handle the diff generation by providing search and replace blocks, then, use a custom diff impoementation ti highlight chsnges/added parts in green, and removed parts in red. allow for applying each search and replace block 1 by 1, or discarding them.
+
+# 2025-05-26 08:04:13.449006
++follow the plan for this: can you change writing collaborstor to "writing playground" in which you enter a manager in which you can add and delete notes. then, when you open the note, the playground gui appears with a full screen notepad and an expandeable/closeable sidebar. the sidebar should contain:
++"writing topic" what you are writing about (you can also make ai generate this by typing in a prompt)
++grade level (your grade level)
++then, you can click "ai review" on the sidebar, which makes reviews grammar, vocabulary, use of linking words, and other important categories on a scale of 0-10, then gives you a final grade out of 100, along with a letter grade, then it duggests improvements to your essay, and then, it uses diffs to give an improved vesion of your essay. have the diff appear in the notepad instead. make ai handle the diff generation by providing search and replace blocks, then, use a custom diff impoementation ti highlight chsnges/added parts in green, and removed parts in red. allow for applying each search and replace block 1 by 1, or discarding them.
+
+# 2025-05-26 08:21:11.517748
++n
+
+# 2025-05-26 08:21:18.514635
++/model openai/gemini-2.5-pro
+
+# 2025-05-26 08:21:21.483531
++/clear
+
+# 2025-05-26 08:21:29.156917
++/ask make a plan for this: can you change writing collaborstor to "writing playground" in which you enter a manager in which you can add and delete notes. then, when you open the note, the playground gui appears with a full screen notepad and an expandeable/closeable sidebar. the sidebar should contain:
++"writing topic" what you are writing about (you can also make ai generate this by typing in a prompt)
++grade level (your grade level)
++then, you can click "ai review" on the sidebar, which makes reviews grammar, vocabulary, use of linking words, and other important categories on a scale of 0-10, then gives you a final grade out of 100, along with a letter grade, then it duggests improvements to your essay, and then, it uses diffs to give an improved vesion of your essay. have the diff appear in the notepad instead. make ai handle the diff generation by providing search and replace blocks, then, use a custom diff impoementation ti highlight chsnges/added parts in green, and removed parts in red. allow for applying each search and replace block 1 by 1, or discarding them.
+
+# 2025-05-26 08:26:45.383706
++follow the plan for this: can you change writing collaborstor to "writing playground" in which you enter a manager in which you can add and delete notes. then, when you open the note, the playground gui appears with a full screen notepad and an expandeable/closeable sidebar. the sidebar should contain:
++"writing topic" what you are writing about (you can also make ai generate this by typing in a prompt)
++grade level (your grade level)
++then, you can click "ai review" on the sidebar, which makes reviews grammar, vocabulary, use of linking words, and other important categories on a scale of 0-10, then gives you a final grade out of 100, along with a letter grade, then it duggests improvements to your essay, and then, it uses diffs to give an improved vesion of your essay. have the diff appear in the notepad instead. make ai handle the diff generation by providing search and replace blocks, then, use a custom diff impoementation ti highlight chsnges/added parts in green, and removed parts in red. allow for applying each search and replace block 1 by 1, or discarding them.
+
+# 2025-05-26 08:28:19.357455
++/run python -m http.server &
+
+# 2025-05-26 08:28:20.974078
++n
+
+# 2025-05-26 08:28:29.960627
++/run python -m http.server &
+
+# 2025-05-26 08:28:31.857172
++n
+
+# 2025-05-26 08:31:52.512946
++/add *
+
+# 2025-05-26 08:31:58.943837
++/drop .md guide
+
+# 2025-05-26 08:32:07.605168
++/add writing.html
+
+# 2025-05-26 08:32:11.133458
++/git add .
+
+# 2025-05-26 08:32:16.126427
++/git commit -m .
+
+# 2025-05-26 08:32:25.039599
++/add *
+
+# 2025-05-26 08:32:39.955289
++/drop guide .md exercises memorization
+
+# 2025-05-26 08:32:42.162596
++/tokens
+
+# 2025-05-26 08:32:50.880716
++/ask make a plan for this: can you change writing collaborstor to "writing playground" in which you enter a manager in which you can add and delete notes. then, when you open the note, the playground gui appears with a full screen notepad and an expandeable/closeable sidebar. the sidebar should contain:
++"writing topic" what you are writing about (you can also make ai generate this by typing in a prompt)
++grade level (your grade level)
++then, you can click "ai review" on the sidebar, which makes reviews grammar, vocabulary, use of linking words, and other important categories on a scale of 0-10, then gives you a final grade out of 100, along with a letter grade, then it duggests improvements to your essay, and then, it uses diffs to give an improved vesion of your essay. have the diff appear in the notepad instead. make ai handle the diff generation by providing search and replace blocks, then, use a custom diff impoementation ti highlight chsnges/added parts in green, and removed parts in red. allow for applying each search and replace block 1 by 1, or discarding them.
+
+# 2025-05-26 08:35:30.495027
++follow the plan for this: can you change writing collaborstor to "writing playground" in which you enter a manager in which you can add and delete notes. then, when you open the note, the playground gui appears with a full screen notepad and an expandeable/closeable sidebar. the sidebar should contain:
++"writing topic" what you are writing about (you can also make ai generate this by typing in a prompt)
++grade level (your grade level)
++then, you can click "ai review" on the sidebar, which makes reviews grammar, vocabulary, use of linking words, and other important categories on a scale of 0-10, then gives you a final grade out of 100, along with a letter grade, then it duggests improvements to your essay, and then, it uses diffs to give an improved vesion of your essay. have the diff appear in the notepad instead. make ai handle the diff generation by providing search and replace blocks, then, use a custom diff impoementation ti highlight chsnges/added parts in green, and removed parts in red. allow for applying each search and replace block 1 by 1, or discarding them.
+
+# 2025-05-26 08:39:42.591608
++proceed.
+
+# 2025-05-26 08:42:23.775885
++proceeed with phase 3
+
+# 2025-05-26 08:45:42.873576
++can you proceed with next phases
+
+# 2025-05-26 08:45:49.981634
++/git reset --hafd
+
+# 2025-05-26 08:45:51.154417
++/git reset --hard
+
+# 2025-05-26 08:45:59.170826
++/clear
+
+# 2025-05-26 12:32:03.081969
++/add *
+
+# 2025-05-26 12:32:11.640340
++/tolens
+
+# 2025-05-26 12:32:14.752135
++/tokens
+
+# 2025-05-26 12:32:24.996205
++shrink the codebase by removing unnecesarry comments and other improvements.
+
+# 2025-05-26 12:45:51.013450
++n
+
+# 2025-05-26 12:45:58.234993
++/clear
+
+# 2025-05-26 12:46:09.781779
++shrink the codebase by removing unnecesarry comments and other improvements. (there are around 300 loc comments)
+
+# 2025-05-26 13:49:04.505443
++n
+
+# 2025-05-26 13:49:14.120126
++/git reset --hard
+
+# 2025-05-27 12:28:09.393563
++/add *
+
+# 2025-05-27 12:28:14.247586
++/token
+
+# 2025-05-27 12:28:33.636674
++/code gimme a command to remove all // comments
+
+# 2025-05-27 12:28:36.674926
++/code gimme a command to remove all // comments in all .js files
+
+# 2025-05-27 12:29:56.996300
++/run find . -type f -name "*.js" -exec sed -i 's://.*$::g' {} +
+
+# 2025-05-27 12:29:56.999777
++/run find . -type f -name "*.js" -exec sed -i 's://.*$::g' {} +
+
+# 2025-05-27 12:29:59.617867
++/tokens
+
+# 2025-05-27 12:30:34.440049
++make it so in writing playground you can create notes, and you pick the topic, word count, and grade level. the ai just grades.
+
+# 2025-05-27 12:31:04.797375
++make it so in writing playground you can create notes, and you pick the topic, word count, and grade level. the ai just grades, and add a button above the topic input "Let AI generate a topic!"
+
+# 2025-05-27 12:40:30.280999
++make it so the topic choosing window appears after creation of a note and you just choose title
+
+# 2025-05-27 12:49:11.860334
++n
+
+# 2025-05-27 12:51:26.184333
++make it so the topic choosing window appears after creation of a note and you just choose the title berore the writing
+
+# 2025-05-27 12:54:10.415767
++n
+
+# 2025-05-27 12:55:12.067577
++make it so word count, grsde level, and ai model is chosen after title, inside the input above. also make it so the input above in the notepad section allows pickijg of topic
+
+# 2025-05-27 14:12:03.018840
++n
+
+# 2025-05-27 15:39:46.329249
++make it so the writing topic is chosen separstely from the title
+
+# 2025-05-27 16:28:33.163151
++n
+
+# 2025-05-28 07:32:04.572015
++/add *
+
+# 2025-05-28 07:32:16.249559
++i have a problem, Api is not defined whenever i try to make an exercise
+
+# 2025-05-28 07:32:46.292676
++/editor- gpt-4.1
+
+# 2025-05-28 07:32:48.547689
++i have a problem, Api is not defined whenever i try to make an exercise
+
+# 2025-05-28 07:33:08.781273
++/git reset --hard HEAD^
+
+# 2025-05-28 07:33:46.920307
++make all fill in the blanks use ai judger too
+
+# 2025-05-28 07:35:25.643235
++/add *
+
+# 2025-05-28 07:35:38.707836
++make fill in the blanks use ai judgement as well
+
+# 2025-05-28 07:37:36.272074
++/reasoning- low
+
+# 2025-05-28 07:37:44.530964
++/reasoning- e
+
+# 2025-05-28 07:37:48.627176
++/reasoning- none
+
+# 2025-05-28 07:37:52.423055
++/reasoning- n
+
+# 2025-05-28 07:37:55.713856
++/ask test
+
+# 2025-05-28 07:38:33.622131
++/reasoning- high
+
+# 2025-05-28 07:38:44.875888
++make it so you can pick model temperwture in settings.html
+
+# 2025-05-28 07:44:35.563683
++/toke
+
+# 2025-05-28 07:45:24.329608
++/clear
+
+# 2025-05-28 07:45:32.275868
++/drop LICENSE
+
+# 2025-05-28 07:46:13.184776
++amake it so you can set presets for settings which can be chosen in settings or in the writing/math/english/memorization
+
+# 2025-05-28 07:59:22.355089
++add support for uploading multiple images, via both the image manager and camera
+
+# 2025-05-28 08:03:52.688855
++make it so you can load presets
+
+# 2025-05-28 08:06:36.265971
++/clear
+
+# 2025-05-28 08:06:40.784042
++make it so you can load presets
+
+# 2025-05-28 08:17:28.239931
++/undo
+
+# 2025-05-28 08:17:45.124436
++remove presets feature
+
+# 2025-06-05 08:36:24.957106
++/add *
+
+# 2025-06-05 08:36:27.131419
++/toke
+
+# 2025-06-05 08:36:43.737728
++/drop js/memorization.js js/exercises.js
+
+# 2025-06-05 08:37:00.726899
++when i click get feedback on writing it doesnt give feedback, it sends me back to the note making screen
+
+# 2025-06-05 08:40:20.648938
++/git push
+
+# 2025-06-05 08:41:48.430060
++make it so there are two tabs:
++assessment (this is the same as the current assessment tab)
++suggested improvements
++in suggested improvements, the ai gives an improved writing and it is then diffed to the current writing. red = removed green = added
+
+# 2025-06-05 08:48:36.769942
++n
+
+# 2025-06-05 08:48:48.855088
++#use xml for the improved writing like
+
+# 2025-06-05 08:48:51.621687
++##use xml for the improved writing like
+
+# 2025-06-05 08:49:00.772371
++###use xml for the improved writing like
++#<feedback></feedback>
+
+# 2025-06-05 08:49:09.911465
++###use xml for the improved writing like
++#<feedback></feedback>
++<improved></improved>
+
+# 2025-06-05 08:55:10.110222
++#Error: Error generating feedback: 
++#Error {}
++#message: "API response missing required XML tags"
++#stack: "Error: API response missing required XML tags↵ at HTMLButtonElement.handleFeedbackSubmission (http://localhost:8000/js/writing.js:274:23)"
++#get stack: ƒ ()
++#set stack: ƒ ()
++#[[Prototype]]: Object
+
+# 2025-06-05 08:55:14.599397
++even thoug
+
+# 2025-06-05 08:55:15.767984
++s
+
+# 2025-06-05 09:23:23.250485
++make it sauy the missing tag
+
+# 2025-06-05 09:28:18.125176
++make ai generwte te highlights instead. remove diff library
+
+# 2025-06-05 09:28:39.188267
++make ai generwte te highlights instead. remove diff library. make it use temperature 0 always when grading writing
+
+# 2025-06-05 09:29:36.277968
++make ai generwte te highlights instead. remove diff library. make it use temperature 0 always when grading writing
++relyon ai for diffs
+
+# 2025-06-05 10:19:14.392618
++n
+
+# 2025-06-05 11:08:43.528231
++/git push
+
+# 2025-07-11 11:19:29.413828
++/add *
+
+# 2025-07-11 11:19:34.920763
++/arc
+
+# 2025-07-11 11:37:16.445441
++/ask give ideas to add to this project
+
+# 2025-07-11 11:48:07.014529
++add support for optional difficulty auto tuning
+
+# 2025-07-11 11:54:52.789606
++/model gemini
+
+# 2025-07-11 12:21:15.498894
++/think- 32k
+
+# 2025-07-11 12:21:23.971214
++add a debate mode to the site.
+
+# 2025-07-11 12:28:55.664470
++escape the ampersand here <button type="button" id="end-debate-button"><i class="fas fa-flag-checkered"></i> End Debate & Analyze</button>
+
+# 2025-07-11 12:29:00.996243
++/cle
+
+# 2025-07-11 12:30:07.323507
++/ask give more mode ideas
+
+# 2025-07-11 12:34:39.920378
++integrste grammar and style analysis in vocab builder
+
+# 2025-07-11 12:35:02.935373
++integrste grammar and style analysis in writing mode
+
+# 2025-07-11 12:48:01.093900
++n
+
+# 2025-07-11 19:56:25.582949
++/git push
