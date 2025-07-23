@@ -1,0 +1,278 @@
+/* Modern Theme-specific styles */
+
+body.dark-mode {
+    --primary-color: #6c8fff;
+    --primary-hover: #7c98ff;
+    --secondary-color: #1a1a2e;
+    --text-color: #e0e0e0;
+    --light-text: #ffffff;
+    --border-color: #2c3e50;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    --section-bg: #222538;
+    --input-bg: #2d3142;
+    --header-bg: #2d3142;
+    --footer-bg: #2d3142;
+    --history-item-bg: #2d3142;
+    --footer-link-hover-color: #b0c4de; /* Dark mode hover color for footer links (LightSteelBlue) */
+}
+
+body.dark-mode header,
+body.dark-mode footer {
+    background: var(--header-bg);
+    color: var(--light-text);
+}
+
+body.dark-mode section {
+    background: var(--section-bg);
+    box-shadow: var(--shadow);
+    border-color: var(--border-color);
+}
+
+body.dark-mode h2 {
+    color: var(--primary-color);
+}
+
+body.dark-mode label {
+    color: var(--text-color);
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="url"],
+body.dark-mode input[type="number"],
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode input[type="text"]:focus,
+body.dark-mode input[type="password"]:focus,
+body.dark-mode input[type="url"]:focus,
+body.dark-mode input[type="number"]:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(108, 143, 255, 0.2);
+}
+
+body.dark-mode input[type="text"]::placeholder,
+body.dark-mode input[type="password"]::placeholder,
+body.dark-mode input[type="url"]::placeholder,
+body.dark-mode input[type="number"]::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #8a8a8a;
+}
+
+body.dark-mode button {
+    background: var(--primary-color);
+    color: var(--light-text);
+    border: none;
+}
+
+body.dark-mode button:hover {
+    background: var(--primary-hover);
+}
+
+body.dark-mode .theme-button {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .theme-button:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode #credentials-status {
+    background-color: rgba(108, 143, 255, 0.1);
+    color: var(--primary-color);
+}
+
+body.dark-mode #credentials-status a {
+    color: var(--primary-color);
+}
+
+body.dark-mode #credentials-status a:hover {
+    color: var(--primary-hover);
+}
+
+body.dark-mode #clear-credentials {
+    background-color: #3d3d5c;
+    color: #b0b0b0;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode #clear-credentials:hover {
+    background-color: #4d4d6f;
+    color: #e0e0e0;
+}
+
+body.dark-mode #test-api-button {
+    background-color: #4d4d6f;
+    color: var(--light-text);
+}
+
+body.dark-mode #test-api-button:hover {
+    background-color: #5d5d7f;
+}
+
+body.dark-mode #exercise-output,
+body.dark-mode #answer-section {
+    background: var(--input-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .feedback-correct {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #5cd675;
+    border-color: rgba(40, 167, 69, 0.3);
+}
+
+body.dark-mode .feedback-incorrect {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #f27582;
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+body.dark-mode .solution-box {
+    background-color: rgba(67, 97, 238, 0.1);
+    border-color: rgba(67, 97, 238, 0.3);
+    color: var(--text-color);
+}
+
+body.dark-mode #answer-section h3 {
+    color: var(--primary-color);
+}
+
+body.dark-mode #history-list li {
+    background: var(--history-item-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode #history-list li:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode #history-list li .history-prompt {
+    color: var(--text-color);
+}
+
+body.dark-mode #history-list li .history-meta {
+    color: #9a9a9a;
+}
+
+body.dark-mode #history-list li button.view-history-btn {
+    background-color: #3d3d5c;
+    color: #d0d0d0;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode #history-list li button.view-history-btn:hover {
+    background-color: #4d4d6f;
+    color: var(--light-text);
+}
+
+body.dark-mode .settings-button {
+    background-color: #3d3d5c;
+    color: var(--primary-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .settings-button:hover {
+    background-color: #4d4d6f;
+}
+
+body.dark-mode .explain-button {
+    background-color: #4a5568; /* Dark mode neutral */
+}
+
+body.dark-mode .explain-button:hover {
+    background-color: #5a6578;
+}
+
+body.dark-mode .follow-up-container {
+    background-color: rgba(255,255,255,0.03);
+    border-color: #3a3f50; /* Darker border, consistent with other dark sections */
+}
+
+body.dark-mode .follow-up-textarea {
+    background-color: #2d3142; /* Dark input background */
+    color: var(--text-color);
+    border-color: #4a4f60; /* Darker border for input */
+}
+
+body.dark-mode .follow-up-button {
+    background-color: var(--primary-color); /* Consistent with other buttons */
+}
+
+body.dark-mode .follow-up-button:hover {
+    background-color: var(--primary-hover);
+}
+
+body.dark-mode .follow-up-response {
+    border-top-color: #4a4f60; /* Darker dashed line */
+}
+
+body.dark-mode .follow-up-response .ai-follow-up-answer pre {
+    background-color: #222538; /* Slightly darker than input for pre */
+}
+
+/* Styles for writing.html elements in dark mode */
+body.dark-mode .generated-topic-box,
+body.dark-mode .feedback-box,
+body.dark-mode .diff-box {
+    background-color: var(--input-bg); /* Uses existing dark mode var */
+    border-color: var(--border-color); /* Uses existing dark mode var */
+}
+
+body.dark-mode .timer {
+    color: var(--primary-color); /* Uses existing dark mode var */
+}
+
+body.dark-mode .diff-deleted {
+    background-color: #502020; /* Dark red background */
+    color: #ffcccc; /* Lighter red text */
+}
+body.dark-mode .diff-inserted {
+    background-color: #205020; /* Dark green background */
+    color: #ccffcc; /* Lighter green text */
+}
+
+body.dark-mode #diff-pre {
+    background-color: #222538; /* Dark background for diff */
+    border-color: var(--border-color);
+}
+
+body.dark-mode .diff-inserted {
+    background-color: rgba(46, 160, 67, 0.2); /* More subtle green */
+    color: #adffb5; /* Lighter green text for dark bg */
+}
+body.dark-mode .diff-deleted {
+    background-color: rgba(215, 58, 73, 0.2); /* More subtle red */
+    color: #ffc9cc; /* Lighter red text for dark bg */
+}
+body.dark-mode .diff-unchanged {
+    color: #8b949e; /* Lighter grey for dark bg */
+}
+
+/* Debate Mode Dark Mode Styles */
+body.dark-mode #display-ai-stance { 
+    color: #f27582; 
+}
+body.dark-mode .transcript-message.user-message {
+    background-color: var(--primary-color);
+}
+body.dark-mode .transcript-message.ai-message {
+    background-color: #2d3142; /* Slightly different from transcript bg for contrast */
+}
+
+/* Writing Analysis Feedback Sections - Dark Mode */
+body.dark-mode .feedback-analysis-section {
+    background-color: var(--section-bg);
+    border-color: var(--border-color);
+    border-left-color: var(--primary-color);
+}
+
+body.dark-mode .feedback-analysis-section li {
+    border-bottom-color: #3a3f50;
+}
