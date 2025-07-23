@@ -11,12 +11,12 @@ import Settings from './pages/Settings'
 const App = () => (
   <Routes>
     <Route path="/" element={<Home />} />
-    <Route path="english" element={<English />} />
-    <Route path="math" element={<Math />} />
-    <Route path="memorization" element={<Memorization />} />
-    <Route path="writing" element={<Writing />} />
-    <Route path="debate" element={<Debate />} />
-    <Route path="settings" element={<Settings />} />
+    <Route path="/english" element={<English />} />
+    <Route path="/math" element={<Math />} />
+    <Route path="/memorization" element={<Memorization />} />
+    <Route path="/writing" element={<Writing />} />
+    <Route path="/debate" element={<Debate />} />
+    <Route path="/settings" element={<Settings />} />
   </Routes>
 )
 
