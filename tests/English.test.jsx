@@ -23,6 +23,21 @@ describe('English Page', () => {
     expect(screen.getByText('Go to Settings')).toBeInTheDocument()
   })
 
+  it('shows exercise generation form if Hack Club provider is selected', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
+      if (key === 'api_provider') return 'hackclub'
+      return null
+    })
+    
+    render(
+      <MemoryRouter>
+        <English />
+      </MemoryRouter>
+    )
+
+    expect(screen.getByRole('button', { name: /Generate Exercise/i })).toBeInTheDocument()
+  })
+
   it('shows exercise generation form if API key exists', () => {
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
       if (key === 'openai_api_key') return 'test-key'
