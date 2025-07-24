@@ -8,6 +8,7 @@ import Memorization from './pages/Memorization'
 import Writing from './pages/Writing'
 import Debate from './pages/Debate'
 import Settings from './pages/Settings'
+import FallacyDetector from './pages/FallacyDetector'
 
 const App = () => (
   <Routes>
@@ -18,6 +19,7 @@ const App = () => (
       <Route path="memorization" element={<Memorization />} />
       <Route path="writing" element={<Writing />} />
       <Route path="debate" element={<Debate />} />
+      <Route path="fallacy-detector" element={<FallacyDetector />} />
       <Route path="settings" element={<Settings />} />
     </Route>
   </Routes>

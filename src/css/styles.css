@@ -1066,3 +1066,61 @@ footer a:hover {
 body.dark-mode .provider-info {
     color: #bbb;
 }
+
+.fallacy-result-box {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.fallacy-result-box.no-fallacies {
+    border-left-color: #28a745; /* Green for no fallacies */
+}
+
+.fallacy-result-box h4 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.fallacy-result-box.no-fallacies h3 {
+    color: #28a745;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.fallacy-explanation {
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.fallacy-result-box blockquote {
+    margin-left: 0;
+    padding-left: 1rem;
+    border-left: 3px solid #ccc;
+    font-style: italic;
+    color: #555;
+}
+
+body.dark-mode .fallacy-result-box {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    border-left-color: var(--primary-color);
+}
+
+body.dark-mode .fallacy-result-box.no-fallacies {
+    border-left-color: #5cd675;
+}
+
+body.dark-mode .fallacy-result-box.no-fallacies h3 {
+    color: #5cd675;
+}
+
+body.dark-mode .fallacy-result-box blockquote {
+    border-left-color: #555;
+    color: #bbb;
+}

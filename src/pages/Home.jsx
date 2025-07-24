@@ -55,6 +55,15 @@ const Home = () => (
       </div>
       <div className="portal-card">
         <div className="portal-icon">
+          <i className="fas fa-search"></i>
+        </div>
+        <h3>Fallacy Detector</h3>
+        <Link to="/fallacy-detector" className="portal-button">
+          Open Fallacy Detector
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
           <i className="fas fa-cog"></i>
         </div>
         <h3>Settings</h3>
