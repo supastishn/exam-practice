@@ -1030,3 +1030,39 @@ footer a:hover {
 .feedback-analysis-section li:last-child {
     border-bottom: none;
 }
+
+.provider-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.provider-buttons button {
+    flex: 1;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.provider-buttons button.active {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    border-color: var(--primary-color);
+}
+
+.provider-buttons button:hover:not(.active) {
+    background-color: var(--border-color);
+}
+
+.provider-info {
+    font-size: 0.9rem;
+    color: #666;
+    background: var(--input-bg);
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+body.dark-mode .provider-info {
+    color: #bbb;
+}

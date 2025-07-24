@@ -10,7 +10,7 @@ describe('English Page', () => {
     vi.restoreAllMocks()
   })
 
-  it('shows API key prompt if key does not exist', () => {
+  it('shows provider configuration prompt if not configured', () => {
     vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null)
     
     render(
@@ -19,7 +19,7 @@ describe('English Page', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('API Credentials Needed')).toBeInTheDocument()
+    expect(screen.getByText('API Provider Not Configured')).toBeInTheDocument()
     expect(screen.getByText('Go to Settings')).toBeInTheDocument()
   })
 

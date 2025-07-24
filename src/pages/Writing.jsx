@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 const Writing = () => {
-  const [apiKeyExists, setApiKeyExists] = useState(false)
+  const [isConfigured, setIsConfigured] = useState(false)
   const [noteTopic, setNoteTopic] = useState('')
   const [wordCount, setWordCount] = useState('')
   const [gradeLevel, setGradeLevel] = useState('')
@@ -12,8 +12,9 @@ const Writing = () => {
   const [showPracticeSection, setShowPracticeSection] = useState(false)
 
   useEffect(() => {
+    const provider = localStorage.getItem('api_provider') || 'custom'
     const key = localStorage.getItem('openai_api_key')
-    setApiKeyExists(!!key)
+    setIsConfigured(provider === 'hackclub' || (provider === 'custom' && !!key))
   }, [])
 
   const handleTopicSubmit = (e) => {

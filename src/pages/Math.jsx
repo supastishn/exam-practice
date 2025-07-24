@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 const Math = () => {
-  const [apiKeyExists, setApiKeyExists] = useState(false)
+  const [isConfigured, setIsConfigured] = useState(false)
   // Form state
   const [prompt, setPrompt] = useState('')
   const [targetLanguage, setTargetLanguage] = useState('English')
@@ -18,8 +18,9 @@ const Math = () => {
   const [history, setHistory] = useState([])
 
   useEffect(() => {
+    const provider = localStorage.getItem('api_provider') || 'custom'
     const key = localStorage.getItem('openai_api_key')
-    setApiKeyExists(!!key)
+    setIsConfigured(provider === 'hackclub' || (provider === 'custom' && !!key))
     // Load history from localStorage
     const storedHistory = localStorage.getItem('mathExerciseHistory')
     if (storedHistory) {
@@ -33,10 +34,24 @@ const Math = () => {
     setError(null)
     setExerciseContent(null)
 
-    const { apiKey, baseUrl, defaultModel } = {
-      apiKey: localStorage.getItem('openai_api_key'),
-      baseUrl: localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1',
-      defaultModel: localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo',
+    const provider = localStorage.getItem('api_provider') || 'custom'
+    let fetchUrl, fetchHeaders, fetchModel
+
+    if (provider === 'hackclub') {
+      fetchUrl = 'https://ai.hackclub.com/v1/chat/completions'
+      fetchHeaders = { 'Content-Type': 'application/json' }
+      fetchModel = model || 'mistral-7b-instruct'
+    } else { // 'custom'
+      const apiKey = localStorage.getItem('openai_api_key')
+      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
+      
+      fetchUrl = `${baseUrl}/chat/completions`
+      fetchHeaders = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      }
+      fetchModel = model || defaultModel
     }
 
     const systemPrompt = `You are an AI assistant that creates math exercises.
@@ -61,14 +76,11 @@ ${exerciseType === 'multiple-choice' ? `- Number of choices per question: ${mcOp
 Generate the HTML now.`
 
     try {
-      const response = await fetch(`${baseUrl}/chat/completions`, {
+      const response = await fetch(fetchUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
+        headers: fetchHeaders,
         body: JSON.stringify({
-          model: model || defaultModel,
+          model: fetchModel,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt }
@@ -221,10 +233,11 @@ Generate the HTML now.`
       <div className="back-to-portal-container" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
         <Link to="/" className="button-like-link"><i className="fas fa-arrow-left"></i> Back to Portal</Link>
       </div>
-      {!apiKeyExists ? (
+      {!isConfigured ? (
         <section id="credentials-prompt-section">
-          <h2><i className="fas fa-key"></i> API Credentials Needed</h2>
-          <p>To generate exercises, you need to set up your API credentials.</p>
+          <h2><i className="fas fa-key"></i> API Provider Not Configured</h2>
+          <p>To generate exercises, you need to select a provider in settings.</p>
+          <p>You can use the free AI Hack Club provider or your own custom API key.</p>
           <p><Link to="/settings" className="button-like-link" style={{ marginTop: '1rem' }}><i className="fas fa-cog"></i> Go to Settings</Link></p>
         </section>
       ) : (
