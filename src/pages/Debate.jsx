@@ -98,17 +98,30 @@ const Debate = () => {
     setAnalysis('Analyzing debate...')
     // Simplified analysis API call
     try {
-      const { apiKey, baseUrl, defaultModel } = {
-        apiKey: localStorage.getItem('openai_api_key'),
-        baseUrl: localStorage.getItem('openai_base_url'),
-        defaultModel: localStorage.getItem('openai_default_model'),
+      const provider = localStorage.getItem('api_provider') || 'custom'
+      let fetchUrl, fetchHeaders, fetchModel
+
+      if (provider === 'hackclub') {
+        fetchUrl = 'https://ai.hackclub.com/v1/chat/completions'
+        fetchHeaders = { 'Content-Type': 'application/json' }
+        fetchModel = model || 'mistral-7b-instruct'
+      } else {
+        const apiKey = localStorage.getItem('openai_api_key')
+        const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+        const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
+        fetchUrl = `${baseUrl}/chat/completions`
+        fetchHeaders = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        }
+        fetchModel = model || defaultModel
       }
       const analysisPrompt = `Analyze the following debate transcript on the topic "${debateState.topic}". Provide a summary, critique for both sides, and declare a winner based on the arguments.\n\nTranscript:\n${debateState.transcript.map(m => `${m.speaker}: ${m.text}`).join('\n')}`
-      const response = await fetch(`${baseUrl || 'https://api.openai.com/v1'}/chat/completions`, {
+      const response = await fetch(fetchUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        headers: fetchHeaders,
         body: JSON.stringify({
-          model: model || defaultModel || 'gpt-3.5-turbo',
+          model: fetchModel,
           messages: [{ role: 'user', content: analysisPrompt }],
           max_tokens: 1000,
         }),
