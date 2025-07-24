@@ -10,7 +10,10 @@ const Writing = () => {
       <div className="back-to-portal-container" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
         <Link to="/" className="button-like-link"><i className="fas fa-arrow-left"></i> Back to Portal</Link>
       </div>
-      {/* Writing setup, practice, feedback sections */}
+      <section>
+        <h2>Writing Collaborator</h2>
+        <p>This page will provide tools for collaborative writing and feedback.</p>
+      </section>
     </main>
   )
 }

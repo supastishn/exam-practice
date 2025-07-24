@@ -11,7 +11,10 @@ const English = () => {
       <div className="back-to-portal-container" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
         <Link to="/" className="button-like-link"><i className="fas fa-arrow-left"></i> Back to Portal</Link>
       </div>
-      {/* Exercise generation form and display sections */}
+      <section>
+        <h2>English Exercise Generator</h2>
+        <p>This page will contain tools to generate English language exercises.</p>
+      </section>
     </main>
   )
 }
