@@ -45,21 +45,25 @@ const FallacyDetector = () => {
       fetchModel = model || defaultModel
     }
 
-    const systemPrompt = `You are an AI expert in logical fallacies. Your task is to analyze a given text and identify any logical fallacies present.
-Your output MUST be a single block of valid HTML. Do not include any surrounding text, comments, or markdown like \`\`\`html.
-If no fallacies are found, return a single div: <div class="fallacy-result-box no-fallacies"><h3>No Fallacies Detected</h3><p>No significant logical fallacies were identified in the provided text.</p></div>
-If fallacies are found, for each fallacy identified, create a div with the class "fallacy-result-box".
-Inside this div, include:
-1. An <h4> element with the name of the fallacy (e.g., "Ad Hominem").
-2. A <p> element with class="fallacy-explanation" explaining what the fallacy is and why the specific text is an example of it.
-3. A <blockquote> element containing the exact quote from the text where the fallacy occurs.
-Structure your response as a series of these divs if multiple fallacies are found.`
+    const systemPrompt = `You are an AI expert in logical fallacies. Your task is to analyze a given text.
+Your output MUST be a single, valid XML block. Do not include any surrounding text, comments, or markdown like \`\`\`xml.
+The XML structure MUST be as follows:
+<analysis>
+  <highlighted_text>
+    Respond with the user's original text, but wrap any identified fallacies in a <fallacy> tag.
+    The <fallacy> tag MUST have two attributes: 'type' for the name of the fallacy (e.g., "Ad Hominem"), and 'explanation' for a brief, one-sentence explanation of why it's a fallacy.
+    Example: "Your entire argument is wrong because you are a bad person." becomes "Your entire argument is wrong because <fallacy type=\"Ad Hominem\" explanation=\"This attacks the person rather than the argument.\">you are a bad person</fallacy>."
+  </highlighted_text>
+  <suggestion>
+    Provide a revised version of the original argument that is more logically sound and persuasive, removing the fallacies. This should be plain text. If no revision is needed, say so.
+  </suggestion>
+</analysis>
+If no fallacies are found, the <highlighted_text> tag should contain the original, unmodified text, and the <suggestion> tag should contain a message like "The argument appears logically sound as is."`
 
-    const userPrompt = `Please analyze the following text for logical fallacies:
+    const userPrompt = `Please analyze the following text for logical fallacies and provide the XML report:
 ---
 ${textToAnalyze}
----
-Generate the HTML report now.`
+---`
 
     try {
       const response = await fetch(fetchUrl, {
@@ -72,7 +76,7 @@ Generate the HTML report now.`
             { role: 'user', content: userPrompt }
           ],
           max_tokens: 2048,
-          temperature: 0.3, // Lower temperature for more deterministic analysis
+          temperature: 0.3,
         }),
       })
 
@@ -82,8 +86,45 @@ Generate the HTML report now.`
         throw new Error(data.error?.message || `API error: ${response.statusText}`)
       }
 
-      const generatedContent = data.choices[0].message.content.replace(/```html/g, '').replace(/```/g, '').trim()
-      setAnalysisResult(generatedContent)
+      const rawContent = data.choices[0].message.content.trim()
+      
+      // Parse the XML response
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(rawContent, "application/xml");
+
+      const errorNode = xmlDoc.querySelector('parsererror');
+      if (errorNode) {
+        console.error("XML parsing error:", errorNode.textContent);
+        throw new Error("Failed to parse AI response. The AI did not return valid XML.");
+      }
+      
+      const suggestion = xmlDoc.querySelector('suggestion')?.textContent || 'No suggestion provided.';
+      const highlightedTextNode = xmlDoc.querySelector('highlighted_text');
+
+      if (!highlightedTextNode) {
+        throw new Error("AI response is missing the <highlighted_text> element.");
+      }
+
+      // Serialize the child nodes of <highlighted_text> to a string
+      const serializer = new XMLSerializer();
+      let innerXml = '';
+      highlightedTextNode.childNodes.forEach(node => {
+        innerXml += serializer.serializeToString(node);
+      });
+
+      // Replace custom <fallacy> tags with styled <span>s
+      const processedHtml = innerXml.replace(
+        /<fallacy type="([^"]+)" explanation="([^"]+)">([\s\S]*?)<\/fallacy>/g,
+        (match, type, explanation, text) => {
+          const escapeAttr = (str) => str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+          return `<span class="highlighted-fallacy" data-fallacy-type="${escapeAttr(type)}" data-fallacy-explanation="${escapeAttr(explanation)}">${text}</span>`;
+        }
+      );
+
+      setAnalysisResult({
+        highlightedText: processedHtml,
+        suggestion: suggestion,
+      });
 
     } catch (err) {
       setError(err.message)
