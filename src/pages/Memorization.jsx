@@ -11,6 +11,8 @@ const Memorization = () => {
   const [model, setModel] = useState('')
   const [difficulty, setDifficulty] = useState('intermediate')
   const [exerciseCount, setExerciseCount] = useState(5)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const [quizContent, setQuizContent] = useState(null)
   const [history, setHistory] = useState([])
@@ -25,11 +27,96 @@ const Memorization = () => {
     }
   }, [])
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault()
-    // Placeholder for quiz generation logic
-    console.log('Generating quiz with settings:', { memorizationText, targetLanguage, exerciseType })
-    setQuizContent('<p>Quiz generation is not yet implemented.</p>')
+    setIsLoading(true)
+    setError(null)
+    setQuizContent(null)
+
+    if (!memorizationText.trim()) {
+      setError("Please enter the text you want to memorize.")
+      setIsLoading(false)
+      return
+    }
+
+    const { apiKey, baseUrl, defaultModel } = {
+      apiKey: localStorage.getItem('openai_api_key'),
+      baseUrl: localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1',
+      defaultModel: localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo',
+    }
+
+    const systemPrompt = `You are an AI assistant that creates quizzes to help users memorize a given text.
+Your output MUST be a single block of valid HTML, without any surrounding text, comments, or markdown like \`\`\`html.
+The HTML should be structured with divs for each question.
+Each question should be in a div with class="question-container".
+The questions should test recall and understanding of the provided text.
+For 'multiple-choice', provide radio buttons for options.
+For 'fill-in-the-blank', use an <input type="text" class="inline-blank">.
+For 'ai-judger', provide a textarea with class="ai-judger-textarea" for a free response.
+For 'true-false', provide radio buttons for "True" and "False".
+For 'mixed', use a combination of the above types.
+Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">Correct Answer: ...</div>. For questions about specific parts of the text, you can also include the relevant quote in the solution.`
+
+    const userPrompt = `Please generate a quiz to help me memorize the following text.
+**Text to Memorize:**
+---
+${memorizationText}
+---
+
+**Quiz Specifications:**
+- Question Style: ${exerciseType}
+- Language for Quiz Questions: ${targetLanguage}
+- Difficulty: ${difficulty}
+- Number of questions: ${exerciseCount}
+${exerciseType === 'multiple-choice' || exerciseType === 'mixed' ? `- Number of choices for Multiple Choice questions: ${mcOptionsCount}` : ''}
+
+Generate the HTML now.`
+
+    try {
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: model || defaultModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 2048,
+          temperature: 0.6,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || `API error: ${response.statusText}`)
+      }
+
+      const generatedContent = data.choices[0].message.content.replace(/```html/g, '').replace(/```/g, '').trim()
+      setQuizContent(generatedContent)
+      
+      const newHistoryItem = {
+        id: Date.now(),
+        text: memorizationText.substring(0, 100),
+        exerciseType,
+        difficulty,
+        timestamp: new Date().toISOString(),
+        content: generatedContent,
+      }
+      const updatedHistory = [newHistoryItem, ...history]
+      setHistory(updatedHistory)
+      localStorage.setItem('memorizationHistory', JSON.stringify(updatedHistory))
+
+    } catch (err) {
+      setError(err.message)
+      console.error('Error generating quiz:', err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -89,8 +176,12 @@ const Memorization = () => {
                 <label htmlFor="exercise-count"><i className="fas fa-list-ol"></i> Number of Questions in Quiz:</label>
                 <input type="number" id="exercise-count" name="exercise-count" min="1" max="20" value={exerciseCount} onChange={e => setExerciseCount(e.target.value)} />
               </div>
-              <button type="submit"><i className="fas fa-magic"></i> Generate Quiz</button>
+              <button type="submit" disabled={isLoading}>
+                {isLoading ? <><i className="fas fa-spinner fa-spin"></i> Generating...</> : <><i className="fas fa-magic"></i> Generate Quiz</>}
+              </button>
             </form>
+            {isLoading && <div style={{ marginTop: '1rem' }}><i className="fas fa-spinner fa-spin"></i> Generating quiz, please wait...</div>}
+            {error && <div style={{ color: 'red', marginTop: '1rem' }}><i className="fas fa-times-circle"></i> Error: {error}</div>}
           </section>
 
           {quizContent && (

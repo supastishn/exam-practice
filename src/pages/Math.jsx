@@ -10,8 +10,9 @@ const Math = () => {
   const [mcOptionsCount, setMcOptionsCount] = useState(4)
   const [model, setModel] = useState('')
   const [difficulty, setDifficulty] = useState('intermediate')
-  const [batchCount, setBatchCount] = useState(1)
   const [exerciseCount, setExerciseCount] = useState(5)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const [exerciseContent, setExerciseContent] = useState(null)
   const [history, setHistory] = useState([])
@@ -26,11 +27,84 @@ const Math = () => {
     }
   }, [])
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault()
-    // Placeholder for exercise generation logic
-    console.log('Generating Math exercise with settings:', { prompt, exerciseType })
-    setExerciseContent('<p>Exercise generation is not yet implemented.</p>')
+    setIsLoading(true)
+    setError(null)
+    setExerciseContent(null)
+
+    const { apiKey, baseUrl, defaultModel } = {
+      apiKey: localStorage.getItem('openai_api_key'),
+      baseUrl: localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1',
+      defaultModel: localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo',
+    }
+
+    const systemPrompt = `You are an AI assistant that creates math exercises.
+Your output MUST be a single block of valid HTML, without any surrounding text, comments, or markdown like \`\`\`html.
+The HTML should be structured with divs for each question.
+Each question should be in a div with class="question-container".
+Inside, include the question text (which can be a word problem).
+For 'multiple-choice', provide radio buttons for options. The name attribute for radio inputs for a given question should be the same, e.g., "q1", "q2".
+For 'fill-in-the-blank', use an <input type="text" class="inline-blank"> for the blank.
+For 'ai-judger', provide a textarea with class="ai-judger-textarea" for the student to write their explanation.
+Crucially, include the correct answer AND a brief explanation of the solution within a hidden div: <div class="solution" style="display:none;">Correct Answer: ... Explanation: ...</div>. This is vital for checking answers.
+For multiple-choice, the solution should state the correct option label (e.g., "C"). For fill-in-the-blank, it should state the numerical answer. For AI judger, the solution should provide model criteria for a good explanation.`
+
+    const userPrompt = `Please generate a math exercise with the following specifications:
+- Exercise Type: ${exerciseType}
+- Topic/Instructions: ${prompt}
+${targetLanguage !== 'English' ? `- Language for Word Problems: ${targetLanguage}` : ''}
+- Difficulty: ${difficulty}
+- Number of questions: ${exerciseCount}
+${exerciseType === 'multiple-choice' ? `- Number of choices per question: ${mcOptionsCount}` : ''}
+
+Generate the HTML now.`
+
+    try {
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: model || defaultModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 2048,
+          temperature: 0.5,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || `API error: ${response.statusText}`)
+      }
+
+      const generatedContent = data.choices[0].message.content.replace(/```html/g, '').replace(/```/g, '').trim()
+      setExerciseContent(generatedContent)
+      
+      const newHistoryItem = {
+        id: Date.now(),
+        prompt,
+        exerciseType,
+        difficulty,
+        timestamp: new Date().toISOString(),
+        content: generatedContent,
+      }
+      const updatedHistory = [newHistoryItem, ...history]
+      setHistory(updatedHistory)
+      localStorage.setItem('mathExerciseHistory', JSON.stringify(updatedHistory))
+
+    } catch (err) {
+      setError(err.message)
+      console.error('Error generating exercise:', err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -88,8 +162,12 @@ const Math = () => {
                 <label htmlFor="exercise-count"><i className="fas fa-list-ol"></i> Questions per Exercise:</label>
                 <input type="number" id="exercise-count" name="exercise-count" min="1" max="20" value={exerciseCount} onChange={e => setExerciseCount(e.target.value)} />
               </div>
-              <button type="submit"><i className="fas fa-magic"></i> Generate Exercise</button>
+              <button type="submit" disabled={isLoading}>
+                {isLoading ? <><i className="fas fa-spinner fa-spin"></i> Generating...</> : <><i className="fas fa-magic"></i> Generate Exercise</>}
+              </button>
             </form>
+            {isLoading && <div style={{ marginTop: '1rem' }}><i className="fas fa-spinner fa-spin"></i> Generating exercise, please wait...</div>}
+            {error && <div style={{ color: 'red', marginTop: '1rem' }}><i className="fas fa-times-circle"></i> Error: {error}</div>}
           </section>
 
           {exerciseContent && (
