@@ -44,7 +44,7 @@ const Memorization = () => {
     let fetchUrl, fetchHeaders, fetchModel
 
     if (provider === 'hackclub') {
-      fetchUrl = 'https://ai.hackclub.com/v1/chat/completions'
+      fetchUrl = 'https://ai.hackclub.com/chat/completions'
       fetchHeaders = { 'Content-Type': 'application/json' }
       fetchModel = model || 'mistral-7b-instruct'
     } else { // 'custom'

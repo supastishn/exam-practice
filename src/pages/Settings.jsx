@@ -63,7 +63,7 @@ const Settings = () => {
 
     if (provider === 'hackclub') {
       setStatusMessage({ text: 'Testing AI Hack Club connection...', type: 'info' })
-      testUrl = 'https://ai.hackclub.com/v1/chat/completions'
+      testUrl = 'https://ai.hackclub.com/chat/completions'
       testHeaders = { 'Content-Type': 'application/json' }
       // Use a model known to work with Hack Club
       testModel = defaultModel || 'mistral-7b-instruct'
