@@ -1067,60 +1067,87 @@ body.dark-mode .provider-info {
     color: #bbb;
 }
 
-.fallacy-result-box {
+/* Styles for Fallacy Detector Analysis */
+.analysis-output-box {
     background-color: var(--input-bg);
     border: 1px solid var(--border-color);
-    border-left: 4px solid var(--primary-color);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
-.fallacy-result-box.no-fallacies {
-    border-left-color: #28a745; /* Green for no fallacies */
-}
-
-.fallacy-result-box h4 {
+.analysis-output-box h3 {
     margin-top: 0;
     margin-bottom: 0.75rem;
     color: var(--primary-color);
     font-size: 1.2rem;
 }
 
-.fallacy-result-box.no-fallacies h3 {
-    color: #28a745;
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-}
-
-.fallacy-explanation {
-    line-height: 1.7;
+.subtle-instruction {
+    font-size: 0.9rem;
+    color: #666;
     margin-bottom: 1rem;
-}
-
-.fallacy-result-box blockquote {
-    margin-left: 0;
-    padding-left: 1rem;
-    border-left: 3px solid #ccc;
     font-style: italic;
-    color: #555;
 }
 
-body.dark-mode .fallacy-result-box {
-    background-color: var(--input-bg);
-    border-color: var(--border-color);
-    border-left-color: var(--primary-color);
+.highlighted-text-content {
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-body.dark-mode .fallacy-result-box.no-fallacies {
-    border-left-color: #5cd675;
+.suggestion-content {
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-body.dark-mode .fallacy-result-box.no-fallacies h3 {
-    color: #5cd675;
+.highlighted-fallacy {
+    background-color: rgba(255, 182, 4, 0.3); /* Amber */
+    padding: 0.1em 0.3em;
+    border-radius: 4px;
+    cursor: help;
+    position: relative;
+    border-bottom: 2px dotted rgba(255, 182, 4, 0.8);
 }
 
-body.dark-mode .fallacy-result-box blockquote {
-    border-left-color: #555;
-    color: #bbb;
+.highlighted-fallacy::after {
+    content: attr(data-fallacy-type) ": " attr(data-fallacy-explanation);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background-color: #333;
+    color: #fff;
+    padding: 0.5rem 0.8rem;
+    border-radius: var(--border-radius);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-style: normal; /* Override italic from instruction */
+}
+
+.highlighted-fallacy:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Dark Mode Styles for Fallacy Detector Analysis */
+body.dark-mode .subtle-instruction {
+    color: #aaa;
+}
+
+body.dark-mode .highlighted-fallacy {
+    background-color: rgba(255, 193, 7, 0.4);
+    border-bottom-color: rgba(255, 193, 7, 0.7);
+}
+
+body.dark-mode .highlighted-fallacy::after {
+    background-color: #f0f0f0;
+    color: #222;
 }
