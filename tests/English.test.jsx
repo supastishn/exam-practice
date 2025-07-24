@@ -35,7 +35,7 @@ describe('English Page', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Generate Exercise')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Generate Exercise/i })).toBeInTheDocument()
     expect(screen.getByLabelText(/Prompt \/ Instructions:/i)).toBeInTheDocument()
   })
 
