@@ -40,7 +40,7 @@ const Home = () => (
           <i className="fas fa-pencil-alt"></i>
         </div>
         <h3>Writing Collaborator</h3>
-        <Link to="/writing" className="portal-button">
+        <Link to="/writing" className="portal-button"> 
           Open Writing Tool
         </Link>
       </div>
