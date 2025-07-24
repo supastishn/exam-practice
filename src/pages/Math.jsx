@@ -107,6 +107,115 @@ Generate the HTML now.`
     }
   }
 
+  const handleCheckAnswers = () => {
+    const output = document.getElementById('exercise-output');
+    if (!output) return;
+
+    // Remove any previous summary
+    const oldSummary = output.querySelector('.score-summary');
+    if (oldSummary) oldSummary.remove();
+
+    const questions = output.querySelectorAll('.question-container');
+    let correctCount = 0;
+    let gradableCount = 0;
+
+    questions.forEach((question) => {
+        const solutionDiv = question.querySelector('.solution');
+        if (!solutionDiv) return;
+
+        // Reveal solution
+        solutionDiv.style.display = 'block';
+        solutionDiv.classList.add('solution-box');
+
+        let isGradable = false;
+        let isCorrect = false;
+
+        // Handle Multiple Choice & True/False
+        const radios = question.querySelectorAll('input[type="radio"]');
+        if (radios.length > 0) {
+            isGradable = true;
+            const selectedRadio = question.querySelector('input[type="radio"]:checked');
+            const userAnswer = selectedRadio ? selectedRadio.value : '';
+            const solutionText = solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '');
+            
+            if (userAnswer && solutionText.toLowerCase().startsWith(userAnswer.toLowerCase())) {
+                isCorrect = true;
+            }
+        }
+
+        // Handle Fill-in-the-blank
+        const blankInput = question.querySelector('input.inline-blank');
+        if (blankInput) {
+            isGradable = true;
+            const userAnswer = blankInput.value.trim();
+            const solutionText = solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '');
+
+            const possibleAnswers = solutionText.split(/, | or /i).map(s => s.trim());
+            if (userAnswer && possibleAnswers.some(ans => ans.toLowerCase() === userAnswer.toLowerCase())) {
+              isCorrect = true;
+            }
+        }
+        
+        if (isGradable) {
+            gradableCount++;
+            question.classList.remove('feedback-correct', 'feedback-incorrect');
+            if (isCorrect) {
+                correctCount++;
+                question.classList.add('feedback-correct');
+            } else {
+                question.classList.add('feedback-incorrect');
+            }
+        }
+    });
+    
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'score-summary solution-box';
+    if (gradableCount > 0) {
+        summaryDiv.innerHTML = `<h3>Score: ${correctCount} / ${gradableCount} correct</h3>`;
+    } else {
+        summaryDiv.innerHTML = `<h3>Solutions Revealed</h3><p>This exercise type (e.g., AI Judger) is not automatically graded.</p>`;
+    }
+    output.prepend(summaryDiv);
+
+    const checkButton = document.getElementById('check-answers-button');
+    const tryAgainButton = document.getElementById('try-again-button');
+    if (checkButton) checkButton.style.display = 'none';
+    if (tryAgainButton) tryAgainButton.style.display = 'inline-block';
+  };
+
+  const handleTryAgain = () => {
+      const output = document.getElementById('exercise-output');
+      if (!output) return;
+
+      const summaryDiv = output.querySelector('.score-summary');
+      if (summaryDiv) summaryDiv.remove();
+
+      const questions = output.querySelectorAll('.question-container');
+      questions.forEach(question => {
+          const solutionDiv = question.querySelector('.solution');
+          if (solutionDiv) {
+              solutionDiv.style.display = 'none';
+              solutionDiv.classList.remove('solution-box');
+          }
+
+          question.classList.remove('feedback-correct', 'feedback-incorrect');
+
+          const inputs = question.querySelectorAll('input, textarea');
+          inputs.forEach(input => {
+              if (input.type === 'radio' || input.type === 'checkbox') {
+                  input.checked = false;
+              } else if (input.type !== 'button' && input.type !== 'submit') {
+                  input.value = '';
+              }
+          });
+      });
+
+      const checkButton = document.getElementById('check-answers-button');
+      const tryAgainButton = document.getElementById('try-again-button');
+      if (checkButton) checkButton.style.display = 'inline-block';
+      if (tryAgainButton) tryAgainButton.style.display = 'none';
+  };
+
   return (
     <main>
       <div className="back-to-portal-container" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
@@ -174,6 +283,10 @@ Generate the HTML now.`
             <section id="exercise-display-section">
               <h2><i className="fas fa-file-alt"></i> Generated Exercise</h2>
               <div id="exercise-output" dangerouslySetInnerHTML={{ __html: exerciseContent }}></div>
+              <div className="answer-buttons">
+                <button id="check-answers-button" onClick={handleCheckAnswers}><i className="fas fa-check-double"></i> Check Answers</button>
+                <button id="try-again-button" onClick={handleTryAgain} style={{ display: 'none' }}><i className="fas fa-redo"></i> Try Again</button>
+              </div>
             </section>
           )}
         </>
