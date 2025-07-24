@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import ThemeToggle from './ThemeToggle'
 
 const NavBar = () => (
-  <nav className="navbar">
-    <Link to="/" className="nav-logo">Home</Link>
+  <header>
+    <Link to="/" className="nav-logo" style={{color: 'inherit', textDecoration: 'none'}}><h1><i className="fas fa-language"></i> Language Exercise Tools</h1></Link>
     <ThemeToggle />
-  </nav>
+  </header>
 )
 
 export default NavBar
