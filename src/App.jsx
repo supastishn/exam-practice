@@ -22,6 +22,11 @@ import FlashcardConverter from './pages/FlashcardConverter'
 import SatireGenerator from './pages/SatireGenerator'
 import LegalSummarizer from './pages/LegalSummarizer'
 import HypothesisGenerator from './pages/HypothesisGenerator'
+import ScientificPaperSummarizer from './pages/ScientificPaperSummarizer'
+import MathProofAssistant from './pages/MathProofAssistant'
+import BugReportFormatter from './pages/BugReportFormatter'
+import RegexBuilder from './pages/RegexBuilder'
+import AlgorithmExplainer from './pages/AlgorithmExplainer'
 import DecisionMatrix from './pages/DecisionMatrix'
 
 const App = () => (
@@ -47,6 +52,11 @@ const App = () => (
       <Route path="satire-generator" element={<SatireGenerator />} />
       <Route path="legal-summarizer" element={<LegalSummarizer />} />
       <Route path="hypothesis-generator" element={<HypothesisGenerator />} />
+      <Route path="scientific-paper-summarizer" element={<ScientificPaperSummarizer />} />
+      <Route path="math-proof-assistant" element={<MathProofAssistant />} />
+      <Route path="bug-report-formatter" element={<BugReportFormatter />} />
+      <Route path="regex-builder" element={<RegexBuilder />} />
+      <Route path="algorithm-explainer" element={<AlgorithmExplainer />} />
       <Route path="decision-matrix" element={<DecisionMatrix />} />
       <Route path="settings" element={<Settings />} />
     </Route>
