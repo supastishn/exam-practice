@@ -14,6 +14,9 @@ import TranslationPractice from './pages/TranslationPractice'
 import EthicalDilemma from './pages/EthicalDilemma'
 import HistoricalWhatIf from './pages/HistoricalWhatIf'
 import Conversation from './pages/Conversation'
+import ArgumentBuilder from './pages/ArgumentBuilder'
+import ToneAdjuster from './pages/ToneAdjuster'
+import NegotiationPractice from './pages/NegotiationPractice'
 
 const App = () => (
   <Routes>
@@ -30,6 +33,9 @@ const App = () => (
       <Route path="ethical-dilemma" element={<EthicalDilemma />} />
       <Route path="historical-what-if" element={<HistoricalWhatIf />} />
       <Route path="conversation" element={<Conversation />} />
+      <Route path="argument-builder" element={<ArgumentBuilder />} />
+      <Route path="tone-adjuster" element={<ToneAdjuster />} />
+      <Route path="negotiation-practice" element={<NegotiationPractice />} />
       <Route path="settings" element={<Settings />} />
     </Route>
   </Routes>

@@ -109,6 +109,33 @@ const Home = () => (
       </div>
       <div className="portal-card">
         <div className="portal-icon">
+          <i className="fas fa-sitemap"></i>
+        </div>
+        <h3>Argument Builder</h3>
+        <Link to="/argument-builder" className="portal-button">
+          Open Argument Builder
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-sliders-h"></i>
+        </div>
+        <h3>Tone Adjuster</h3>
+        <Link to="/tone-adjuster" className="portal-button">
+          Open Tone Adjuster
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-handshake"></i>
+        </div>
+        <h3>Negotiation Practice</h3>
+        <Link to="/negotiation-practice" className="portal-button">
+          Open Negotiation Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
           <i className="fas fa-cog"></i>
         </div>
         <h3>Settings</h3>
