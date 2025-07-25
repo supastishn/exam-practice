@@ -83,16 +83,46 @@ ${resumeText}
           ],
           max_tokens: 2048,
           temperature: 0.5,
+          stream: true,
         }),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error?.message || `API error: ${response.statusText}`)
+        const errorData = await response.json()
+        throw new Error(errorData.error?.message || `API error: ${response.statusText}`)
       }
 
-      setAnalysis(data.choices[0].message.content)
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      setAnalysis('')
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop()
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.substring(6)
+            if (dataStr.trim() === '[DONE]') {
+              setIsLoading(false)
+              return
+            }
+            try {
+              const jsonData = JSON.parse(dataStr)
+              const content = jsonData.choices[0]?.delta?.content
+              if (content) setAnalysis(prev => (prev || '') + content)
+            } catch (parseError) {
+              console.error('Error parsing stream data:', parseError)
+            }
+          }
+        }
+      }
 
     } catch (err) {
       setError(err.message)
