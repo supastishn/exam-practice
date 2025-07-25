@@ -174,9 +174,54 @@ const Home = () => (
         <div className="portal-icon">
           <i className="fas fa-flask"></i>
         </div>
-        <h3>Hypothesis Generator</h3>
+        <h3>Hypothesis &amp; Experiment Designer</h3>
         <Link to="/hypothesis-generator" className="portal-button">
-          Open Hypothesis Tool
+          Open Designer Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-book-open"></i>
+        </div>
+        <h3>Scientific Paper Summarizer</h3>
+        <Link to="/scientific-paper-summarizer" className="portal-button">
+          Open Summarizer Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-square-root-alt"></i>
+        </div>
+        <h3>Math Proof Assistant</h3>
+        <Link to="/math-proof-assistant" className="portal-button">
+          Open Assistant
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-bug"></i>
+        </div>
+        <h3>Bug Report Formatter</h3>
+        <Link to="/bug-report-formatter" className="portal-button">
+          Open Formatter
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-code"></i>
+        </div>
+        <h3>Regex Builder</h3>
+        <Link to="/regex-builder" className="portal-button">
+          Open Builder
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-project-diagram"></i>
+        </div>
+        <h3>Algorithm Explainer</h3>
+        <Link to="/algorithm-explainer" className="portal-button">
+          Open Explainer
         </Link>
       </div>
       <div className="portal-card">
