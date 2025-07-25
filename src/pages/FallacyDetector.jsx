@@ -182,7 +182,7 @@ ${textToAnalyze}
               
               <div className="analysis-output-box">
                 <h3><i className="fas fa-highlighter"></i> Highlighted Text</h3>
-                <p className="subtle-instruction">Hover over highlighted sections to see the identified fallacy.</p>
+                <p className="subtle-instruction">Hover over highlighted sections to see identified fallacies (amber) and cognitive biases (blue).</p>
                 <div className="highlighted-text-content" dangerouslySetInnerHTML={{ __html: analysisResult.highlightedText }}></div>
               </div>
 
