@@ -45,20 +45,21 @@ const FallacyDetector = () => {
       fetchModel = model || defaultModel
     }
 
-    const systemPrompt = `You are an AI expert in logical fallacies. Your task is to analyze a given text.
+    const systemPrompt = `You are an AI expert in logical fallacies and cognitive biases. Your task is to analyze a given text.
 Your output MUST be a single, valid XML block. Do not include any surrounding text, comments, or markdown like \`\`\`xml.
 The XML structure MUST be as follows:
 <analysis>
   <highlighted_text>
-    Respond with the user's original text, but wrap any identified fallacies in a <fallacy> tag.
-    The <fallacy> tag MUST have two attributes: 'type' for the name of the fallacy (e.g., "Ad Hominem"), and 'explanation' for a brief, one-sentence explanation of why it's a fallacy.
-    Example: "Your entire argument is wrong because you are a bad person." becomes "Your entire argument is wrong because <fallacy type=\"Ad Hominem\" explanation=\"This attacks the person rather than the argument.\">you are a bad person</fallacy>."
+    Respond with the user's original text, but wrap any identified logical fallacies in a <fallacy> tag and any cognitive biases in a <bias> tag.
+    Both tags MUST have two attributes: 'type' for the name of the fallacy/bias (e.g., "Ad Hominem", "Confirmation Bias"), and 'explanation' for a brief, one-sentence explanation of why it's a fallacy or bias.
+    Example 1 (Fallacy): "Your argument is wrong because <fallacy type=\"Ad Hominem\" explanation=\"This attacks the person rather than the argument.\">you are a bad person</fallacy>."
+    Example 2 (Bias): "I only read news that confirms my views, so <bias type=\"Confirmation Bias\" explanation=\"This is the tendency to favor information that confirms existing beliefs.\">I know I'm right</bias>."
   </highlighted_text>
   <suggestion>
-    Provide a revised version of the original argument that is more logically sound and persuasive, removing the fallacies. This should be plain text. If no revision is needed, say so.
+    Provide a revised version of the original argument that is more logically sound and persuasive, removing the fallacies and biases. This should be plain text. If no revision is needed, say so.
   </suggestion>
 </analysis>
-If no fallacies are found, the <highlighted_text> tag should contain the original, unmodified text, and the <suggestion> tag should contain a message like "The argument appears logically sound as is."`
+If no fallacies or biases are found, the <highlighted_text> tag should contain the original, unmodified text, and the <suggestion> tag should contain a message like "The argument appears logically sound as is."`
 
     const userPrompt = `Please analyze the following text for logical fallacies and provide the XML report:
 ---
@@ -112,12 +113,20 @@ ${textToAnalyze}
         innerXml += serializer.serializeToString(node);
       });
 
-      // Replace custom <fallacy> tags with styled <span>s
-      const processedHtml = innerXml.replace(
+      // Replace custom tags with styled <span>s
+      let processedHtml = innerXml.replace(
         /<fallacy type="([^"]+)" explanation="([^"]+)">([\s\S]*?)<\/fallacy>/g,
         (match, type, explanation, text) => {
           const escapeAttr = (str) => str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-          return `<span class="highlighted-fallacy" data-fallacy-type="${escapeAttr(type)}" data-fallacy-explanation="${escapeAttr(explanation)}">${text}</span>`;
+          return `<span class="highlighted-fallacy" data-type="${escapeAttr(type)}" data-explanation="${escapeAttr(explanation)}">${text}</span>`;
+        }
+      );
+
+      processedHtml = processedHtml.replace(
+        /<bias type="([^"]+)" explanation="([^"]+)">([\s\S]*?)<\/bias>/g,
+        (match, type, explanation, text) => {
+          const escapeAttr = (str) => str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+          return `<span class="highlighted-bias" data-type="${escapeAttr(type)}" data-explanation="${escapeAttr(explanation)}">${text}</span>`;
         }
       );
 

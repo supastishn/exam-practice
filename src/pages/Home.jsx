@@ -181,6 +181,15 @@ const Home = () => (
       </div>
       <div className="portal-card">
         <div className="portal-icon">
+          <i className="fas fa-project-diagram"></i>
+        </div>
+        <h3>Decision-Making Matrix</h3>
+        <Link to="/decision-matrix" className="portal-button">
+          Open Matrix Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
           <i className="fas fa-book-open"></i>
         </div>
         <h3>Scientific Paper Summarizer</h3>

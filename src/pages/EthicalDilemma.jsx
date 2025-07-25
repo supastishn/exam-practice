@@ -22,6 +22,7 @@ const EthicalDilemma = () => {
   // Setup state
   const [dilemmaKey, setDilemmaKey] = useState('trolley')
   const [model, setModel] = useState('')
+  const [customDilemma, setCustomDilemma] = useState('')
 
   // Simulation state
   const [simulationState, setSimulationState] = useState(null)
@@ -37,8 +38,17 @@ const EthicalDilemma = () => {
 
   const handleSetupSubmit = (e) => {
     e.preventDefault()
+    if (dilemmaKey === 'custom' && !customDilemma.trim()) {
+      alert('Please enter a custom dilemma.')
+      return
+    }
+
+    const dilemmaToUse = dilemmaKey === 'custom'
+      ? { name: 'Custom Dilemma', description: customDilemma }
+      : dilemmas[dilemmaKey]
+
     setSimulationState({
-      dilemma: dilemmas[dilemmaKey],
+      dilemma: dilemmaToUse,
       analysis: ''
     })
   }
@@ -110,8 +120,21 @@ const EthicalDilemma = () => {
                 {Object.keys(dilemmas).map(key => (
                   <option key={key} value={key}>{dilemmas[key].name}</option>
                 ))}
+                <option value="custom">Custom...</option>
               </select>
             </div>
+            {dilemmaKey === 'custom' && (
+              <div>
+                <label htmlFor="custom-dilemma-text"><i className="fas fa-edit"></i> Describe your custom dilemma:</label>
+                <textarea
+                  id="custom-dilemma-text"
+                  rows="4"
+                  value={customDilemma}
+                  onChange={e => setCustomDilemma(e.target.value)}
+                  placeholder="Describe the scenario and the choice to be made."
+                />
+              </div>
+            )}
             <div>
               <label htmlFor="model"><i className="fas fa-robot"></i> AI Model (optional):</label>
               <input type="text" id="model" value={model} onChange={e => setModel(e.target.value)} placeholder="gpt-4.1" />

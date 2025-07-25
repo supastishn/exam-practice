@@ -22,6 +22,7 @@ import FlashcardConverter from './pages/FlashcardConverter'
 import SatireGenerator from './pages/SatireGenerator'
 import LegalSummarizer from './pages/LegalSummarizer'
 import HypothesisGenerator from './pages/HypothesisGenerator'
+import DecisionMatrix from './pages/DecisionMatrix'
 
 const App = () => (
   <Routes>
@@ -46,6 +47,7 @@ const App = () => (
       <Route path="satire-generator" element={<SatireGenerator />} />
       <Route path="legal-summarizer" element={<LegalSummarizer />} />
       <Route path="hypothesis-generator" element={<HypothesisGenerator />} />
+      <Route path="decision-matrix" element={<DecisionMatrix />} />
       <Route path="settings" element={<Settings />} />
     </Route>
   </Routes>

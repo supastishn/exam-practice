@@ -1102,6 +1102,15 @@ body.dark-mode .provider-info {
     word-wrap: break-word;
 }
 
+.highlighted-bias {
+    background-color: rgba(67, 160, 210, 0.3); /* Light Blue */
+    padding: 0.1em 0.3em;
+    border-radius: 4px;
+    cursor: help;
+    position: relative;
+    border-bottom: 2px dotted rgba(67, 160, 210, 0.8);
+}
+
 .highlighted-fallacy {
     background-color: rgba(255, 182, 4, 0.3); /* Amber */
     padding: 0.1em 0.3em;
@@ -1111,8 +1120,9 @@ body.dark-mode .provider-info {
     border-bottom: 2px dotted rgba(255, 182, 4, 0.8);
 }
 
-.highlighted-fallacy::after {
-    content: attr(data-fallacy-type) ": " attr(data-fallacy-explanation);
+.highlighted-fallacy::after,
+.highlighted-bias::after {
+    content: attr(data-type) ": " attr(data-explanation);
     position: absolute;
     bottom: 100%;
     left: 50%;
@@ -1132,7 +1142,8 @@ body.dark-mode .provider-info {
     font-style: normal; /* Override italic from instruction */
 }
 
-.highlighted-fallacy:hover::after {
+.highlighted-fallacy:hover::after,
+.highlighted-bias:hover::after {
     opacity: 1;
     visibility: visible;
 }
@@ -1145,6 +1156,11 @@ body.dark-mode .subtle-instruction {
 body.dark-mode .highlighted-fallacy {
     background-color: rgba(255, 193, 7, 0.4);
     border-bottom-color: rgba(255, 193, 7, 0.7);
+}
+
+body.dark-mode .highlighted-bias {
+    background-color: rgba(67, 160, 210, 0.4);
+    border-bottom-color: rgba(67, 160, 210, 0.7);
 }
 
 body.dark-mode .highlighted-fallacy::after {
