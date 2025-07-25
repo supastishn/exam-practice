@@ -64,6 +64,42 @@ const Home = () => (
       </div>
       <div className="portal-card">
         <div className="portal-icon">
+          <i className="fas fa-language"></i>
+        </div>
+        <h3>Translation Practice Tool</h3>
+        <Link to="/translation-practice" className="portal-button">
+          Open Translation Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-briefcase"></i>
+        </div>
+        <h3>Resume & Cover Letter Assistant</h3>
+        <Link to="/resume-assistant" className="portal-button">
+          Open Resume Assistant
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-balance-scale"></i>
+        </div>
+        <h3>Ethical Dilemma Simulator</h3>
+        <Link to="/ethical-dilemma" className="portal-button">
+          Open Ethical Dilemma Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-scroll"></i>
+        </div>
+        <h3>Historical "What If" Scenarios</h3>
+        <Link to="/historical-what-if" className="portal-button">
+          Open Historical Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
           <i className="fas fa-comments"></i>
         </div>
         <h3>Conversation Simulator</h3>
