@@ -136,6 +136,51 @@ const Home = () => (
       </div>
       <div className="portal-card">
         <div className="portal-icon">
+          <i className="fas fa-question-circle"></i>
+        </div>
+        <h3>Question Tutor</h3>
+        <Link to="/question-tutor" className="portal-button">
+          Open Question Tutor
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-layer-group"></i>
+        </div>
+        <h3>Flashcard Converter</h3>
+        <Link to="/flashcard-converter" className="portal-button">
+          Open Flashcard Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-theater-masks"></i>
+        </div>
+        <h3>Satire &amp; Parody Generator</h3>
+        <Link to="/satire-generator" className="portal-button">
+          Open Satire Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-file-contract"></i>
+        </div>
+        <h3>Legal Document Summarizer</h3>
+        <Link to="/legal-summarizer" className="portal-button">
+          Open Summarizer Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-flask"></i>
+        </div>
+        <h3>Hypothesis Generator</h3>
+        <Link to="/hypothesis-generator" className="portal-button">
+          Open Hypothesis Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
           <i className="fas fa-cog"></i>
         </div>
         <h3>Settings</h3>
