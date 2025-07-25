@@ -17,6 +17,11 @@ import Conversation from './pages/Conversation'
 import ArgumentBuilder from './pages/ArgumentBuilder'
 import ToneAdjuster from './pages/ToneAdjuster'
 import NegotiationPractice from './pages/NegotiationPractice'
+import QuestionTutor from './pages/QuestionTutor'
+import FlashcardConverter from './pages/FlashcardConverter'
+import SatireGenerator from './pages/SatireGenerator'
+import LegalSummarizer from './pages/LegalSummarizer'
+import HypothesisGenerator from './pages/HypothesisGenerator'
 
 const App = () => (
   <Routes>
@@ -36,6 +41,11 @@ const App = () => (
       <Route path="argument-builder" element={<ArgumentBuilder />} />
       <Route path="tone-adjuster" element={<ToneAdjuster />} />
       <Route path="negotiation-practice" element={<NegotiationPractice />} />
+      <Route path="question-tutor" element={<QuestionTutor />} />
+      <Route path="flashcard-converter" element={<FlashcardConverter />} />
+      <Route path="satire-generator" element={<SatireGenerator />} />
+      <Route path="legal-summarizer" element={<LegalSummarizer />} />
+      <Route path="hypothesis-generator" element={<HypothesisGenerator />} />
       <Route path="settings" element={<Settings />} />
     </Route>
   </Routes>
