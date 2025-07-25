@@ -75,7 +75,7 @@ const Home = () => (
         <div className="portal-icon">
           <i className="fas fa-briefcase"></i>
         </div>
-        <h3>Resume & Cover Letter Assistant</h3>
+        <h3>Resume &amp; Cover Letter Assistant</h3>
         <Link to="/resume-assistant" className="portal-button">
           Open Resume Assistant
         </Link>
