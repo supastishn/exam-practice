@@ -64,6 +64,15 @@ const Home = () => (
       </div>
       <div className="portal-card">
         <div className="portal-icon">
+          <i className="fas fa-comments"></i>
+        </div>
+        <h3>Conversation Simulator</h3>
+        <Link to="/conversation" className="portal-button">
+          Open Conversation Tool
+        </Link>
+      </div>
+      <div className="portal-card">
+        <div className="portal-icon">
           <i className="fas fa-cog"></i>
         </div>
         <h3>Settings</h3>
