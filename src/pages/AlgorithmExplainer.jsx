@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const AlgorithmExplainer = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -100,7 +101,9 @@ const AlgorithmExplainer = () => {
           {explanation && (
             <section>
               <h2><i className="fas fa-chalkboard-teacher"></i> Explanation</h2>
-              <div className="solution-box" style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: explanation }}></div>
+              <div className="solution-box">
+                <ReactMarkdown>{explanation}</ReactMarkdown>
+              </div>
             </section>
           )}
         </>

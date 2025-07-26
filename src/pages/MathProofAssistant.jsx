@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
 
 const MathProofAssistant = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -100,7 +103,11 @@ const MathProofAssistant = () => {
           {proof && (
             <section>
               <h2><i className="fas fa-scroll"></i> Generated Proof/Solution</h2>
-              <div className="solution-box" style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: proof }}></div>
+              <div className="solution-box">
+                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                  {proof}
+                </ReactMarkdown>
+              </div>
             </section>
           )}
         </>

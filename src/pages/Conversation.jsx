@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const Conversation = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -195,7 +196,9 @@ const Conversation = () => {
           {analysis && (
             <section id="conversation-analysis-section">
               <h2><i className="fas fa-chart-bar"></i> Conversation Feedback</h2>
-              <div id="conversation-analysis-output" className="solution-box" style={{ whiteSpace: 'pre-wrap' }}>{analysis}</div>
+              <div id="conversation-analysis-output" className="solution-box">
+                <ReactMarkdown>{analysis}</ReactMarkdown>
+              </div>
             </section>
           )}
         </>

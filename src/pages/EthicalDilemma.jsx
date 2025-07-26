@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const dilemmas = {
   trolley: {
@@ -164,7 +165,9 @@ const EthicalDilemma = () => {
           {simulationState.analysis && (
             <section id="dilemma-analysis-section">
               <h2><i className="fas fa-chart-bar"></i> Philosophical Analysis</h2>
-              <div className="solution-box" style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: simulationState.analysis }}></div>
+              <div className="solution-box">
+                <ReactMarkdown>{simulationState.analysis}</ReactMarkdown>
+              </div>
               <button onClick={() => setSimulationState(null)} style={{marginTop: '1.5rem'}}>Try Another Dilemma</button>
             </section>
           )}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const ScientificPaperSummarizer = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -100,7 +101,9 @@ const ScientificPaperSummarizer = () => {
           {summary && (
             <section>
               <h2><i className="fas fa-clipboard-list"></i> Summary</h2>
-              <div className="solution-box" style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: summary }}></div>
+              <div className="solution-box">
+                <ReactMarkdown>{summary}</ReactMarkdown>
+              </div>
             </section>
           )}
         </>

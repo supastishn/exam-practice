@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const Debate = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -195,7 +196,7 @@ const Debate = () => {
               {debateState.transcript.map((msg, index) => (
                 <div key={index} className={`transcript-message ${msg.speaker}-message`}>
                   <span className="message-speaker">{msg.speaker}</span>
-                  <div>{msg.text}</div>
+                  <div><ReactMarkdown>{msg.text}</ReactMarkdown></div>
                 </div>
               ))}
             </div>
@@ -212,7 +213,9 @@ const Debate = () => {
           {analysis && (
             <section id="debate-analysis-section">
               <h2><i className="fas fa-chart-bar"></i> Debate Analysis</h2>
-              <div id="debate-analysis-output" className="solution-box" style={{ whiteSpace: 'pre-wrap' }}>{analysis}</div>
+              <div id="debate-analysis-output" className="solution-box">
+                <ReactMarkdown>{analysis}</ReactMarkdown>
+              </div>
             </section>
           )}
         </>

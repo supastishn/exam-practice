@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const ArgumentBuilder = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -170,7 +171,7 @@ const ArgumentBuilder = () => {
               {argumentState.transcript.map((msg, index) => (
                 <div key={index} className={`transcript-message ${msg.speaker}-message`}>
                   <span className="message-speaker">{msg.speaker}</span>
-                  <div>{msg.text}</div>
+                  <div><ReactMarkdown>{msg.text}</ReactMarkdown></div>
                 </div>
               ))}
             </div>

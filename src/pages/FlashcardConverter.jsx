@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const FlashcardConverter = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -113,7 +114,7 @@ const FlashcardConverter = () => {
                     <li key={index}>
                       <strong>Term:</strong> {card.term}
                       <br />
-                      <strong>Definition:</strong> {card.definition}
+                      <strong>Definition:</strong> <ReactMarkdown>{card.definition}</ReactMarkdown>
                     </li>
                   ))}
                 </ul>

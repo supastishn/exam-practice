@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const TranslationPractice = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -194,7 +195,9 @@ const TranslationPractice = () => {
                       <button className={`tab-button ${activeTab === 'diff' ? 'active' : ''}`} onClick={() => setActiveTab('diff')}>Line-by-Line</button>
                     </div>
   
-                    <div id="assessment-tab" className={`tab-content ${activeTab === 'assessment' ? 'active' : ''}`} dangerouslySetInnerHTML={{ __html: feedback.assessment }}></div>
+                    <div id="assessment-tab" className={`tab-content ${activeTab === 'assessment' ? 'active' : ''}`}>
+                      <ReactMarkdown>{feedback.assessment}</ReactMarkdown>
+                    </div>
                     <div id="revision-tab" className={`tab-content ${activeTab === 'revision' ? 'active' : ''}`} style={{ whiteSpace: 'pre-wrap' }}>{feedback.modelTranslation}</div>
                     <div id="diff-tab" className={`tab-content ${activeTab === 'diff' ? 'active' : ''}`}>
                       <pre id="diff-pre" dangerouslySetInnerHTML={{ __html: feedback.diff }}></pre>

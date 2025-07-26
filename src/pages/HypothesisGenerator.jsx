@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const HypothesisGenerator = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -109,11 +110,11 @@ const HypothesisGenerator = () => {
               <h2><i className="fas fa-lightbulb"></i> Generated Hypothesis & Test</h2>
               <div className="analysis-output-box">
                 <h3><i className="fas fa-quote-right"></i> Hypothesis</h3>
-                <p>{result.hypothesis}</p>
+                <ReactMarkdown>{result.hypothesis}</ReactMarkdown>
               </div>
               <div className="analysis-output-box">
                 <h3><i className="fas fa-vial"></i> Suggested Test</h3>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{result.suggested_test}</p>
+                <ReactMarkdown>{result.suggested_test}</ReactMarkdown>
               </div>
             </section>
           )}

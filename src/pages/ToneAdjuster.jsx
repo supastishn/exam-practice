@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const ToneAdjuster = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -133,8 +134,8 @@ ${originalText}
           {adjustedText && (
             <section>
               <h2><i className="fas fa-pen-alt"></i> Adjusted Text</h2>
-              <div className="solution-box" style={{ whiteSpace: 'pre-wrap' }}>
-                {adjustedText}
+              <div className="solution-box">
+                <ReactMarkdown>{adjustedText}</ReactMarkdown>
               </div>
             </section>
           )}

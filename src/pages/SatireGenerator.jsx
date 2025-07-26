@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const SatireGenerator = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -109,8 +110,8 @@ const SatireGenerator = () => {
           {satiricalText && (
             <section>
               <h2><i className="fas fa-file-alt"></i> Satirical Version</h2>
-              <div className="solution-box" style={{ whiteSpace: 'pre-wrap' }}>
-                {satiricalText}
+              <div className="solution-box">
+                <ReactMarkdown>{satiricalText}</ReactMarkdown>
               </div>
             </section>
           )}

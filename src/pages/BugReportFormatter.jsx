@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const BugReportFormatter = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -100,8 +101,8 @@ const BugReportFormatter = () => {
           {formattedReport && (
             <section>
               <h2><i className="fas fa-file-medical-alt"></i> Formatted Bug Report</h2>
-              <div className="solution-box" style={{ whiteSpace: 'pre-wrap' }}>
-                {formattedReport}
+              <div className="solution-box">
+                <ReactMarkdown>{formattedReport}</ReactMarkdown>
               </div>
             </section>
           )}

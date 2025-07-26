@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 const RegexBuilder = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -106,7 +107,7 @@ const RegexBuilder = () => {
               </div>
               <div className="analysis-output-box">
                 <h3><i className="fas fa-info-circle"></i> Explanation</h3>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{result.explanation}</p>
+                <ReactMarkdown>{result.explanation}</ReactMarkdown>
               </div>
             </section>
           )}
