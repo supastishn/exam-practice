@@ -11,6 +11,7 @@ const Memorization = () => {
   const [mcOptionsCount, setMcOptionsCount] = useState(4)
   const [model, setModel] = useState('')
   const [difficulty, setDifficulty] = useState('intermediate')
+  const [guidelines, setGuidelines] = useState('')
 
   const toggleExerciseType = (type) => {
     setExerciseType(prev => {
@@ -110,6 +111,7 @@ ${memorizationText}
 - Number of questions: ${exerciseCount}
 ${(Array.isArray(exerciseType) ? (exerciseType.includes('multiple-choice') || exerciseType.includes('mixed')) : (exerciseType === 'multiple-choice' || exerciseType === 'mixed')) ? `- Number of choices for Multiple Choice questions: ${mcOptionsCount}` : ''}
  ${hasImages ? '- Note: One or more images are attached that may contain relevant text or diagrams.' : ''}
+${guidelines ? `- Extra guidelines: ${guidelines}` : ''}
  Generate the HTML now.`
 
 
@@ -160,7 +162,7 @@ ${(Array.isArray(exerciseType) ? (exerciseType.includes('multiple-choice') || ex
     }
   }
 
-  const handleCheckAnswers = () => {
+  const handleCheckAnswers = async () => {
     const output = document.getElementById('exercise-output');
     if (!output) return;
 
@@ -168,23 +170,44 @@ ${(Array.isArray(exerciseType) ? (exerciseType.includes('multiple-choice') || ex
     const oldSummary = output.querySelector('.score-summary');
     if (oldSummary) oldSummary.remove();
 
-    const questions = output.querySelectorAll('.question-container');
+    const questions = Array.from(output.querySelectorAll('.question-container'));
     let correctCount = 0;
     let gradableCount = 0;
     const wrongQuestions = [];
 
+    // collect AI-judger tasks
+    const aiTasks = [];
+
+    // First pass: local grading for MC / blanks; collect ai tasks
     questions.forEach((question) => {
         const solutionDiv = question.querySelector('.solution');
         if (!solutionDiv) return;
 
-        // Reveal solution
+        const aiTextarea = question.querySelector('.ai-judger-textarea');
+        if (aiTextarea) {
+            // Do not reveal solution yet; prepare feedback placeholder
+            let feedbackEl = question.querySelector('.ai-judger-feedback');
+            if (!feedbackEl) {
+              feedbackEl = document.createElement('div');
+              feedbackEl.className = 'ai-judger-feedback';
+              feedbackEl.textContent = 'Evaluating answer...';
+              feedbackEl.style.marginTop = '0.75rem';
+              question.appendChild(feedbackEl);
+            } else {
+              feedbackEl.textContent = 'Evaluating answer...';
+            }
+            const criteria = solutionDiv ? solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '') : '';
+            aiTasks.push({ question, userAnswer: aiTextarea.value.trim(), criteria, feedbackEl });
+            return;
+        }
+
+        // Reveal solution for non-AI questions and grade locally
         solutionDiv.style.display = 'block';
         solutionDiv.classList.add('solution-box');
 
         let isGradable = false;
         let isCorrect = false;
 
-        // Handle Multiple Choice buttons or legacy radio inputs
         const mcButtons = question.querySelectorAll('.mc-option');
         if (mcButtons.length > 0) {
             isGradable = true;
@@ -230,12 +253,95 @@ ${(Array.isArray(exerciseType) ? (exerciseType.includes('multiple-choice') || ex
                 question.classList.add('feedback-correct');
             } else {
                 question.classList.add('feedback-incorrect');
-                const idx = Array.from(questions).indexOf(question) + 1;
+                const idx = questions.indexOf(question) + 1;
                 wrongQuestions.push(idx);
             }
         }
     });
-    
+
+    // Evaluate AI-judger answers via API
+    if (aiTasks.length > 0) {
+      const apiKey = localStorage.getItem('openai_api_key');
+      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1';
+      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini';
+      const fetchUrl = `${baseUrl}/chat/completions`;
+      const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` };
+      const fetchModel = model || defaultModel;
+
+      for (const task of aiTasks) {
+        try {
+          const systemPrompt = `You are an assistant that judges whether a student's free-text answer meets provided model criteria. Respond only with JSON in this exact form:
+{"verdict":"Correct|Partially Correct|Incorrect","explanation":"one-sentence justification"}.
+Do not include extra text.`;
+
+          const userPrompt = `Model criteria: ${task.criteria}
+${guidelines ? `Guidelines: ${guidelines}\n` : ''}
+Student answer: ${task.userAnswer}
+
+Return JSON as instructed.`;
+
+          const resp = await fetch(fetchUrl, {
+            method: 'POST',
+            headers: fetchHeaders,
+            body: JSON.stringify({
+              model: fetchModel,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt }
+              ],
+              max_tokens: 200,
+              temperature: 0.0,
+            }),
+          });
+
+          const data = await resp.json();
+          let content = '';
+          if (resp.ok && data.choices && data.choices[0] && data.choices[0].message) {
+            content = (data.choices[0].message.content || '').trim();
+          } else {
+            content = (data.error?.message || JSON.stringify(data)).toString();
+          }
+
+          // Try to parse JSON from the model output
+          let parsed = null;
+          try {
+            parsed = JSON.parse(content);
+          } catch (err) {
+            // Attempt to extract JSON substring
+            const m = content.match(/\{[\s\S]*\}/);
+            if (m) {
+              try { parsed = JSON.parse(m[0]); } catch (e) { parsed = null; }
+            }
+          }
+
+          const verdictRaw = parsed?.verdict || content.split('\n')[0] || 'Unable to judge';
+          const explanation = parsed?.explanation || parsed?.explain || content;
+
+          // Update UI
+          task.feedbackEl.textContent = `${verdictRaw}: ${explanation}`;
+          task.question.classList.remove('feedback-correct', 'feedback-incorrect', 'feedback-partially-correct');
+
+          if (typeof verdictRaw === 'string' && verdictRaw.toLowerCase().startsWith('correct')) {
+            task.question.classList.add('feedback-correct');
+            correctCount++;
+            gradableCount++;
+          } else if (typeof verdictRaw === 'string' && verdictRaw.toLowerCase().includes('part')) {
+            task.question.classList.add('feedback-partially-correct');
+            gradableCount++;
+          } else {
+            task.question.classList.add('feedback-incorrect');
+            gradableCount++;
+            const idx = questions.indexOf(task.question) + 1;
+            wrongQuestions.push(idx);
+          }
+        } catch (err) {
+          console.error('AI judger error:', err);
+          task.feedbackEl.textContent = 'Error evaluating answer.';
+        }
+      }
+    }
+
+    // Summary
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'score-summary solution-box';
     if (gradableCount > 0) {
@@ -339,6 +445,10 @@ ${(Array.isArray(exerciseType) ? (exerciseType.includes('multiple-choice') || ex
               <div>
                 <label htmlFor="model"><i className="fas fa-robot"></i> OpenAI Model (optional):</label>
                 <input type="text" id="model" name="model" placeholder="gpt-4.1" value={model} onChange={e => setModel(e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="guidelines"><i className="fas fa-info-circle"></i> Extra Guidelines (optional):</label>
+                <textarea id="guidelines" name="guidelines" rows="2" placeholder="Any extra instructions for the AI (grading style, strictness, hints to include)..." value={guidelines} onChange={e => setGuidelines(e.target.value)}></textarea>
               </div>
               <div>
                 <label htmlFor="difficulty"><i className="fas fa-chart-line"></i> Difficulty:</label>

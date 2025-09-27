@@ -11,6 +11,7 @@ const ReadingComprehension = () => {
   const [questionCount, setQuestionCount] = useState(5)
   const [model, setModel] = useState('')
   const [difficulty, setDifficulty] = useState('intermediate')
+  const [guidelines, setGuidelines] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -93,6 +94,7 @@ All questions must be answerable directly from the passage text: do not ask ques
 - Difficulty: ${difficulty}
 - Number of choices per multiple-choice question: ${mcOptionsCount}
 ${hasImages ? '- Note: One or more images are attached and may include context from a picture or screenshot.' : ''}
+${guidelines ? `- Extra guidelines: ${guidelines}` : ''}
 Generate the HTML now.`
 
     try {
@@ -405,6 +407,10 @@ Return JSON as instructed.`;
               <div>
                 <label><i className="fas fa-robot"></i> OpenAI Model (optional):</label>
                 <input type="text" placeholder="gpt-4.1" value={model} onChange={e => setModel(e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="guidelines"><i className="fas fa-info-circle"></i> Extra Guidelines (optional):</label>
+                <textarea id="guidelines" name="guidelines" rows="2" placeholder="Any extra instructions for the AI (grading style, strictness, hints to include)..." value={guidelines} onChange={e => setGuidelines(e.target.value)}></textarea>
               </div>
               <div>
                 <label><i className="fas fa-chart-line"></i> Difficulty:</label>
