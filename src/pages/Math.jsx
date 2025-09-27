@@ -254,6 +254,13 @@ ${(Array.isArray(exerciseType) ? exerciseType.includes('multiple-choice') : exer
 
           question.classList.remove('feedback-correct', 'feedback-incorrect');
 
+          // Reset MC buttons if present
+          const mcButtons = question.querySelectorAll('.mc-option');
+          mcButtons.forEach(b => {
+            b.classList.remove('mc-option-selected');
+            b.removeAttribute('aria-pressed');
+          });
+
           const inputs = question.querySelectorAll('input, textarea');
           inputs.forEach(input => {
               if (input.type === 'radio' || input.type === 'checkbox') {
