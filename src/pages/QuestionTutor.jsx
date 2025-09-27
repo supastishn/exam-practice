@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
+import ImagePicker from '../components/ImagePicker'
 
 const QuestionTutor = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -14,6 +15,8 @@ const QuestionTutor = () => {
   const [userInput, setUserInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
   
   useEffect(() => {
     const provider = localStorage.getItem('api_provider') || 'custom'
@@ -55,28 +58,22 @@ const QuestionTutor = () => {
     setError(null)
 
     const provider = localStorage.getItem('api_provider') || 'custom'
-    let fetchUrl, fetchHeaders, fetchModel
+
     
-    if (provider === 'hackclub') {
-      fetchUrl = 'https://ai.hackclub.com/chat/completions'
-      fetchHeaders = { 'Content-Type': 'application/json' }
-      fetchModel = model || 'mistral-7b-instruct'
-    } else {
-      const apiKey = localStorage.getItem('openai_api_key')
-      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-      
-      fetchUrl = `${baseUrl}/chat/completions`
-      fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
-      fetchModel = model || defaultModel
-    }
+    const apiKey = localStorage.getItem('openai_api_key')
+    const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+    const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+    const fetchUrl = `${baseUrl}/chat/completions`
+    const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+    const fetchModel = model || defaultModel
 
     const systemPrompt = `You are a Socratic tutor. The user wants to understand the topic of "${currentState.topic}". Your goal is to guide them by asking insightful questions, one at a time. Do not give direct answers or long explanations. Analyze the user's response, then ask the next logical question to deepen their understanding or challenge their assumptions. Keep your questions concise.`
     
     const messages = [
       { role: 'system', content: systemPrompt },
       ...currentState.transcript.map(m => ({ role: m.speaker === 'user' ? 'user' : 'assistant', content: m.text })),
-      { role: 'user', content: prompt }
+      { role: 'user', content: prompt },
+      ...((attachedImage || (attachedImages && attachedImages.length)) ? [{ role: 'user', content: [ { type: 'text', text: '(Attached image context)' }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } })) ) ] }] : [])
     ]
 
     try {
@@ -126,6 +123,9 @@ const QuestionTutor = () => {
             <div>
               <label htmlFor="tutor-topic"><i className="fas fa-book-open"></i> What topic do you want to explore?</label>
               <input type="text" id="tutor-topic" value={topic} onChange={e => setTopic(e.target.value)} required placeholder="e.g., The theory of relativity" />
+            </div>
+            <div>
+              <ImagePicker id="tutor-image" label="Attach reference image (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
             </div>
             <div>
               <label htmlFor="tutor-model"><i className="fas fa-robot"></i> AI Model (optional):</label>

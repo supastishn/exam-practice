@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
+import ImagePicker from '../components/ImagePicker'
 
 const Writing = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -15,6 +16,8 @@ const Writing = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('assessment')
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
 
   useEffect(() => {
     const provider = localStorage.getItem('api_provider') || 'custom'
@@ -41,21 +44,14 @@ const Writing = () => {
     setFeedback(null)
 
     const provider = localStorage.getItem('api_provider') || 'custom'
-    let fetchUrl, fetchHeaders, fetchModel
 
-    if (provider === 'hackclub') {
-      fetchUrl = 'https://ai.hackclub.com/chat/completions'
-      fetchHeaders = { 'Content-Type': 'application/json' }
-      fetchModel = 'mistral-7b-instruct'
-    } else {
-      const apiKey = localStorage.getItem('openai_api_key')
-      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-      
-      fetchUrl = `${baseUrl}/chat/completions`
-      fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
-      fetchModel = defaultModel
-    }
+
+    const apiKey = localStorage.getItem('openai_api_key')
+    const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+    const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+    const fetchUrl = `${baseUrl}/chat/completions`
+    const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+    const fetchModel = defaultModel
 
     const systemPrompt = `You are an expert writing coach. Analyze the user's text on the topic "${noteTopic}".
       Your output MUST be a single valid JSON object. Do not include any surrounding text or markdown.
@@ -63,16 +59,29 @@ const Writing = () => {
       1. "assessment": A string containing a concise, constructive critique of the writing. Focus on clarity, grammar, style, and structure. Use Markdown for formatting (e.g., lists).
       2. "revised_text": A string containing the full, revised version of the user's text, correcting errors and improving flow.`
 
+    const hasImages = attachedImages && attachedImages.length > 0
+    const imageNote = (attachedImage || hasImages) ? `\nOne or more images have been provided as context and may contain relevant cues or text to consider in the feedback.\n` : ''
+
     const userPrompt = `Please analyze and revise the following text:
       ---
       ${userWriting}
-      ---`
+      ---
+      ${imageNote}`
 
     try {
       const response = await fetch(fetchUrl, {
         method: 'POST',
         headers: fetchHeaders,
-        body: JSON.stringify({ model: fetchModel, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], response_format: { type: "json_object" } }),
+        body: JSON.stringify({ 
+          model: fetchModel, 
+          messages: [
+            { role: 'system', content: systemPrompt },
+            (attachedImage || hasImages)
+              ? { role: 'user', content: [ { type: 'text', text: userPrompt }, ...((hasImages ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } }))) ] }
+              : { role: 'user', content: userPrompt }
+          ],
+          response_format: { type: "json_object" }
+        }),
       })
 
       const data = await response.json()
@@ -173,7 +182,10 @@ const Writing = () => {
                 <section id="writing-practice-section">
                   <h2><i className="fas fa-pencil-alt"></i> Writing Area</h2>
                   <h3>Topic: {noteTopic}</h3>
-                  <textarea id="user-writing-area" rows="15" placeholder="Start writing here..." value={userWriting} onChange={e => setUserWriting(e.target.value)}></textarea>
+              <textarea id="user-writing-area" rows="15" placeholder="Start writing here..." value={userWriting} onChange={e => setUserWriting(e.target.value)}></textarea>
+              <div style={{ marginTop: '0.5rem' }}>
+                <ImagePicker id="writing-image" label="Attach related image (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
+              </div>
                   <button id="submit-writing-button" onClick={handleFeedbackSubmit} disabled={isLoading}>
                     {isLoading ? <><i className="fas fa-spinner fa-spin"></i> Getting Feedback...</> : <><i className="fas fa-check"></i> Get Feedback</>}
                   </button>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ImagePicker from '../components/ImagePicker'
 
 const FallacyDetector = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -8,6 +9,8 @@ const FallacyDetector = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [analysisResult, setAnalysisResult] = useState(null)
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
 
   useEffect(() => {
     const provider = localStorage.getItem('api_provider') || 'custom'
@@ -25,25 +28,12 @@ const FallacyDetector = () => {
     setError(null)
     setAnalysisResult(null)
 
-    const provider = localStorage.getItem('api_provider') || 'custom'
-    let fetchUrl, fetchHeaders, fetchModel
-
-    if (provider === 'hackclub') {
-      fetchUrl = 'https://ai.hackclub.com/chat/completions'
-      fetchHeaders = { 'Content-Type': 'application/json' }
-      fetchModel = model || 'mistral-7b-instruct'
-    } else { // 'custom'
-      const apiKey = localStorage.getItem('openai_api_key')
-      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-      
-      fetchUrl = `${baseUrl}/chat/completions`
-      fetchHeaders = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      }
-      fetchModel = model || defaultModel
-    }
+    const apiKey = localStorage.getItem('openai_api_key')
+    const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+    const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+    const fetchUrl = `${baseUrl}/chat/completions`
+    const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+    const fetchModel = model || defaultModel
 
     const systemPrompt = `You are an AI expert in logical fallacies and cognitive biases. Your task is to analyze a given text.
 Your output MUST be a single, valid XML block. Do not include any surrounding text, comments, or markdown like \`\`\`xml.
@@ -61,10 +51,14 @@ The XML structure MUST be as follows:
 </analysis>
 If no fallacies or biases are found, the <highlighted_text> tag should contain the original, unmodified text, and the <suggestion> tag should contain a message like "The argument appears logically sound as is."`
 
+    const hasImages = (attachedImages && attachedImages.length) || attachedImage
+    const imageNote = hasImages ? `\nOne or more images has been provided as additional context (base64 data URLs). If any contains text or visual content relevant to the argument (e.g., a meme/poster), consider it in your analysis.\n` : ''
+
     const userPrompt = `Please analyze the following text for logical fallacies and provide the XML report:
 ---
 ${textToAnalyze}
----`
+---
+${imageNote}`
 
     try {
       const response = await fetch(fetchUrl, {
@@ -74,7 +68,8 @@ ${textToAnalyze}
           model: fetchModel,
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
+            { role: 'user', content: userPrompt },
+            ...((attachedImage || (attachedImages && attachedImages.length)) ? [{ role: 'user', content: [ { type: 'text', text: '(Attached image context)' }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } })) ) ] }] : [])
           ],
           max_tokens: 2048,
           temperature: 0.3,
@@ -163,6 +158,9 @@ ${textToAnalyze}
               <div>
                 <label htmlFor="text-to-analyze"><i className="fas fa-paragraph"></i> Text to Analyze:</label>
                 <textarea id="text-to-analyze" name="text-to-analyze" rows="8" required placeholder="Enter the text you want to check for logical fallacies..." value={textToAnalyze} onChange={e => setTextToAnalyze(e.target.value)}></textarea>
+              </div>
+              <div>
+                <ImagePicker id="fallacy-image" label="Attach related image (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
               </div>
               <div>
                 <label htmlFor="model"><i className="fas fa-robot"></i> AI Model (optional):</label>

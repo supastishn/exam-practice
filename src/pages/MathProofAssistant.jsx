@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
+import ImagePicker from '../components/ImagePicker'
 
 const MathProofAssistant = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -11,6 +12,8 @@ const MathProofAssistant = () => {
   const [proof, setProof] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
 
   useEffect(() => {
     const provider = localStorage.getItem('api_provider') || 'custom'
@@ -28,20 +31,12 @@ const MathProofAssistant = () => {
     setError(null)
     setProof('')
 
-    const provider = localStorage.getItem('api_provider') || 'custom'
-    let fetchUrl, fetchHeaders, fetchModel
-    if (provider === 'hackclub') {
-      fetchUrl = 'https://ai.hackclub.com/chat/completions'
-      fetchHeaders = { 'Content-Type': 'application/json' }
-      fetchModel = model || 'mistral-7b-instruct'
-    } else {
-      const apiKey = localStorage.getItem('openai_api_key')
-      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-      fetchUrl = `${baseUrl}/chat/completions`
-      fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
-      fetchModel = model || defaultModel
-    }
+    const apiKey = localStorage.getItem('openai_api_key')
+    const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+    const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+    const fetchUrl = `${baseUrl}/chat/completions`
+    const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+    const fetchModel = model || defaultModel
 
     const systemPrompt = "You are a mathematics professor. The user will provide a mathematical claim or problem. Your task is to provide a step-by-step proof or a detailed solution. Use Markdown for clear formatting and structure. Use LaTeX for mathematical notation, enclosing display math in `$$...$$` and inline math in `$...$`. Only output the proof/solution."
 
@@ -51,7 +46,11 @@ const MathProofAssistant = () => {
         headers: fetchHeaders,
         body: JSON.stringify({
           model: fetchModel,
-          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: claimText }],
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: claimText },
+            ...((attachedImage || (attachedImages && attachedImages.length)) ? [{ role: 'user', content: [ { type: 'text', text: '(Attached image context)' }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } })) ) ] }] : [])
+          ],
           max_tokens: 2000,
           temperature: 0.1,
         }),
@@ -88,6 +87,9 @@ const MathProofAssistant = () => {
               <div>
                 <label htmlFor="claim-text"><i className="fas fa-file-alt"></i> Mathematical Claim or Problem:</label>
                 <textarea id="claim-text" rows="8" placeholder="e.g., Prove that the square root of 2 is irrational." value={claimText} onChange={e => setClaimText(e.target.value)}></textarea>
+              </div>
+              <div>
+                <ImagePicker id="proof-image" label="Attach diagram/photo (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
               </div>
               <div>
                 <label htmlFor="model"><i className="fas fa-robot"></i> AI Model (optional):</label>

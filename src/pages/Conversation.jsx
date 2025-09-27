@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
+import ImagePicker from '../components/ImagePicker'
 
 const Conversation = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -14,6 +15,8 @@ const Conversation = () => {
   const [userInput, setUserInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [analysis, setAnalysis] = useState('')
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
   
   useEffect(() => {
     // Check for API provider config
@@ -44,21 +47,12 @@ const Conversation = () => {
     setIsLoading(true)
     
     try {
-        const provider = localStorage.getItem('api_provider') || 'custom'
-        let fetchUrl, fetchHeaders, fetchModel
-
-        if (provider === 'hackclub') {
-            fetchUrl = 'https://ai.hackclub.com/chat/completions'
-            fetchHeaders = { 'Content-Type': 'application/json' }
-            fetchModel = model || 'mistral-7b-instruct'
-        } else {
-            const apiKey = localStorage.getItem('openai_api_key')
-            const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-            const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-            fetchUrl = `${baseUrl}/chat/completions`
-            fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
-            fetchModel = model || defaultModel
-        }
+        const apiKey = localStorage.getItem('openai_api_key')
+        const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+        const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+        const fetchUrl = `${baseUrl}/chat/completions`
+        const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+        const fetchModel = model || defaultModel
 
         const systemPrompt = `You are a conversation partner. The user wants to practice a conversation.
         Scenario: "${conversationState.scenario}".
@@ -69,7 +63,8 @@ const Conversation = () => {
             ...newTranscript.map(m => ({
                 role: m.speaker === 'user' ? 'user' : 'assistant',
                 content: m.text
-            }))
+            })),
+            ...((attachedImage || (attachedImages && attachedImages.length)) ? [{ role: 'user', content: [ { type: 'text', text: '(Attached image context)' }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } })) ) ] }] : [])
         ]
         
         const response = await fetch(fetchUrl, {
@@ -159,15 +154,18 @@ const Conversation = () => {
       ) : !conversationState ? (
         <section id="conversation-setup-section">
           <h2><i className="fas fa-cogs"></i> Conversation Setup</h2>
-          <form id="conversation-setup-form" onSubmit={handleSetupSubmit}>
-            <div>
-              <label htmlFor="conversation-scenario"><i className="fas fa-bullhorn"></i> Conversation Scenario:</label>
-              <textarea id="conversation-scenario" rows="4" value={scenario} onChange={e => setScenario(e.target.value)} required placeholder="e.g., Practicing a job interview for a software engineer role." />
-            </div>
-            <div>
-              <label htmlFor="conversation-model"><i className="fas fa-robot"></i> AI Model (optional):</label>
-              <input type="text" id="conversation-model" value={model} onChange={e => setModel(e.target.value)} placeholder="gpt-4.1" />
-            </div>
+            <form id="conversation-setup-form" onSubmit={handleSetupSubmit}>
+              <div>
+                <label htmlFor="conversation-scenario"><i className="fas fa-bullhorn"></i> Conversation Scenario:</label>
+                <textarea id="conversation-scenario" rows="4" value={scenario} onChange={e => setScenario(e.target.value)} required placeholder="e.g., Practicing a job interview for a software engineer role." />
+              </div>
+              <div>
+                <ImagePicker id="conversation-image" label="Attach scene image (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
+              </div>
+              <div>
+                <label htmlFor="conversation-model"><i className="fas fa-robot"></i> AI Model (optional):</label>
+                <input type="text" id="conversation-model" value={model} onChange={e => setModel(e.target.value)} placeholder="gpt-4.1" />
+              </div>
             <button type="submit"><i className="fas fa-play-circle"></i> Start Conversation</button>
           </form>
         </section>

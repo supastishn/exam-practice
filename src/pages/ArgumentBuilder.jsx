@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
+import ImagePicker from '../components/ImagePicker'
 
 const ArgumentBuilder = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -14,6 +15,8 @@ const ArgumentBuilder = () => {
   const [userInput, setUserInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
   
   useEffect(() => {
     // Check for API provider config
@@ -35,21 +38,12 @@ const ArgumentBuilder = () => {
     const initialTranscript = [{ speaker: 'system', text: `Let's build an argument for the claim: "${claim}". You can ask me to brainstorm supporting points, find counterarguments, or help structure the essay.` }]
 
     try {
-        const provider = localStorage.getItem('api_provider') || 'custom'
-        let fetchUrl, fetchHeaders, fetchModel
-
-        if (provider === 'hackclub') {
-            fetchUrl = 'https://ai.hackclub.com/chat/completions'
-            fetchHeaders = { 'Content-Type': 'application/json' }
-            fetchModel = model || 'mistral-7b-instruct'
-        } else {
-            const apiKey = localStorage.getItem('openai_api_key')
-            const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-            const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-            fetchUrl = `${baseUrl}/chat/completions`
-            fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
-            fetchModel = model || defaultModel
-        }
+        const apiKey = localStorage.getItem('openai_api_key')
+        const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+        const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+        const fetchUrl = `${baseUrl}/chat/completions`
+        const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+        const fetchModel = model || defaultModel
 
         const systemPrompt = `You are an expert in rhetoric and argumentation. You are helping a user build a strong argument for their claim: "${claim}". Your goal is to help them brainstorm, find evidence, anticipate counterarguments, and structure their thoughts. Start by providing a few initial supporting points for their claim to get them started.`
         
@@ -109,7 +103,8 @@ const ArgumentBuilder = () => {
             ...newTranscript.filter(m => m.speaker !== 'system').map(m => ({
                 role: m.speaker === 'user' ? 'user' : 'assistant',
                 content: m.text
-            }))
+            })),
+            ...((attachedImage || (attachedImages && attachedImages.length)) ? [{ role: 'user', content: [ { type: 'text', text: '(Attached image context)' }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } })) ) ] }] : [])
         ]
         
         const response = await fetch(fetchUrl, {
@@ -148,15 +143,18 @@ const ArgumentBuilder = () => {
       ) : !argumentState ? (
         <section>
           <h2><i className="fas fa-sitemap"></i> Argument Builder Setup</h2>
-          <form onSubmit={handleSetupSubmit}>
-            <div>
-              <label htmlFor="argument-claim"><i className="fas fa-bullhorn"></i> Your Thesis / Main Claim:</label>
-              <textarea id="argument-claim" rows="3" value={claim} onChange={e => setClaim(e.target.value)} required placeholder="e.g., 'All public high school students should be required to complete a semester of financial literacy.'" />
-            </div>
-            <div>
-              <label htmlFor="argument-model"><i className="fas fa-robot"></i> AI Model (optional):</label>
-              <input type="text" id="argument-model" value={model} onChange={e => setModel(e.target.value)} placeholder="gpt-4.1" />
-            </div>
+            <form onSubmit={handleSetupSubmit}>
+              <div>
+                <label htmlFor="argument-claim"><i className="fas fa-bullhorn"></i> Your Thesis / Main Claim:</label>
+                <textarea id="argument-claim" rows="3" value={claim} onChange={e => setClaim(e.target.value)} required placeholder="e.g., 'All public high school students should be required to complete a semester of financial literacy.'" />
+              </div>
+              <div>
+                <ImagePicker id="argument-image" label="Attach supporting image (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
+              </div>
+              <div>
+                <label htmlFor="argument-model"><i className="fas fa-robot"></i> AI Model (optional):</label>
+                <input type="text" id="argument-model" value={model} onChange={e => setModel(e.target.value)} placeholder="gpt-4.1" />
+              </div>
             <button type="submit" disabled={isLoading}>
               {isLoading ? <><i className="fas fa-spinner fa-spin"></i> Starting...</> : <><i className="fas fa-play-circle"></i> Build Argument</>}
             </button>

@@ -23,18 +23,18 @@ describe('Home Component', () => {
     expect(screen.getByText('Open Debate Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Fallacy Detector')).toBeInTheDocument()
     // Removed Translation and Resume tools
-    expect(screen.getByText('Open Ethical Dilemma Tool')).toBeInTheDocument()
+    // Ethical Dilemma removed for focused exam practice
     expect(screen.getByText('Open Historical Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Conversation Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Argument Builder')).toBeInTheDocument()
     // Removed Tone Adjuster and Negotiation tools
     expect(screen.getByText('Open Question Tutor')).toBeInTheDocument()
     // Removed Flashcard and Satire tools
-    expect(screen.getAllByText('Open Summarizer Tool')).toHaveLength(2) // Legal and Scientific Paper
-    expect(screen.getByText('Open Designer Tool')).toBeInTheDocument()
+    // Legal and Scientific Paper summarizers removed
+    // Designer Tool (Hypothesis) removed
     expect(screen.getByText('Open Assistant')).toBeInTheDocument()
     // Removed Bug Report Formatter and Algorithm Explainer
-    expect(screen.getByText('Open Builder')).toBeInTheDocument()
+    // Regex Builder removed
     expect(screen.getByText('Configure Settings')).toBeInTheDocument()
   })
 })

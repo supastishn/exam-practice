@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
+import ImagePicker from '../components/ImagePicker'
 
 const Debate = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -10,6 +11,8 @@ const Debate = () => {
 
   const [debateState, setDebateState] = useState(null) // { topic, userStance, aiStance, transcript, currentTurn }
   const [userArgument, setUserArgument] = useState('')
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [analysis, setAnalysis] = useState('')
 
@@ -49,33 +52,23 @@ const Debate = () => {
 
     // API call for AI argument
     try {
-      const provider = localStorage.getItem('api_provider') || 'custom'
-      let fetchUrl, fetchHeaders, fetchModel
-
-      if (provider === 'hackclub') {
-        fetchUrl = 'https://ai.hackclub.com/chat/completions'
-        fetchHeaders = { 'Content-Type': 'application/json' }
-        fetchModel = model || 'mistral-7b-instruct'
-      } else { // 'custom'
-        const apiKey = localStorage.getItem('openai_api_key')
-        const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-        const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-        
-        fetchUrl = `${baseUrl}/chat/completions`
-        fetchHeaders = {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        }
-        fetchModel = model || defaultModel
-      }
+      const apiKey = localStorage.getItem('openai_api_key')
+      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+      const fetchUrl = `${baseUrl}/chat/completions`
+      const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+      const fetchModel = model || defaultModel
       const systemPrompt = `You are a skilled debater. The topic is: "${debateState.topic}". Your stance is: ${debateState.aiStance}. Counter the user's arguments and introduce your own points.`
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        ...newTranscript.filter(m => m.speaker !== 'system').map(m => ({
-          role: m.speaker === 'user' ? 'user' : 'assistant',
-          content: m.text
-        }))
-      ]
+      const baseMsgs = newTranscript.filter(m => m.speaker !== 'system').map(m => ({
+        role: m.speaker === 'user' ? 'user' : 'assistant',
+        content: m.text
+      }))
+      if ((attachedImage || (attachedImages && attachedImages.length)) && baseMsgs.length > 0 && baseMsgs[baseMsgs.length - 1].role === 'user') {
+        const lastText = baseMsgs[baseMsgs.length - 1].content
+        const imgs = (attachedImages && attachedImages.length) ? attachedImages : [attachedImage]
+        baseMsgs[baseMsgs.length - 1] = { role: 'user', content: [ { type: 'text', text: lastText }, ...imgs.map(url => ({ type: 'image_url', image_url: { url } })) ] }
+      }
+      const messages = [ { role: 'system', content: systemPrompt }, ...baseMsgs ]
 
       const response = await fetch(fetchUrl, {
         method: 'POST',
@@ -167,11 +160,14 @@ const Debate = () => {
       ) : !debateState ? (
         <section id="debate-setup-section">
           <h2><i className="fas fa-cogs"></i> Debate Setup</h2>
-          <form id="debate-setup-form" onSubmit={handleSetupSubmit}>
-            <div>
-              <label htmlFor="debate-topic"><i className="fas fa-bullhorn"></i> Debate Topic:</label>
-              <input type="text" id="debate-topic" value={topic} onChange={e => setTopic(e.target.value)} required placeholder="e.g., 'Social media does more good than harm.'" />
-            </div>
+            <form id="debate-setup-form" onSubmit={handleSetupSubmit}>
+              <div>
+                <label htmlFor="debate-topic"><i className="fas fa-bullhorn"></i> Debate Topic:</label>
+                <input type="text" id="debate-topic" value={topic} onChange={e => setTopic(e.target.value)} required placeholder="e.g., 'Social media does more good than harm.'" />
+              </div>
+              <div>
+                <ImagePicker id="debate-image" label="Attach image evidence (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
+              </div>
             <div>
               <label htmlFor="user-stance"><i className="fas fa-hand-paper"></i> Your Stance:</label>
               <select id="user-stance" value={userStance} onChange={e => setUserStance(e.target.value)}>
