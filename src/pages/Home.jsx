@@ -62,24 +62,7 @@ const Home = () => (
           Open Fallacy Detector
         </Link>
       </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-language"></i>
-        </div>
-        <h3>Translation Practice Tool</h3>
-        <Link to="/translation-practice" className="portal-button">
-          Open Translation Tool
-        </Link>
-      </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-briefcase"></i>
-        </div>
-        <h3>Resume &amp; Cover Letter Assistant</h3>
-        <Link to="/resume-assistant" className="portal-button">
-          Open Resume Assistant
-        </Link>
-      </div>
+      
       <div className="portal-card">
         <div className="portal-icon">
           <i className="fas fa-balance-scale"></i>
@@ -116,24 +99,8 @@ const Home = () => (
           Open Argument Builder
         </Link>
       </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-sliders-h"></i>
-        </div>
-        <h3>Tone Adjuster</h3>
-        <Link to="/tone-adjuster" className="portal-button">
-          Open Tone Adjuster
-        </Link>
-      </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-handshake"></i>
-        </div>
-        <h3>Negotiation Practice</h3>
-        <Link to="/negotiation-practice" className="portal-button">
-          Open Negotiation Tool
-        </Link>
-      </div>
+      
+      
       <div className="portal-card">
         <div className="portal-icon">
           <i className="fas fa-question-circle"></i>
@@ -143,24 +110,8 @@ const Home = () => (
           Open Question Tutor
         </Link>
       </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-layer-group"></i>
-        </div>
-        <h3>Flashcard Converter</h3>
-        <Link to="/flashcard-converter" className="portal-button">
-          Open Flashcard Tool
-        </Link>
-      </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-theater-masks"></i>
-        </div>
-        <h3>Satire &amp; Parody Generator</h3>
-        <Link to="/satire-generator" className="portal-button">
-          Open Satire Tool
-        </Link>
-      </div>
+      
+      
       <div className="portal-card">
         <div className="portal-icon">
           <i className="fas fa-file-contract"></i>
@@ -206,15 +157,7 @@ const Home = () => (
           Open Assistant
         </Link>
       </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-bug"></i>
-        </div>
-        <h3>Bug Report Formatter</h3>
-        <Link to="/bug-report-formatter" className="portal-button">
-          Open Formatter
-        </Link>
-      </div>
+      
       <div className="portal-card">
         <div className="portal-icon">
           <i className="fas fa-code"></i>
@@ -224,15 +167,7 @@ const Home = () => (
           Open Builder
         </Link>
       </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-project-diagram"></i>
-        </div>
-        <h3>Algorithm Explainer</h3>
-        <Link to="/algorithm-explainer" className="portal-button">
-          Open Explainer
-        </Link>
-      </div>
+      
       <div className="portal-card">
         <div className="portal-icon">
           <i className="fas fa-cog"></i>

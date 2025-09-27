@@ -22,23 +22,19 @@ describe('Home Component', () => {
     expect(screen.getByText('Open Writing Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Debate Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Fallacy Detector')).toBeInTheDocument()
-    expect(screen.getByText('Open Translation Tool')).toBeInTheDocument()
-    expect(screen.getByText('Open Resume Assistant')).toBeInTheDocument()
+    // Removed Translation and Resume tools
     expect(screen.getByText('Open Ethical Dilemma Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Historical Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Conversation Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Argument Builder')).toBeInTheDocument()
-    expect(screen.getByText('Open Tone Adjuster')).toBeInTheDocument()
-    expect(screen.getByText('Open Negotiation Tool')).toBeInTheDocument()
+    // Removed Tone Adjuster and Negotiation tools
     expect(screen.getByText('Open Question Tutor')).toBeInTheDocument()
-    expect(screen.getByText('Open Flashcard Tool')).toBeInTheDocument()
-    expect(screen.getByText('Open Satire Tool')).toBeInTheDocument()
+    // Removed Flashcard and Satire tools
     expect(screen.getAllByText('Open Summarizer Tool')).toHaveLength(2) // Legal and Scientific Paper
     expect(screen.getByText('Open Designer Tool')).toBeInTheDocument()
     expect(screen.getByText('Open Assistant')).toBeInTheDocument()
-    expect(screen.getByText('Open Formatter')).toBeInTheDocument()
+    // Removed Bug Report Formatter and Algorithm Explainer
     expect(screen.getByText('Open Builder')).toBeInTheDocument()
-    expect(screen.getByText('Open Explainer')).toBeInTheDocument()
     expect(screen.getByText('Configure Settings')).toBeInTheDocument()
   })
 })
