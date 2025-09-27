@@ -527,6 +527,63 @@ body.dark-mode .modal-content {
     color: #333;
 }
 
+/* Image picker styles */
+.image-picker-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.image-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.image-thumb {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--input-bg);
+    box-shadow: var(--shadow);
+}
+
+.image-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-thumb .remove-thumb {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+}
+
+.image-thumb .remove-thumb:hover {
+    background: rgba(0,0,0,0.7);
+}
+
 /* Exercise output styling */
 #exercise-output {
     margin: 1.5rem 0;
