@@ -126,21 +126,46 @@ Provide final output as HTML following the system instructions.`
     }
   }
 
-  const handleCheckAnswers = () => {
+  const handleCheckAnswers = async () => {
     const output = document.getElementById('exercise-output');
     if (!output) return;
     const oldSummary = output.querySelector('.score-summary');
     if (oldSummary) oldSummary.remove();
 
-    const questions = output.querySelectorAll('.question-container');
+    const questions = Array.from(output.querySelectorAll('.question-container'));
     let correctCount = 0;
     let gradableCount = 0;
     const wrongQuestions = [];
 
+    // collect AI-judger tasks to evaluate via API
+    const aiTasks = [];
+
+    // First pass: handle MC, blanks, radios; collect ai tasks
     questions.forEach((question) => {
       const solutionDiv = question.querySelector('.solution');
       if (!solutionDiv) return;
 
+      const aiTextarea = question.querySelector('.ai-judger-textarea');
+      if (aiTextarea) {
+        // For AI-judger questions, don't reveal the solution yet.
+        // Add or reset a feedback placeholder
+        let feedbackEl = question.querySelector('.ai-judger-feedback');
+        if (!feedbackEl) {
+          feedbackEl = document.createElement('div');
+          feedbackEl.className = 'ai-judger-feedback';
+          feedbackEl.textContent = 'Evaluating answer...';
+          feedbackEl.style.marginTop = '0.75rem';
+          question.appendChild(feedbackEl);
+        } else {
+          feedbackEl.textContent = 'Evaluating answer...';
+        }
+
+        const criteria = solutionDiv ? solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '') : '';
+        aiTasks.push({ question, userAnswer: aiTextarea.value.trim(), criteria, feedbackEl });
+        return;
+      }
+
+      // Non-AI-judger: reveal solution and grade locally
       solutionDiv.style.display = 'block';
       solutionDiv.classList.add('solution-box');
 
@@ -182,12 +207,94 @@ Provide final output as HTML following the system instructions.`
           question.classList.add('feedback-correct');
         } else {
           question.classList.add('feedback-incorrect');
-          const idx = Array.from(questions).indexOf(question) + 1;
+          const idx = questions.indexOf(question) + 1;
           wrongQuestions.push(idx);
         }
       }
     });
 
+    // Evaluate AI-judger answers via API
+    if (aiTasks.length > 0) {
+      const apiKey = localStorage.getItem('openai_api_key');
+      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1';
+      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini';
+      const fetchUrl = `${baseUrl}/chat/completions`;
+      const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` };
+      const fetchModel = model || defaultModel;
+
+      for (const task of aiTasks) {
+        try {
+          const systemPrompt = `You are an assistant that judges whether a student's free-text answer meets provided model criteria. Respond only with JSON in this exact form:
+{"verdict":"Correct|Partially Correct|Incorrect","explanation":"one-sentence justification"}.
+Do not include extra text.`;
+
+          const userPrompt = `Model criteria: ${task.criteria}
+Student answer: ${task.userAnswer}
+
+Return JSON as instructed.`;
+
+          const resp = await fetch(fetchUrl, {
+            method: 'POST',
+            headers: fetchHeaders,
+            body: JSON.stringify({
+              model: fetchModel,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt }
+              ],
+              max_tokens: 200,
+              temperature: 0.0,
+            }),
+          });
+
+          const data = await resp.json();
+          let content = '';
+          if (resp.ok && data.choices && data.choices[0] && data.choices[0].message) {
+            content = (data.choices[0].message.content || '').trim();
+          } else {
+            content = (data.error?.message || JSON.stringify(data)).toString();
+          }
+
+          // Try to parse JSON from the model output
+          let parsed = null;
+          try {
+            parsed = JSON.parse(content);
+          } catch (err) {
+            // Attempt to extract JSON substring
+            const m = content.match(/\{[\s\S]*\}/);
+            if (m) {
+              try { parsed = JSON.parse(m[0]); } catch (e) { parsed = null; }
+            }
+          }
+
+          const verdictRaw = parsed?.verdict || content.split('\n')[0] || 'Unable to judge';
+          const explanation = parsed?.explanation || parsed?.explain || content;
+
+          // Update UI
+          task.feedbackEl.textContent = `${verdictRaw}: ${explanation}`;
+          task.question.classList.remove('feedback-correct', 'feedback-incorrect', 'feedback-partially-correct');
+
+          if (typeof verdictRaw === 'string' && verdictRaw.toLowerCase().startsWith('correct')) {
+            task.question.classList.add('feedback-correct');
+            correctCount++;
+            gradableCount++;
+          } else if (typeof verdictRaw === 'string' && verdictRaw.toLowerCase().includes('part')) {
+            task.question.classList.add('feedback-partially-correct');
+            gradableCount++;
+          } else {
+            task.question.classList.add('feedback-incorrect');
+            gradableCount++;
+            const idx = questions.indexOf(task.question) + 1;
+            wrongQuestions.push(idx);
+          }
+        } catch (err) {
+          console.error('AI judger error:', err);
+          task.feedbackEl.textContent = 'Error evaluating answer.';
+        }
+      }
+    }
+
+    // Summary
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'score-summary solution-box';
     if (gradableCount > 0) {
@@ -261,7 +368,7 @@ Provide final output as HTML following the system instructions.`
             <form id="exercise-form" onSubmit={handleFormSubmit}>
               <div>
                 <label htmlFor="topic"><i className="fas fa-comment-alt"></i> Topic / Prompt:</label>
-                <input id="topic" name="topic" required placeholder="Enter topic or prompt for the passage" value={topic} onChange={e => setTopic(e.target.value)} />
+                <input id="topic" name="topic" className="standard-input" required placeholder="Enter topic or prompt for the passage" value={topic} onChange={e => setTopic(e.target.value)} />
               </div>
               <div>
                 <ImagePicker id="reading-image" label="Attach related image (optional)" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
