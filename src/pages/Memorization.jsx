@@ -7,10 +7,18 @@ const Memorization = () => {
   // Form state
   const [memorizationText, setMemorizationText] = useState('')
   const [targetLanguage, setTargetLanguage] = useState('English')
-  const [exerciseType, setExerciseType] = useState('mixed')
+  const [exerciseType, setExerciseType] = useState(['mixed'])
   const [mcOptionsCount, setMcOptionsCount] = useState(4)
   const [model, setModel] = useState('')
   const [difficulty, setDifficulty] = useState('intermediate')
+
+  const toggleExerciseType = (type) => {
+    setExerciseType(prev => {
+      if (!Array.isArray(prev)) prev = [prev]
+      if (prev.includes(type)) return prev.filter(t => t !== type)
+      return [...prev, type]
+    })
+  }
   const [exerciseCount, setExerciseCount] = useState(5)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -63,6 +71,7 @@ For 'mixed', use a combination of the above types.
 Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">Correct Answer: ...</div>. For questions about specific parts of the text, you can also include the relevant quote in the solution.`
 
     const hasImages = (attachedImages && attachedImages.length) || attachedImage
+    const exerciseTypesStr = Array.isArray(exerciseType) ? exerciseType.join(', ') : exerciseType
     const userPrompt = `Please generate a quiz to help me memorize the following text.
 **Text to Memorize:**
 ---
@@ -70,11 +79,11 @@ ${memorizationText}
 ---
 
 **Quiz Specifications:**
-- Question Style: ${exerciseType}
+- Question Style: ${exerciseTypesStr}
 - Language for Quiz Questions: ${targetLanguage}
 - Difficulty: ${difficulty}
 - Number of questions: ${exerciseCount}
-${exerciseType === 'multiple-choice' || exerciseType === 'mixed' ? `- Number of choices for Multiple Choice questions: ${mcOptionsCount}` : ''}
+${(Array.isArray(exerciseType) ? (exerciseType.includes('multiple-choice') || exerciseType.includes('mixed')) : (exerciseType === 'multiple-choice' || exerciseType === 'mixed')) ? `- Number of choices for Multiple Choice questions: ${mcOptionsCount}` : ''}
  ${hasImages ? '- Note: One or more images are attached that may contain relevant text or diagrams.' : ''}
  Generate the HTML now.`
 
@@ -268,14 +277,14 @@ ${exerciseType === 'multiple-choice' || exerciseType === 'mixed' ? `- Number of 
                 <input type="text" id="target-language" name="target-language" value={targetLanguage} onChange={e => setTargetLanguage(e.target.value)} />
               </div>
               <div>
-                <label htmlFor="exercise-type"><i className="fas fa-list-ul"></i> Quiz Question Style:</label>
-                <select id="exercise-type" name="exercise-type" value={exerciseType} onChange={e => setExerciseType(e.target.value)}>
-                  <option value="mixed">Mixed (Recommended)</option>
-                  <option value="multiple-choice">Multiple Choice</option>
-                  <option value="fill-in-the-blank">Fill-in-the-Blank</option>
-                  <option value="ai-judger">AI Judger (Free Response)</option>
-                  <option value="true-false">True/False</option>
-                </select>
+                <label><i className="fas fa-list-ul"></i> Quiz Question Styles (pick one or more):</label>
+                <div className="checkbox-group">
+                  <label><input type="checkbox" value="mixed" checked={exerciseType.includes('mixed')} onChange={() => toggleExerciseType('mixed')} /> Mixed (Recommended)</label>
+                  <label><input type="checkbox" value="multiple-choice" checked={exerciseType.includes('multiple-choice')} onChange={() => toggleExerciseType('multiple-choice')} /> Multiple Choice</label>
+                  <label><input type="checkbox" value="fill-in-the-blank" checked={exerciseType.includes('fill-in-the-blank')} onChange={() => toggleExerciseType('fill-in-the-blank')} /> Fill-in-the-Blank</label>
+                  <label><input type="checkbox" value="ai-judger" checked={exerciseType.includes('ai-judger')} onChange={() => toggleExerciseType('ai-judger')} /> AI Judger (Free Response)</label>
+                  <label><input type="checkbox" value="true-false" checked={exerciseType.includes('true-false')} onChange={() => toggleExerciseType('true-false')} /> True/False</label>
+                </div>
               </div>
               {exerciseType === 'multiple-choice' && (
                 <div id="mc-options-count-group">

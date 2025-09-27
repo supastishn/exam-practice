@@ -7,10 +7,18 @@ const English = () => {
   // Form state
   const [prompt, setPrompt] = useState('')
   const [targetLanguage, setTargetLanguage] = useState('English')
-  const [exerciseType, setExerciseType] = useState('multiple-choice')
+  const [exerciseType, setExerciseType] = useState(['multiple-choice'])
   const [mcOptionsCount, setMcOptionsCount] = useState(4)
   const [model, setModel] = useState('')
   const [difficulty, setDifficulty] = useState('intermediate')
+
+  const toggleExerciseType = (type) => {
+    setExerciseType(prev => {
+      if (!Array.isArray(prev)) prev = [prev]
+      if (prev.includes(type)) return prev.filter(t => t !== type)
+      return [...prev, type]
+    })
+  }
   const [exerciseCount, setExerciseCount] = useState(5)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -56,13 +64,14 @@ Crucially, include the correct answer within a hidden div: <div class="solution"
 For multiple-choice, the solution should state the correct option label (e.g., "C"). For fill-in-the-blank, it should state the word(s) that go in the blank. For AI judger, the solution should provide model criteria for a good answer.`
 
     const hasImages = (attachedImages && attachedImages.length) || attachedImage
+    const exerciseTypesStr = Array.isArray(exerciseType) ? exerciseType.join(', ') : exerciseType
     const userPrompt = `Please generate an English exercise with the following specifications:
-- Exercise Type: ${exerciseType}
+- Exercise Type: ${exerciseTypesStr}
 - Topic/Instructions: ${prompt}
 - Target Language: ${targetLanguage}
 - Difficulty: ${difficulty}
 - Number of questions: ${exerciseCount}
-${exerciseType === 'multiple-choice' ? `- Number of choices per question: ${mcOptionsCount}` : ''}
+${(Array.isArray(exerciseType) ? exerciseType.includes('multiple-choice') : exerciseType === 'multiple-choice') ? `- Number of choices per question: ${mcOptionsCount}` : ''}
  ${hasImages ? '- Note: One or more images are attached and may include context from a picture or screenshot.' : ''}
  Generate the HTML now.`
 
@@ -256,12 +265,12 @@ ${exerciseType === 'multiple-choice' ? `- Number of choices per question: ${mcOp
                 <input type="text" id="target-language" name="target-language" value={targetLanguage} onChange={e => setTargetLanguage(e.target.value)} />
               </div>
               <div>
-                <label htmlFor="exercise-type"><i className="fas fa-list-ul"></i> Exercise Type:</label>
-                <select id="exercise-type" name="exercise-type" value={exerciseType} onChange={e => setExerciseType(e.target.value)}>
-                  <option value="multiple-choice">Multiple Choice</option>
-                  <option value="fill-in-the-blank">Fill-in-the-Blank</option>
-                  <option value="ai-judger">AI Judger (Sentence/Text)</option>
-                </select>
+                <label><i className="fas fa-list-ul"></i> Exercise Types (pick one or more):</label>
+                <div className="checkbox-group">
+                  <label><input type="checkbox" value="multiple-choice" checked={exerciseType.includes('multiple-choice')} onChange={() => toggleExerciseType('multiple-choice')} /> Multiple Choice</label>
+                  <label><input type="checkbox" value="fill-in-the-blank" checked={exerciseType.includes('fill-in-the-blank')} onChange={() => toggleExerciseType('fill-in-the-blank')} /> Fill-in-the-Blank</label>
+                  <label><input type="checkbox" value="ai-judger" checked={exerciseType.includes('ai-judger')} onChange={() => toggleExerciseType('ai-judger')} /> AI Judger (Sentence/Text)</label>
+                </div>
               </div>
               {exerciseType === 'multiple-choice' && (
                 <div id="mc-options-count-group">
