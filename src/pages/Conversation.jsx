@@ -58,13 +58,15 @@ const Conversation = () => {
         Scenario: "${conversationState.scenario}".
         Your role is to respond naturally within this scenario. Keep your responses conversational and concise. Stay in character.`
         
+        const imageMessages = (attachedImage || (attachedImages && attachedImages.length)) ? [{ role: 'user', content: [ { type: 'text', text: '(Attached image context)' }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } })) ) ] }] : []
+
         const messages = [
             { role: 'system', content: systemPrompt },
             ...newTranscript.map(m => ({
                 role: m.speaker === 'user' ? 'user' : 'assistant',
                 content: m.text
             })),
-            ...((attachedImage || (attachedImages && attachedImages.length)) ? [{ role: 'user', content: [ { type: 'text', text: '(Attached image context)' }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } })) ) ] }] : [])
+            ...imageMessages
         ]
         
         const response = await fetch(fetchUrl, {
@@ -185,7 +187,7 @@ const Conversation = () => {
               <textarea id="user-input" rows="3" placeholder="Type your message..." value={userInput} onChange={e => setUserInput(e.target.value)} disabled={isLoading} />
               <div className="form-buttons" style={{ marginTop: '1rem' }}>
                 <button type="submit" id="submit-message-button" disabled={isLoading}>
-                  {isLoading ? <><i className="fas fa-spinner fa-spin"></i> Thinking...</> : <><i className="fas fa-paper-plane"></i> Send</>}
+                  {isLoading ? <span><i className="fas fa-spinner fa-spin"></i> Thinking...</span> : <span><i className="fas fa-paper-plane"></i> Send</span>}
                 </button>
                 <button type="button" id="end-conversation-button" onClick={handleEndConversation} disabled={isLoading}><i className="fas fa-flag-checkered"></i> End & Get Feedback</button>
               </div>
