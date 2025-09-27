@@ -234,6 +234,7 @@ Generate the HTML now.`
 Do not include extra text.`;
 
           const userPrompt = `Model criteria: ${task.criteria}
+${guidelines ? `Guidelines: ${guidelines}\n` : ''}
 Student answer: ${task.userAnswer}
 
 Return JSON as instructed.`;
