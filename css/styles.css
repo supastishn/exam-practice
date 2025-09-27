@@ -24,7 +24,7 @@
 
 body {
     font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-    line-height: 1.6;
+    line-height: 1.45;
     margin: 0;
     padding: 0;
     background-color: var(--secondary-color);
@@ -79,7 +79,7 @@ header h1 {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 1.2rem; /* Consistent padding */
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .generated-topic-box h3, .feedback-box h3, .diff-box h3 { /* Shared heading style for these boxes */
@@ -154,7 +154,7 @@ header h1 {
 
 /* Highlighted AI diff blocks for writing feedback */
 .highlight-block {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     padding: 1rem;
     background: #f8f9fa;
     border-left: 3px solid var(--primary-color);
@@ -313,15 +313,15 @@ body.dark-mode .explanation-section pre {
 
 
 main {
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem;
     max-width: 900px;
     margin: 0 auto;
 }
 
 section {
     background: var(--section-bg);
-    padding: 2rem;
-    margin-bottom: 2rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     transition: var(--transition);
@@ -331,7 +331,7 @@ section {
 h2 {
     color: var(--primary-color);
     margin-top: 0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     font-weight: 600;
     font-size: 1.5rem;
     letter-spacing: -0.5px;
@@ -352,7 +352,7 @@ textarea,
 select {
     width: 100%;
     padding: 0.8rem 1rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 0.6rem;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     background-color: var(--input-bg);
@@ -537,7 +537,7 @@ body.dark-mode .modal-content {
 
 .exercise-instruction {
     font-style: italic;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .exercise-stimulus {
@@ -578,7 +578,7 @@ body.dark-mode input.inline-blank {
 
 .question-container {
     padding: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     border: 1px solid #eee; /* Light border for each question block */
     border-radius: var(--border-radius);
 }
@@ -649,7 +649,7 @@ body.dark-mode .ai-feedback {
     width: 100%;
     padding: 0.8rem 1rem;
     margin-top: 0.5rem; /* Space between task description and textarea */
-    margin-bottom: 1rem; /* Space before next task or end of container */
+    margin-bottom: 0.6rem; /* Space before next task or end of container */
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     background-color: var(--input-bg);

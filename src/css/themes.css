@@ -276,3 +276,45 @@ body.dark-mode .feedback-analysis-section {
 body.dark-mode .feedback-analysis-section li {
     border-bottom-color: #3a3f50;
 }
+
+/* Dark-mode spacing overrides (reduce vertical rhythm to match light mode adjustments) */
+body.dark-mode main {
+    padding: 1.5rem 1rem;
+}
+
+body.dark-mode section {
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+body.dark-mode h2 {
+    margin-bottom: 1rem;
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="url"],
+body.dark-mode input[type="number"],
+body.dark-mode textarea,
+body.dark-mode select {
+    margin-bottom: 0.6rem;
+}
+
+body.dark-mode .generated-topic-box,
+body.dark-mode .feedback-box,
+body.dark-mode .diff-box,
+body.dark-mode .highlight-block {
+    margin-bottom: 1rem;
+}
+
+body.dark-mode .exercise-instruction {
+    margin-bottom: 0.5rem;
+}
+
+body.dark-mode .question-container {
+    margin-bottom: 0.5rem;
+}
+
+body.dark-mode .ai-judger-textarea {
+    margin-bottom: 0.6rem;
+}
