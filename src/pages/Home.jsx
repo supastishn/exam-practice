@@ -65,15 +65,6 @@ const Home = () => (
       
       <div className="portal-card">
         <div className="portal-icon">
-          <i className="fas fa-balance-scale"></i>
-        </div>
-        <h3>Ethical Dilemma Simulator</h3>
-        <Link to="/ethical-dilemma" className="portal-button">
-          Open Ethical Dilemma Tool
-        </Link>
-      </div>
-      <div className="portal-card">
-        <div className="portal-icon">
           <i className="fas fa-scroll"></i>
         </div>
         <h3>Historical "What If" Scenarios</h3>
@@ -112,42 +103,7 @@ const Home = () => (
       </div>
       
       
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-file-contract"></i>
-        </div>
-        <h3>Legal Document Summarizer</h3>
-        <Link to="/legal-summarizer" className="portal-button">
-          Open Summarizer Tool
-        </Link>
-      </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-flask"></i>
-        </div>
-        <h3>Hypothesis &amp; Experiment Designer</h3>
-        <Link to="/hypothesis-generator" className="portal-button">
-          Open Designer Tool
-        </Link>
-      </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-project-diagram"></i>
-        </div>
-        <h3>Decision-Making Matrix</h3>
-        <Link to="/decision-matrix" className="portal-button">
-          Open Matrix Tool
-        </Link>
-      </div>
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-book-open"></i>
-        </div>
-        <h3>Scientific Paper Summarizer</h3>
-        <Link to="/scientific-paper-summarizer" className="portal-button">
-          Open Summarizer Tool
-        </Link>
-      </div>
+      
       <div className="portal-card">
         <div className="portal-icon">
           <i className="fas fa-square-root-alt"></i>
@@ -158,15 +114,7 @@ const Home = () => (
         </Link>
       </div>
       
-      <div className="portal-card">
-        <div className="portal-icon">
-          <i className="fas fa-code"></i>
-        </div>
-        <h3>Regex Builder</h3>
-        <Link to="/regex-builder" className="portal-button">
-          Open Builder
-        </Link>
-      </div>
+      
       
       <div className="portal-card">
         <div className="portal-icon">

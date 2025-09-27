@@ -9,17 +9,13 @@ import Writing from './pages/Writing'
 import Debate from './pages/Debate'
 import Settings from './pages/Settings'
 import FallacyDetector from './pages/FallacyDetector'
-import EthicalDilemma from './pages/EthicalDilemma'
 import HistoricalWhatIf from './pages/HistoricalWhatIf'
 import Conversation from './pages/Conversation'
 import ArgumentBuilder from './pages/ArgumentBuilder'
 import QuestionTutor from './pages/QuestionTutor'
-import LegalSummarizer from './pages/LegalSummarizer'
-import HypothesisGenerator from './pages/HypothesisGenerator'
-import ScientificPaperSummarizer from './pages/ScientificPaperSummarizer'
+// Removed non-essential tools for exam practice
 import MathProofAssistant from './pages/MathProofAssistant'
-import RegexBuilder from './pages/RegexBuilder'
-import DecisionMatrix from './pages/DecisionMatrix'
+// Removed non-essential tools for exam practice
 
 const App = () => (
   <Routes>
@@ -31,17 +27,14 @@ const App = () => (
       <Route path="writing" element={<Writing />} />
       <Route path="debate" element={<Debate />} />
       <Route path="fallacy-detector" element={<FallacyDetector />} />
-      <Route path="ethical-dilemma" element={<EthicalDilemma />} />
+      {/** removed Ethical Dilemma tool */}
       <Route path="historical-what-if" element={<HistoricalWhatIf />} />
       <Route path="conversation" element={<Conversation />} />
       <Route path="argument-builder" element={<ArgumentBuilder />} />
       <Route path="question-tutor" element={<QuestionTutor />} />
-      <Route path="legal-summarizer" element={<LegalSummarizer />} />
-      <Route path="hypothesis-generator" element={<HypothesisGenerator />} />
-      <Route path="scientific-paper-summarizer" element={<ScientificPaperSummarizer />} />
+      {/** removed Legal Summarizer, Hypothesis Generator, Scientific Paper Summarizer */}
       <Route path="math-proof-assistant" element={<MathProofAssistant />} />
-      <Route path="regex-builder" element={<RegexBuilder />} />
-      <Route path="decision-matrix" element={<DecisionMatrix />} />
+      {/** removed Regex Builder and Decision Matrix */}
       <Route path="settings" element={<Settings />} />
     </Route>
   </Routes>
