@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ImagePicker from '../components/ImagePicker'
 
 const English = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -16,6 +17,8 @@ const English = () => {
 
   const [exerciseContent, setExerciseContent] = useState(null)
   const [history, setHistory] = useState([])
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
 
   useEffect(() => {
     const provider = localStorage.getItem('api_provider') || 'custom'
@@ -34,25 +37,12 @@ const English = () => {
     setError(null)
     setExerciseContent(null)
 
-    const provider = localStorage.getItem('api_provider') || 'custom'
-    let fetchUrl, fetchHeaders, fetchModel
-
-    if (provider === 'hackclub') {
-      fetchUrl = 'https://ai.hackclub.com/chat/completions'
-      fetchHeaders = { 'Content-Type': 'application/json' }
-      fetchModel = model || 'mistral-7b-instruct'
-    } else { // 'custom'
-      const apiKey = localStorage.getItem('openai_api_key')
-      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-      
-      fetchUrl = `${baseUrl}/chat/completions`
-      fetchHeaders = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      }
-      fetchModel = model || defaultModel
-    }
+    const apiKey = localStorage.getItem('openai_api_key')
+    const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+    const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+    const fetchUrl = `${baseUrl}/chat/completions`
+    const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+    const fetchModel = model || defaultModel
 
     const systemPrompt = `You are an AI assistant that creates language learning exercises.
 Your output MUST be a single block of valid HTML, without any surrounding text, comments, or markdown like \`\`\`html.
@@ -65,6 +55,7 @@ For 'ai-judger', provide a textarea with class="ai-judger-textarea".
 Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">The correct answer is: ...</div>. This is vital for checking answers.
 For multiple-choice, the solution should state the correct option label (e.g., "C"). For fill-in-the-blank, it should state the word(s) that go in the blank. For AI judger, the solution should provide model criteria for a good answer.`
 
+    const hasImages = (attachedImages && attachedImages.length) || attachedImage
     const userPrompt = `Please generate an English exercise with the following specifications:
 - Exercise Type: ${exerciseType}
 - Topic/Instructions: ${prompt}
@@ -72,8 +63,8 @@ For multiple-choice, the solution should state the correct option label (e.g., "
 - Difficulty: ${difficulty}
 - Number of questions: ${exerciseCount}
 ${exerciseType === 'multiple-choice' ? `- Number of choices per question: ${mcOptionsCount}` : ''}
-
-Generate the HTML now.`
+ ${hasImages ? '- Note: One or more images are attached and may include context from a picture or screenshot.' : ''}
+ Generate the HTML now.`
 
     try {
       const response = await fetch(fetchUrl, {
@@ -83,7 +74,9 @@ Generate the HTML now.`
           model: fetchModel,
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
+            (attachedImage || (attachedImages && attachedImages.length))
+              ? { role: 'user', content: [ { type: 'text', text: userPrompt }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } }))) ] }
+              : { role: 'user', content: userPrompt }
           ],
           max_tokens: 2048,
           temperature: 0.7,
@@ -107,6 +100,7 @@ Generate the HTML now.`
         difficulty,
         timestamp: new Date().toISOString(),
         content: generatedContent,
+        image: (attachedImages && attachedImages.length) ? attachedImages[attachedImages.length - 1] : (attachedImage || null),
       }
       const updatedHistory = [newHistoryItem, ...history]
       setHistory(updatedHistory)
@@ -131,6 +125,7 @@ Generate the HTML now.`
     const questions = output.querySelectorAll('.question-container');
     let correctCount = 0;
     let gradableCount = 0;
+    const wrongQuestions = [];
 
     questions.forEach((question) => {
         const solutionDiv = question.querySelector('.solution');
@@ -177,6 +172,8 @@ Generate the HTML now.`
                 question.classList.add('feedback-correct');
             } else {
                 question.classList.add('feedback-incorrect');
+                const idx = Array.from(questions).indexOf(question) + 1;
+                wrongQuestions.push(idx);
             }
         }
     });
@@ -184,7 +181,8 @@ Generate the HTML now.`
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'score-summary solution-box';
     if (gradableCount > 0) {
-        summaryDiv.innerHTML = `<h3>Score: ${correctCount} / ${gradableCount} correct</h3>`;
+        const wrongText = wrongQuestions.length > 0 ? `<p>Incorrect questions: ${wrongQuestions.join(', ')}</p>` : `<p>All answers correct. Great job!</p>`;
+        summaryDiv.innerHTML = `<h3>Score: ${correctCount} / ${gradableCount} correct</h3>${wrongText}`;
     } else {
         summaryDiv.innerHTML = `<h3>Solutions Revealed</h3><p>This exercise type (e.g., AI Judger) is not automatically graded.</p>`;
     }
@@ -250,7 +248,9 @@ Generate the HTML now.`
                 <label htmlFor="prompt"><i className="fas fa-comment-alt"></i> Prompt / Instructions:</label>
                 <textarea id="prompt" name="prompt" rows="4" required placeholder="Describe the exercise you want to create..." value={prompt} onChange={e => setPrompt(e.target.value)}></textarea>
               </div>
-              {/* Image Upload Placeholder */}
+              <div>
+                <ImagePicker id="english-image" label="Attach related image (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
+              </div>
               <div>
                 <label htmlFor="target-language"><i className="fas fa-globe"></i> Target Language:</label>
                 <input type="text" id="target-language" name="target-language" value={targetLanguage} onChange={e => setTargetLanguage(e.target.value)} />

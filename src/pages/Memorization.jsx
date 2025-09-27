@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ImagePicker from '../components/ImagePicker'
 
 const Memorization = () => {
   const [isConfigured, setIsConfigured] = useState(false)
@@ -16,6 +17,8 @@ const Memorization = () => {
 
   const [quizContent, setQuizContent] = useState(null)
   const [history, setHistory] = useState([])
+  const [attachedImage, setAttachedImage] = useState(null)
+  const [attachedImages, setAttachedImages] = useState([])
 
   useEffect(() => {
     const provider = localStorage.getItem('api_provider') || 'custom'
@@ -40,25 +43,12 @@ const Memorization = () => {
       return
     }
 
-    const provider = localStorage.getItem('api_provider') || 'custom'
-    let fetchUrl, fetchHeaders, fetchModel
-
-    if (provider === 'hackclub') {
-      fetchUrl = 'https://ai.hackclub.com/chat/completions'
-      fetchHeaders = { 'Content-Type': 'application/json' }
-      fetchModel = model || 'mistral-7b-instruct'
-    } else { // 'custom'
-      const apiKey = localStorage.getItem('openai_api_key')
-      const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
-      const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-3.5-turbo'
-      
-      fetchUrl = `${baseUrl}/chat/completions`
-      fetchHeaders = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      }
-      fetchModel = model || defaultModel
-    }
+    const apiKey = localStorage.getItem('openai_api_key')
+    const baseUrl = localStorage.getItem('openai_base_url') || 'https://api.openai.com/v1'
+    const defaultModel = localStorage.getItem('openai_default_model') || 'gpt-4o-mini'
+    const fetchUrl = `${baseUrl}/chat/completions`
+    const fetchHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
+    const fetchModel = model || defaultModel
 
     const systemPrompt = `You are an AI assistant that creates quizzes to help users memorize a given text.
 Your output MUST be a single block of valid HTML, without any surrounding text, comments, or markdown like \`\`\`html.
@@ -72,6 +62,7 @@ For 'true-false', provide radio buttons for "True" and "False".
 For 'mixed', use a combination of the above types.
 Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">Correct Answer: ...</div>. For questions about specific parts of the text, you can also include the relevant quote in the solution.`
 
+    const hasImages = (attachedImages && attachedImages.length) || attachedImage
     const userPrompt = `Please generate a quiz to help me memorize the following text.
 **Text to Memorize:**
 ---
@@ -84,8 +75,9 @@ ${memorizationText}
 - Difficulty: ${difficulty}
 - Number of questions: ${exerciseCount}
 ${exerciseType === 'multiple-choice' || exerciseType === 'mixed' ? `- Number of choices for Multiple Choice questions: ${mcOptionsCount}` : ''}
+ ${hasImages ? '- Note: One or more images are attached that may contain relevant text or diagrams.' : ''}
+ Generate the HTML now.`
 
-Generate the HTML now.`
 
     try {
       const response = await fetch(fetchUrl, {
@@ -95,7 +87,9 @@ Generate the HTML now.`
           model: fetchModel,
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
+            (attachedImage || (attachedImages && attachedImages.length))
+              ? { role: 'user', content: [ { type: 'text', text: userPrompt }, ...((attachedImages && attachedImages.length ? attachedImages : [attachedImage]).map(url => ({ type: 'image_url', image_url: { url } }))) ] }
+              : { role: 'user', content: userPrompt }
           ],
           max_tokens: 2048,
           temperature: 0.6,
@@ -118,6 +112,7 @@ Generate the HTML now.`
         difficulty,
         timestamp: new Date().toISOString(),
         content: generatedContent,
+        image: (attachedImages && attachedImages.length) ? attachedImages[attachedImages.length - 1] : (attachedImage || null),
       }
       const updatedHistory = [newHistoryItem, ...history]
       setHistory(updatedHistory)
@@ -142,6 +137,7 @@ Generate the HTML now.`
     const questions = output.querySelectorAll('.question-container');
     let correctCount = 0;
     let gradableCount = 0;
+    const wrongQuestions = [];
 
     questions.forEach((question) => {
         const solutionDiv = question.querySelector('.solution');
@@ -188,6 +184,8 @@ Generate the HTML now.`
                 question.classList.add('feedback-correct');
             } else {
                 question.classList.add('feedback-incorrect');
+                const idx = Array.from(questions).indexOf(question) + 1;
+                wrongQuestions.push(idx);
             }
         }
     });
@@ -195,7 +193,8 @@ Generate the HTML now.`
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'score-summary solution-box';
     if (gradableCount > 0) {
-        summaryDiv.innerHTML = `<h3>Score: ${correctCount} / ${gradableCount} correct</h3>`;
+        const wrongText = wrongQuestions.length > 0 ? `<p>Incorrect questions: ${wrongQuestions.join(', ')}</p>` : `<p>All answers correct. Great job!</p>`;
+        summaryDiv.innerHTML = `<h3>Score: ${correctCount} / ${gradableCount} correct</h3>${wrongText}`;
     } else {
         summaryDiv.innerHTML = `<h3>Solutions Revealed</h3><p>This exercise type (e.g., AI Judger) is not automatically graded.</p>`;
     }
@@ -261,7 +260,9 @@ Generate the HTML now.`
                 <label htmlFor="memorization-text"><i className="fas fa-file-alt"></i> Text to Memorize:</label>
                 <textarea id="memorization-text" name="memorization-text" rows="6" placeholder="Paste or type the text you want to memorize here..." value={memorizationText} onChange={e => setMemorizationText(e.target.value)}></textarea>
               </div>
-              {/* Image Upload Placeholder */}
+              <div>
+                <ImagePicker id="memorization-image" label="Attach related image (optional) or use camera" onChange={setAttachedImage} onChangeAll={setAttachedImages} />
+              </div>
               <div>
                 <label htmlFor="target-language"><i className="fas fa-globe"></i> Language for Quiz Questions:</label>
                 <input type="text" id="target-language" name="target-language" value={targetLanguage} onChange={e => setTargetLanguage(e.target.value)} />
