@@ -44,6 +44,17 @@ const Home = () => (
           Open Writing Tool
         </Link>
       </div>
+
+      <div className="portal-card">
+        <div className="portal-icon">
+          <i className="fas fa-book-open"></i>
+        </div>
+        <h3>Reading Comprehension</h3>
+        <Link to="/reading-comprehension" className="portal-button">
+          Open Reading Tool
+        </Link>
+      </div>
+
       <div className="portal-card">
         <div className="portal-icon">
           <i className="fas fa-gavel"></i>

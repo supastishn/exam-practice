@@ -6,6 +6,7 @@ import English from './pages/English'
 import Math from './pages/Math'
 import Memorization from './pages/Memorization'
 import Writing from './pages/Writing'
+import ReadingComprehension from './pages/ReadingComprehension'
 import Debate from './pages/Debate'
 import Settings from './pages/Settings'
 import FallacyDetector from './pages/FallacyDetector'
@@ -25,6 +26,7 @@ const App = () => (
       <Route path="math" element={<Math />} />
       <Route path="memorization" element={<Memorization />} />
       <Route path="writing" element={<Writing />} />
+      <Route path="reading-comprehension" element={<ReadingComprehension />} />
       <Route path="debate" element={<Debate />} />
       <Route path="fallacy-detector" element={<FallacyDetector />} />
       {/** removed Ethical Dilemma tool */}
