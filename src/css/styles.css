@@ -1262,3 +1262,44 @@ body.dark-mode .highlighted-fallacy::after {
 body.dark-mode .tab-button.active {
     border-bottom-color: var(--primary-color);
 }
+
+/* Multiple-choice inline-option styles and persistent selected state */
+.mc-option {
+    display: inline-block;
+    margin: 0.35rem 0.5rem; /* vertical spacing between options */
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.mc-option:hover {
+    background: var(--primary-hover);
+    color: var(--light-text);
+    transform: translateY(-1px);
+}
+
+/* Persistently selected state: stays dark until another option is chosen */
+.mc-option-selected,
+.mc-option[aria-pressed="true"] {
+    background: var(--primary-color);
+    color: var(--light-text);
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Ensure native radio/checkbox options inside question containers are spaced vertically */
+.question-container input[type="radio"],
+.question-container input[type="checkbox"] {
+    display: block;
+    margin: 0.4rem 0;
+}
+
+/* Stack labels inside question containers for better click targets */
+.question-container label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
