@@ -412,7 +412,7 @@ Return JSON as instructed.`;
                 </select>
               </div>
               <button type="submit" disabled={isLoading}>
-                {isLoading ? <><i className="fas fa-spinner fa-spin"></i> Generating...</> : <><i className="fas fa-magic"></i> Generate Passage & Questions</>}
+                {isLoading ? <span><i className="fas fa-spinner fa-spin"></i> Generating...</span> : <span><i className="fas fa-magic"></i> Generate Passage & Questions</span>}
               </button>
             </form>
             {isLoading && <div style={{ marginTop: '1rem' }}><i className="fas fa-spinner fa-spin"></i> Generating, please wait...</div>}
