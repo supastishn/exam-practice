@@ -39,6 +39,30 @@ const English = () => {
     }
   }, [])
 
+  // Make inline MC buttons selectable (acts like radios)
+  useEffect(() => {
+    if (!document) return;
+    const output = document.getElementById('exercise-output');
+    if (!output) return;
+    const handler = (e) => {
+      const btn = e.target.closest && e.target.closest('.mc-option');
+      if (!btn) return;
+      const question = btn.closest('.question-container') || output;
+      const buttons = question.querySelectorAll('.mc-option');
+      buttons.forEach(b => {
+        if (b === btn) {
+          b.classList.add('mc-option-selected');
+          b.setAttribute('aria-pressed', 'true');
+        } else {
+          b.classList.remove('mc-option-selected');
+          b.removeAttribute('aria-pressed');
+        }
+      });
+    };
+    output.addEventListener('click', handler);
+    return () => output.removeEventListener('click', handler);
+  }, [exerciseContent])
+
   const handleFormSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
@@ -57,10 +81,12 @@ Your output MUST be a single block of valid HTML, without any surrounding text, 
 The HTML should be structured with divs for each question.
 Each question should be in a div with class="question-container".
 Inside, include the question text.
-For 'multiple-choice', provide radio buttons for options. The name attribute for radio inputs for a given question should be the same, e.g., "q1", "q2".
+For 'multiple-choice', DO NOT use radio inputs. Instead provide inline option buttons with the class "mc-option" and a data-choice attribute indicating the option label, for example:
+<button class="mc-option" data-choice="A">A) Option text</button><button class="mc-option" data-choice="B">B) Option text</button>
+Buttons should be inline (no vertical newlines between them) and should include the option label in data-choice (A, B, C, ...).
 For 'fill-in-the-blank', use an <input type="text" class="inline-blank"> for the blank.
 For 'ai-judger', provide a textarea with class="ai-judger-textarea".
-Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">The correct answer is: ...</div>. This is vital for checking answers.
+Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">The correct answer is: C</div>. This is vital for checking answers.
 For multiple-choice, the solution should state the correct option label (e.g., "C"). For fill-in-the-blank, it should state the word(s) that go in the blank. For AI judger, the solution should provide model criteria for a good answer.`
 
     const hasImages = (attachedImages && attachedImages.length) || attachedImage
@@ -147,16 +173,29 @@ ${(Array.isArray(exerciseType) ? exerciseType.includes('multiple-choice') : exer
         let isGradable = false;
         let isCorrect = false;
 
-        // Handle Multiple Choice & True/False
-        const radios = question.querySelectorAll('input[type="radio"]');
-        if (radios.length > 0) {
+        // Handle Multiple Choice buttons or legacy radio inputs
+        const mcButtons = question.querySelectorAll('.mc-option');
+        if (mcButtons.length > 0) {
             isGradable = true;
-            const selectedRadio = question.querySelector('input[type="radio"]:checked');
-            const userAnswer = selectedRadio ? selectedRadio.value : '';
+            const selectedBtn = question.querySelector('.mc-option-selected');
+            const userAnswer = selectedBtn ? (selectedBtn.getAttribute('data-choice') || selectedBtn.textContent.trim().charAt(0)) : '';
             const solutionText = solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '');
-            
+
             if (userAnswer && solutionText.toLowerCase().startsWith(userAnswer.toLowerCase())) {
                 isCorrect = true;
+            }
+        } else {
+            // Fallback for radio inputs
+            const radios = question.querySelectorAll('input[type="radio"]');
+            if (radios.length > 0) {
+                isGradable = true;
+                const selectedRadio = question.querySelector('input[type="radio"]:checked');
+                const userAnswer = selectedRadio ? selectedRadio.value : '';
+                const solutionText = solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '');
+                
+                if (userAnswer && solutionText.toLowerCase().startsWith(userAnswer.toLowerCase())) {
+                    isCorrect = true;
+                }
             }
         }
 
@@ -219,6 +258,13 @@ ${(Array.isArray(exerciseType) ? exerciseType.includes('multiple-choice') : exer
           }
 
           question.classList.remove('feedback-correct', 'feedback-incorrect');
+
+          // Reset selected MC buttons if present
+          const mcButtons = question.querySelectorAll('.mc-option');
+          mcButtons.forEach(b => {
+            b.classList.remove('mc-option-selected');
+            b.removeAttribute('aria-pressed');
+          });
 
           const inputs = question.querySelectorAll('input, textarea');
           inputs.forEach(input => {

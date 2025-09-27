@@ -39,6 +39,29 @@ const Memorization = () => {
     }
   }, [])
 
+  // Delegated click handler so mc-option buttons behave like single-select options
+  useEffect(() => {
+    const output = document.getElementById('exercise-output');
+    if (!output) return;
+    const handler = (e) => {
+      const btn = e.target.closest && e.target.closest('.mc-option');
+      if (!btn) return;
+      const question = btn.closest('.question-container') || output;
+      const buttons = question.querySelectorAll('.mc-option');
+      buttons.forEach(b => {
+        if (b === btn) {
+          b.classList.add('mc-option-selected');
+          b.setAttribute('aria-pressed', 'true');
+        } else {
+          b.classList.remove('mc-option-selected');
+          b.removeAttribute('aria-pressed');
+        }
+      });
+    };
+    output.addEventListener('click', handler);
+    return () => output.removeEventListener('click', handler);
+  }, [quizContent])
+
   const handleFormSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
@@ -63,12 +86,14 @@ Your output MUST be a single block of valid HTML, without any surrounding text, 
 The HTML should be structured with divs for each question.
 Each question should be in a div with class="question-container".
 The questions should test recall and understanding of the provided text.
-For 'multiple-choice', provide radio buttons for options.
+For 'multiple-choice', DO NOT use radio inputs. Instead provide inline option buttons with the class "mc-option" and a data-choice attribute indicating the option label, for example:
+<button class="mc-option" data-choice="A">A) Option text</button><button class="mc-option" data-choice="B">B) Option text</button>
+Buttons should be inline (no vertical newlines between them) and should include the option label in data-choice (A, B, C, ...).
 For 'fill-in-the-blank', use an <input type="text" class="inline-blank">.
 For 'ai-judger', provide a textarea with class="ai-judger-textarea" for a free response.
-For 'true-false', provide radio buttons for "True" and "False".
+For 'true-false', provide inline buttons or radio fallbacks for "True" and "False".
 For 'mixed', use a combination of the above types.
-Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">Correct Answer: ...</div>. For questions about specific parts of the text, you can also include the relevant quote in the solution.`
+Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">Correct Answer: A</div>. For questions about specific parts of the text, you can also include the relevant quote in the solution.`
 
     const hasImages = (attachedImages && attachedImages.length) || attachedImage
     const exerciseTypesStr = Array.isArray(exerciseType) ? exerciseType.join(', ') : exerciseType
@@ -159,16 +184,28 @@ ${(Array.isArray(exerciseType) ? (exerciseType.includes('multiple-choice') || ex
         let isGradable = false;
         let isCorrect = false;
 
-        // Handle Multiple Choice & True/False
-        const radios = question.querySelectorAll('input[type="radio"]');
-        if (radios.length > 0) {
+        // Handle Multiple Choice buttons or legacy radio inputs
+        const mcButtons = question.querySelectorAll('.mc-option');
+        if (mcButtons.length > 0) {
             isGradable = true;
-            const selectedRadio = question.querySelector('input[type="radio"]:checked');
-            const userAnswer = selectedRadio ? selectedRadio.value : '';
+            const selectedBtn = question.querySelector('.mc-option-selected');
+            const userAnswer = selectedBtn ? (selectedBtn.getAttribute('data-choice') || selectedBtn.textContent.trim().charAt(0)) : '';
             const solutionText = solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '');
-            
+
             if (userAnswer && solutionText.toLowerCase().startsWith(userAnswer.toLowerCase())) {
                 isCorrect = true;
+            }
+        } else {
+            const radios = question.querySelectorAll('input[type="radio"]');
+            if (radios.length > 0) {
+                isGradable = true;
+                const selectedRadio = question.querySelector('input[type="radio"]:checked');
+                const userAnswer = selectedRadio ? selectedRadio.value : '';
+                const solutionText = solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '');
+                
+                if (userAnswer && solutionText.toLowerCase().startsWith(userAnswer.toLowerCase())) {
+                    isCorrect = true;
+                }
             }
         }
 
@@ -231,6 +268,13 @@ ${(Array.isArray(exerciseType) ? (exerciseType.includes('multiple-choice') || ex
           }
 
           question.classList.remove('feedback-correct', 'feedback-incorrect');
+
+          // Reset MC buttons if present
+          const mcButtons = question.querySelectorAll('.mc-option');
+          mcButtons.forEach(b => {
+            b.classList.remove('mc-option-selected');
+            b.removeAttribute('aria-pressed');
+          });
 
           const inputs = question.querySelectorAll('input, textarea');
           inputs.forEach(input => {

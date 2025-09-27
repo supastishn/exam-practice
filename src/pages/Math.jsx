@@ -39,6 +39,29 @@ const Math = () => {
     }
   }, [])
 
+  // Enable MC option buttons to behave like radio buttons
+  useEffect(() => {
+    const output = document.getElementById('exercise-output');
+    if (!output) return;
+    const handler = (e) => {
+      const btn = e.target.closest && e.target.closest('.mc-option');
+      if (!btn) return;
+      const question = btn.closest('.question-container') || output;
+      const buttons = question.querySelectorAll('.mc-option');
+      buttons.forEach(b => {
+        if (b === btn) {
+          b.classList.add('mc-option-selected');
+          b.setAttribute('aria-pressed', 'true');
+        } else {
+          b.classList.remove('mc-option-selected');
+          b.removeAttribute('aria-pressed');
+        }
+      });
+    };
+    output.addEventListener('click', handler);
+    return () => output.removeEventListener('click', handler);
+  }, [exerciseContent])
+
   const handleFormSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
@@ -57,10 +80,12 @@ Your output MUST be a single block of valid HTML, without any surrounding text, 
 The HTML should be structured with divs for each question.
 Each question should be in a div with class="question-container".
 Inside, include the question text (which can be a word problem).
-For 'multiple-choice', provide radio buttons for options. The name attribute for radio inputs for a given question should be the same, e.g., "q1", "q2".
+For 'multiple-choice', DO NOT use radio inputs. Instead provide inline option buttons with the class "mc-option" and a data-choice attribute indicating the option label, for example:
+<button class="mc-option" data-choice="A">A) Option text</button><button class="mc-option" data-choice="B">B) Option text</button>
+Buttons should be inline (no vertical newlines between them) and should include the option label in data-choice (A, B, C, ...).
 For 'fill-in-the-blank', use an <input type="text" class="inline-blank"> for the blank.
 For 'ai-judger', provide a textarea with class="ai-judger-textarea" for the student to write their explanation.
-Crucially, include the correct answer AND a brief explanation of the solution within a hidden div: <div class="solution" style="display:none;">Correct Answer: ... Explanation: ...</div>. This is vital for checking answers.
+Crucially, include the correct answer AND a brief explanation of the solution within a hidden div: <div class="solution" style="display:none;">Correct Answer: C Explanation: ...</div>. This is vital for checking answers.
 For multiple-choice, the solution should state the correct option label (e.g., "C"). For fill-in-the-blank, it should state the numerical answer. For AI judger, the solution should provide model criteria for a good explanation.`
 
     const hasImages = (attachedImages && attachedImages.length) || attachedImage
@@ -147,16 +172,28 @@ ${(Array.isArray(exerciseType) ? exerciseType.includes('multiple-choice') : exer
         let isGradable = false;
         let isCorrect = false;
 
-        // Handle Multiple Choice & True/False
-        const radios = question.querySelectorAll('input[type="radio"]');
-        if (radios.length > 0) {
+        // Handle Multiple Choice buttons or legacy radio inputs
+        const mcButtons = question.querySelectorAll('.mc-option');
+        if (mcButtons.length > 0) {
             isGradable = true;
-            const selectedRadio = question.querySelector('input[type="radio"]:checked');
-            const userAnswer = selectedRadio ? selectedRadio.value : '';
+            const selectedBtn = question.querySelector('.mc-option-selected');
+            const userAnswer = selectedBtn ? (selectedBtn.getAttribute('data-choice') || selectedBtn.textContent.trim().charAt(0)) : '';
             const solutionText = solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '');
-            
+
             if (userAnswer && solutionText.toLowerCase().startsWith(userAnswer.toLowerCase())) {
                 isCorrect = true;
+            }
+        } else {
+            const radios = question.querySelectorAll('input[type="radio"]');
+            if (radios.length > 0) {
+                isGradable = true;
+                const selectedRadio = question.querySelector('input[type="radio"]:checked');
+                const userAnswer = selectedRadio ? selectedRadio.value : '';
+                const solutionText = solutionDiv.textContent.split(':').pop().trim().replace(/["'.]/g, '');
+                
+                if (userAnswer && solutionText.toLowerCase().startsWith(userAnswer.toLowerCase())) {
+                    isCorrect = true;
+                }
             }
         }
 
