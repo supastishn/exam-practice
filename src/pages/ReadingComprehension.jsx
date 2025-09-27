@@ -80,7 +80,8 @@ Buttons must be inline (no vertical newlines between them).
 For short-answer or open response use <textarea class="ai-judger-textarea"></textarea>.
 For fill-in-the-blank use <input type="text" class="inline-blank">.
 Include the correct answer(s) and brief explanations inside a hidden div: <div class="solution" style="display:none;">Answer: B; Explanation: ...</div>.
-The solution should be machine-parseable: for MC use the letter (e.g., B).`
+The solution should be machine-parseable: for MC use the letter (e.g., B).
+All questions must be answerable directly from the passage text: do not ask questions that require outside knowledge or speculative inference beyond what is explicitly stated or clearly implied by the passage. Ensure each question's correct answer is supported by explicit wording or an unambiguous inference from the passage.`
 
     const hasImages = (attachedImages && attachedImages.length) || attachedImage
     const qTypesStr = Array.isArray(questionTypes) ? questionTypes.join(', ') : questionTypes
