@@ -72,26 +72,28 @@ const ReadingComprehension = () => {
     const fetchModel = model || defaultModel
 
     const systemPrompt = `You are an AI assistant that creates reading comprehension passages and related questions.
-Your output MUST be a single block of valid HTML, without any surrounding text, comments, or markdown.
-Structure the output with a main passage in a div with class="passage" and subsequent questions each in a div with class="question-container".
-For multiple-choice questions DO NOT use radio inputs. Instead provide inline option buttons with class "mc-option" and a data-choice attribute (A, B, C, ...), e.g.
+Your output MUST be a single block of valid HTML, without any surrounding text, comments, or markdown like \`\`\`html.
+The HTML should be structured with a main passage in a div with class="passage" and subsequent questions each in a div with class="question-container".
+Each question should include the question text.
+For 'multiple-choice', DO NOT use radio inputs. Instead provide inline option buttons with the class "mc-option" and a data-choice attribute indicating the option label, for example:
 <button class="mc-option" data-choice="A">A) Option text</button><button class="mc-option" data-choice="B">B) Option text</button>
-Buttons must be inline (no vertical newlines between them).
-For short-answer or open response use <textarea class="ai-judger-textarea"></textarea>.
-For fill-in-the-blank use <input type="text" class="inline-blank">.
-Include the correct answer(s) and brief explanations inside a hidden div: <div class="solution" style="display:none;">Answer: B; Explanation: ...</div>.
-The solution should be machine-parseable: for MC use the letter (e.g., B).
+Buttons should be inline (no vertical newlines between them) and should include the option label in data-choice (A, B, C, ...).
+For 'fill-in-the-blank', use an <input type="text" class="inline-blank"> for the blank.
+For 'ai-judger', provide a textarea with class="ai-judger-textarea".
+Crucially, include the correct answer within a hidden div: <div class="solution" style="display:none;">The correct answer is: C</div>. This is vital for checking answers.
+For multiple-choice, the solution should state the correct option label (e.g., "C"). For fill-in-the-blank, it should state the word(s) that go in the blank. For AI judger, the solution should provide model criteria for a good answer.
 All questions must be answerable directly from the passage text: do not ask questions that require outside knowledge or speculative inference beyond what is explicitly stated or clearly implied by the passage. Ensure each question's correct answer is supported by explicit wording or an unambiguous inference from the passage.`
 
     const hasImages = (attachedImages && attachedImages.length) || attachedImage
     const qTypesStr = Array.isArray(questionTypes) ? questionTypes.join(', ') : questionTypes
-    const userPrompt = `Generate a reading passage and ${questionCount} comprehension questions about the following topic: ${topic}
+    const userPrompt = `Please generate a reading comprehension passage and ${questionCount} questions with the following specifications:
+- Topic/Instructions: ${topic}
 - Passage length: ${passageLength}
-- Question types to include: ${qTypesStr}
+- Question Types: ${qTypesStr}
 - Difficulty: ${difficulty}
-- Number of choices per MC question: ${mcOptionsCount}
-${hasImages ? '- Images attached may be relevant.' : ''}
-Provide final output as HTML following the system instructions.`
+- Number of choices per multiple-choice question: ${mcOptionsCount}
+${hasImages ? '- Note: One or more images are attached and may include context from a picture or screenshot.' : ''}
+Generate the HTML now.`
 
     try {
       const response = await fetch(fetchUrl, {
